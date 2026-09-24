@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Event {
+  id         String      @id @default(cuid())
+  name       String
+  location   String
+  startTime  DateTime
+  endTime    DateTime
+  saleStart  DateTime
+  saleEnd    DateTime
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  zones      Zone[]
+  phases     SalePhase[]
+}
+
+model Zone {
+  id        String      @id @default(cuid())
+  eventId   String
+  event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name      String
+  capacity  Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  prices    ZonePrice[]
+}
+
+model SalePhase {
+  id        String      @id @default(cuid())
+  eventId   String
+  event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name      String
+  startTime DateTime
+  endTime   DateTime
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  prices    ZonePrice[]
+}
+
+model ZonePrice {
+  id           String    @id @default(cuid())
+  zoneId       String
+  zone         Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  phaseId      String
+  phase        SalePhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  floorPrice   Int
+  basePrice    Int
+  ceilingPrice Int
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([zoneId, phaseId])
+}
