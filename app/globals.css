@@ -2683,6 +2683,14 @@ th.num-col {
     border-color 0.15s ease,
     background 0.15s ease;
 }
+.night-opt:hover {
+  border-color: var(--line-strong);
+}
+.night-opt.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
 .night-opt.active .night-date {
   opacity: 0.9;
 }
@@ -2696,14 +2704,6 @@ th.num-col {
   opacity: 0.75;
 }
 
-/* fan site accents: one flat teal, the deep end of the logo gradient.
-   solid = picked / primary, outline = the rest */
-.site-fans {
-  --fan-teal: #0b9488;
-  --fan-teal-hover: #087f75;
-  --fan-teal-ink: #08766d;
-  --fan-teal-soft: #effbfa;
-}
 /* event cards read top-down: dark title and date, grey place, lighter grey meta */
 .site-fans .event-card .name,
 .site-fans .wide-card .name,
@@ -2717,80 +2717,4 @@ th.num-col {
 }
 .site-fans .event-card .meta {
   color: #969aa1;
-}
-
-/* plain links and nav text stay charcoal and only turn teal on hover */
-.site-fans .link-all,
-.site-fans .hero-suggest a {
-  color: var(--ink);
-  transition: color 0.15s ease;
-}
-.site-fans .link-all:hover,
-.site-fans .hero-suggest a:hover {
-  color: var(--fan-teal-ink);
-}
-.site-fans .hero-suggest svg {
-  color: var(--fan-teal);
-}
-
-/* the search button is the hero's call to action */
-.site-fans .ask-btn {
-  border-color: var(--fan-teal);
-  color: var(--fan-teal-ink);
-}
-.site-fans .ask-btn svg {
-  color: var(--fan-teal);
-}
-.site-fans .ask-btn:hover {
-  background: var(--fan-teal-soft);
-  border-color: var(--fan-teal);
-}
-.btn.auth-signup,
-.site-fans .btn.cta,
-.site-fans .hero-filters .chip.active,
-.site-fans .pill-row .chip.active,
-.site-fans .night-opt.active,
-.site-fans .st-opt.active,
-.site-fans .st-opt.active:hover {
-  background: var(--fan-teal);
-  border-color: var(--fan-teal);
-  color: #fff;
-}
-.btn.auth-signup:hover:not(:disabled),
-.site-fans .btn.cta:hover:not(:disabled) {
-  background: var(--fan-teal-hover);
-  border-color: var(--fan-teal-hover);
-}
-.btn.ghost.auth-login,
-.site-fans .hero-filters .chip,
-.site-fans .pill-row .chip,
-.site-fans .browse .filter-box,
-.site-fans .night-opt {
-  border-color: var(--fan-teal);
-  color: var(--fan-teal-ink);
-}
-.btn.ghost.auth-login {
-  background: #fff;
-}
-/* every outline control hovers the same way: soft teal fill, border unchanged */
-.btn.ghost.auth-login:hover:not(:disabled),
-.site-fans .hero-filters .chip:not(.active):hover,
-.site-fans .pill-row .chip:not(.active):hover,
-.site-fans .browse .filter-box:hover,
-.site-fans .browse .filter-box.open,
-.site-fans .night-opt:not(.active):hover {
-  background: var(--fan-teal-soft);
-  border-color: var(--fan-teal);
-}
-.site-fans .browse .filter-box svg {
-  color: var(--fan-teal-ink);
-}
-.site-fans .site-toggle {
-  border-color: var(--fan-teal);
-}
-.site-fans .st-opt {
-  color: var(--fan-teal-ink);
-}
-.site-fans .st-opt:not(.active):hover {
-  background: var(--fan-teal-soft);
 }

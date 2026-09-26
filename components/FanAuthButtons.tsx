@@ -15,7 +15,7 @@ export default function FanAuthButtons() {
       <button type="button" className="btn ghost auth-login" onClick={ping}>
         Đăng nhập
       </button>
-      <button type="button" className="btn auth-signup" onClick={ping}>
+      <button type="button" className="btn" onClick={ping}>
         Đăng ký
       </button>
       <div className={`toast ${notice ? "show" : ""}`}>Tài khoản người hâm mộ đang được phát triển.</div>
