@@ -2718,3 +2718,16 @@ th.num-col {
 .site-fans .event-card .meta {
   color: #969aa1;
 }
+
+/* the hero search button is the one teal action on the fan site */
+.site-fans .ask-btn {
+  border-color: #0b9488;
+  color: #08766d;
+}
+.site-fans .ask-btn svg {
+  color: #0b9488;
+}
+.site-fans .ask-btn:hover {
+  background: #effbfa;
+  border-color: #0b9488;
+}
