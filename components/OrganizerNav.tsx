@@ -7,7 +7,8 @@ import SiteToggle from "@/components/SiteToggle";
 
 export default function OrganizerNav() {
   const pathname = usePathname();
-  const onLanding = pathname === "/organizer";
+  // the static export uses trailing slashes ("/organizer/"), so compare without one
+  const onLanding = pathname.replace(/\/$/, "") === "/organizer";
 
   return (
     <header className="org-nav">
