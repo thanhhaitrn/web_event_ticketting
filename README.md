@@ -8,8 +8,9 @@ Stack: [Next.js](https://nextjs.org) (App Router, TypeScript) + [Prisma 7](https
 
 ```bash
 npm install
-npx prisma migrate dev   # tạo database SQLite tại prisma/dev.db
-node prisma/seed.mjs     # nạp dữ liệu mẫu (tuỳ chọn)
+echo DATABASE_URL=\"file:./prisma/dev.db\" > .env
+npm run db:migrate   # tạo database SQLite tại prisma/dev.db
+npm run db:seed      # nạp dữ liệu mẫu (tuỳ chọn)
 npm run dev
 ```
 

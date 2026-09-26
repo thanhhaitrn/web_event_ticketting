@@ -2,7 +2,15 @@ import pkg from "@prisma/client";
 const { PrismaClient } = pkg;
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
-const adapter = new PrismaBetterSqlite3({ url: "file:./prisma/dev.db" });
+process.loadEnvFile?.(".env");
+
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL is required");
+}
+
+const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
