@@ -527,9 +527,10 @@ body:has(.hero-full) {
   letter-spacing: -0.035em;
   margin: 0 0 32px;
 }
+/* one step heavier than regular, so the top line isn't too thin beside the bold one */
 .hero-title .thin {
   display: block;
-  font-weight: 400;
+  font-weight: 500;
 }
 .hero-title .bold {
   display: block;
