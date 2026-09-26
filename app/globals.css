@@ -23,9 +23,8 @@
 
   /* one type scale for both the fan and organizer sites */
   --fs-hero: clamp(34px, 4.8vw, 66px);
-  --fs-section: clamp(22px, 2vw, 28px);
-  /* the organizer landing is a marketing page with more air, so its sections read a step larger */
-  --fs-section-org: clamp(24px, 2.4vw, 32px);
+  /* section titles on both sites (32px desktop, 24px phone) */
+  --fs-section: clamp(24px, 2.4vw, 32px);
   --fs-lead: 16px;
   --fs-card-title: 18px;
   --fs-body: 15px;
@@ -1675,7 +1674,7 @@ td input:focus {
   text-align: center;
 }
 .block-head h2 {
-  font-size: var(--fs-section-org);
+  font-size: var(--fs-section);
   line-height: 1.25;
 }
 .block-head p {
@@ -1856,7 +1855,7 @@ td input:focus {
   align-items: center;
 }
 .org-cta h2 {
-  font-size: var(--fs-section-org);
+  font-size: var(--fs-section);
   line-height: 1.25;
   color: #26123a;
   text-wrap: nowrap;
