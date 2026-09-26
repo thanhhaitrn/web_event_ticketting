@@ -698,7 +698,7 @@ body:has(.hero-full) {
   font-size: 30px;
 }
 /* narrower screens leave less room beside the search bar, so the tiles shrink toward the edges */
-@media (max-width: 1400px) {
+@media (min-width: 1280px) and (max-width: 1400px) {
   .hero-art .tile {
     scale: 0.8;
   }
@@ -725,8 +725,62 @@ body:has(.hero-full) {
     right: 9.5%;
   }
 }
+/* below 1280px there's no room beside the search bar, so the tiles become a
+   tilted row under the filters instead of disappearing */
 @media (max-width: 1279px) {
+  .hero-full {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-inner {
+    padding-bottom: 36px;
+  }
   .hero-art {
+    position: static;
+    order: 1;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 0 16px 64px;
+  }
+  .hero-art .tile {
+    position: static;
+    flex: 0 0 auto;
+    width: 110px;
+    height: 118px;
+    font-size: 26px;
+  }
+  /* alternate the tilt so the row still looks scattered */
+  .hero-art .tile:nth-child(odd) {
+    transform: rotate(-5deg);
+  }
+  .hero-art .tile:nth-child(even) {
+    transform: rotate(4deg) translateY(10px);
+  }
+}
+/* six tiles on a tablet need a little less room each */
+@media (min-width: 761px) and (max-width: 900px) {
+  .hero-art {
+    gap: 12px;
+  }
+  .hero-art .tile {
+    width: 96px;
+    height: 104px;
+  }
+}
+@media (max-width: 760px) {
+  .hero-art {
+    gap: 10px;
+    padding-bottom: 44px;
+  }
+  .hero-art .tile {
+    width: 76px;
+    height: 82px;
+    font-size: 20px;
+    border-radius: 16px;
+  }
+  /* four tiles fit a phone without crowding */
+  .hero-art .tile:nth-child(n + 5) {
     display: none;
   }
 }
@@ -1341,9 +1395,10 @@ td input:focus {
   letter-spacing: -0.03em;
   margin: 0;
 }
+/* same weights as the fan hero: 500 over 800 */
 .org-hero h1 .thin {
   display: block;
-  font-weight: 400;
+  font-weight: 500;
 }
 .org-hero h1 .bold {
   display: block;
@@ -1424,27 +1479,37 @@ td input:focus {
   white-space: nowrap;
   z-index: 2;
 }
+/* the wrapper is the card's box; tags straddle its top and bottom edges,
+   clear of the header above and the last row below */
+.tour-wrap {
+  position: relative;
+  width: min(400px, 100%);
+  margin: 30px 0;
+}
+.tour-wrap .tour-card {
+  width: 100%;
+}
 .float-tag.f1 {
-  top: 6%;
-  left: -2%;
+  top: -30px;
+  left: -18px;
   transform: rotate(-5deg);
 }
 .float-tag.f2 {
-  top: 26%;
-  right: -4%;
+  top: -24px;
+  right: -22px;
   transform: rotate(4deg);
 }
 .float-tag.f3 {
-  bottom: 18%;
-  left: -6%;
+  bottom: -30px;
+  left: -26px;
   transform: rotate(3deg);
 }
 .float-tag.f4 {
-  bottom: 4%;
-  right: 2%;
+  bottom: -26px;
+  right: -14px;
   transform: rotate(-4deg);
 }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .org-hero-inner {
     grid-template-columns: 1fr;
     padding: 44px 16px 56px;
@@ -1453,13 +1518,40 @@ td input:focus {
   .org-hero p {
     max-width: none;
   }
+}
+/* on phones the card fills the width, so the tags tuck inside the screen edge */
+@media (max-width: 600px) {
+  .org-hero-visual {
+    min-height: 0;
+  }
+  .float-tag {
+    font-size: 12px;
+    padding: 7px 12px;
+  }
   .float-tag.f1,
   .float-tag.f3 {
-    left: 0;
+    left: -4px;
   }
   .float-tag.f2,
   .float-tag.f4 {
-    right: 0;
+    right: -4px;
+  }
+}
+
+/* organizer header on phones: brand on its own row, actions below (like the fan header) */
+@media (max-width: 760px) {
+  .org-nav-inner {
+    flex-wrap: wrap;
+    gap: 12px 10px;
+    padding: 12px 16px;
+  }
+  .org-nav-inner .nav-spacer {
+    display: none;
+  }
+}
+@media (max-width: 620px) {
+  .org-nav .org-btn.outline {
+    display: none;
   }
 }
 
