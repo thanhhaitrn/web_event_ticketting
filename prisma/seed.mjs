@@ -1,11 +1,16 @@
 import pkg from "@prisma/client";
 const { PrismaClient } = pkg;
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { seedProvinces } from "./seed-provinces.mjs";
+import { seedGenres } from "./seed-genres.mjs";
 
 const adapter = new PrismaBetterSqlite3({ url: "file:./prisma/dev.db" });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  await seedProvinces(prisma);
+  await seedGenres(prisma);
+
   await prisma.zonePrice.deleteMany();
   await prisma.salePhase.deleteMany();
   await prisma.zone.deleteMany();
@@ -14,12 +19,23 @@ async function main() {
   const event = await prisma.event.create({
     data: {
       name: "Concert Mùa Hè Rực Rỡ 2026",
-      location: "SVĐ Mỹ Đình, Hà Nội",
+      artist: "Nhiều nghệ sĩ",
+      genres: { connect: [{ slug: "pop" }] },
+      location: "SVĐ Mỹ Đình",
+      provinceCode: 1,
       startTime: new Date("2026-11-14T19:00:00+07:00"),
       endTime: new Date("2026-11-14T22:30:00+07:00"),
       saleStart: new Date("2026-09-20T09:00:00+07:00"),
       saleEnd: new Date("2026-11-13T23:59:00+07:00"),
+      shows: {
+        create: {
+          name: "Đêm 1",
+          startTime: new Date("2026-11-14T19:00:00+07:00"),
+          endTime: new Date("2026-11-14T22:30:00+07:00"),
+        },
+      },
     },
+    include: { shows: true },
   });
 
   const zoneDefs = [
@@ -30,7 +46,15 @@ async function main() {
   ];
   const zones = [];
   for (const z of zoneDefs) {
-    zones.push(await prisma.zone.create({ data: { eventId: event.id, ...z } }));
+    zones.push(
+      await prisma.zone.create({
+        data: {
+          eventId: event.id,
+          name: z.name,
+          quotas: { create: { showId: event.shows[0].id, capacity: z.capacity } },
+        },
+      }),
+    );
   }
 
   const phase1 = await prisma.salePhase.create({
@@ -41,7 +65,7 @@ async function main() {
       endTime: new Date("2026-09-25T23:59:00+07:00"),
     },
   });
-  const phase2 = await prisma.salePhase.create({
+  await prisma.salePhase.create({
     data: {
       eventId: event.id,
       name: "Đợt 2 — Chính thức",

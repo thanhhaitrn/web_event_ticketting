@@ -43,3 +43,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# event images uploaded through the app
+/uploads/

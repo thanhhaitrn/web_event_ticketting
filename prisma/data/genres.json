@@ -1,0 +1,214 @@
+{
+  "source": "https://musicbrainz.org/ws/2/genre/all (2206 genres pulled; curated to Bandsintown-style top-level groups plus Vietnamese genres)",
+  "fetchedAt": "2026-09-26",
+  "genres": [
+    {
+      "slug": "hip-hop",
+      "name": "Hip Hop",
+      "mbid": "52faa157-6bad-4d86-a0ab-d4dec7d2513c",
+      "mbName": "hip hop",
+      "featured": true,
+      "sortOrder": 0
+    },
+    {
+      "slug": "pop",
+      "name": "Pop",
+      "mbid": "911c7bbb-172d-4df8-9478-dbff4296e791",
+      "mbName": "pop",
+      "featured": true,
+      "sortOrder": 1
+    },
+    {
+      "slug": "r-and-b",
+      "name": "R&B",
+      "mbid": "31be54b2-4d0c-42df-aa44-c496c7b4c3c3",
+      "mbName": "r&b",
+      "featured": true,
+      "sortOrder": 2
+    },
+    {
+      "slug": "rock",
+      "name": "Rock",
+      "mbid": "0e3fc579-2d24-4f20-9dae-736e1ec78798",
+      "mbName": "rock",
+      "featured": true,
+      "sortOrder": 3
+    },
+    {
+      "slug": "metal",
+      "name": "Metal",
+      "mbid": "cc28f5aa-5e19-487c-88e1-e56b022f1fdd",
+      "mbName": "metal",
+      "featured": true,
+      "sortOrder": 4
+    },
+    {
+      "slug": "jazz",
+      "name": "Jazz",
+      "mbid": "a715278f-1580-409f-8078-4ffbc800e08b",
+      "mbName": "jazz",
+      "featured": true,
+      "sortOrder": 5
+    },
+    {
+      "slug": "v-pop",
+      "name": "V-Pop",
+      "mbid": "6efd9fb2-ef41-4c60-a2d6-f9d5cebf1d96",
+      "mbName": "v-pop",
+      "featured": true,
+      "sortOrder": 6
+    },
+    {
+      "slug": "bolero",
+      "name": "Bolero",
+      "mbid": "8d673e97-73c4-4738-a398-9c1f72bb34cc",
+      "mbName": "vietnamese bolero",
+      "featured": true,
+      "sortOrder": 7
+    },
+    {
+      "slug": "nhac-truyen-thong",
+      "name": "Nhạc truyền thống",
+      "mbid": "70cbaeb2-3309-42bf-a8a9-c2f0cba87d5a",
+      "mbName": "vietnamese classical",
+      "featured": false,
+      "sortOrder": 8
+    },
+    {
+      "slug": "k-pop",
+      "name": "K-Pop",
+      "mbid": "b74b3b6c-0700-46b1-aa55-1f2869a3bd1a",
+      "mbName": "k-pop",
+      "featured": true,
+      "sortOrder": 9
+    },
+    {
+      "slug": "ballad",
+      "name": "Ballad",
+      "mbid": "17b58d38-1110-4f5a-9412-b0314329622b",
+      "mbName": "ballad",
+      "featured": true,
+      "sortOrder": 10
+    },
+    {
+      "slug": "indie-pop",
+      "name": "Indie Pop",
+      "mbid": "f390be72-360b-41bb-a310-6a2e638779d2",
+      "mbName": "indie pop",
+      "featured": true,
+      "sortOrder": 11
+    },
+    {
+      "slug": "indie-rock",
+      "name": "Indie Rock",
+      "mbid": "ccd19ebf-052c-4afe-8ad9-fbb0a73f94a7",
+      "mbName": "indie rock",
+      "featured": false,
+      "sortOrder": 12
+    },
+    {
+      "slug": "alternative-rock",
+      "name": "Alternative Rock",
+      "mbid": "ceeaa283-5d7b-4202-8d1d-e25d116b2a18",
+      "mbName": "alternative rock",
+      "featured": false,
+      "sortOrder": 13
+    },
+    {
+      "slug": "punk",
+      "name": "Punk",
+      "mbid": "8cc9b280-230b-4a3a-b1e2-8acab0744dd3",
+      "mbName": "punk",
+      "featured": false,
+      "sortOrder": 14
+    },
+    {
+      "slug": "edm",
+      "name": "EDM",
+      "mbid": "3976e9ba-16d0-461d-b732-99408a0374ba",
+      "mbName": "edm",
+      "featured": true,
+      "sortOrder": 15
+    },
+    {
+      "slug": "electronic",
+      "name": "Electronic",
+      "mbid": "89255676-1f14-4dd8-bbad-fca839d6aff4",
+      "mbName": "electronic",
+      "featured": true,
+      "sortOrder": 16
+    },
+    {
+      "slug": "soul",
+      "name": "Soul",
+      "mbid": "1b5e7b16-336b-473e-a364-5120413a9827",
+      "mbName": "soul",
+      "featured": true,
+      "sortOrder": 17
+    },
+    {
+      "slug": "blues",
+      "name": "Blues",
+      "mbid": "fe12b346-a10e-450f-bf81-fa20894b5ea2",
+      "mbName": "blues",
+      "featured": true,
+      "sortOrder": 18
+    },
+    {
+      "slug": "reggae",
+      "name": "Reggae",
+      "mbid": "02b2f720-d06e-42ce-85c2-1ecd4191ffcb",
+      "mbName": "reggae",
+      "featured": false,
+      "sortOrder": 19
+    },
+    {
+      "slug": "folk",
+      "name": "Folk",
+      "mbid": "a91eed3a-fdd0-494e-ade0-95ea4117f6eb",
+      "mbName": "folk",
+      "featured": true,
+      "sortOrder": 20
+    },
+    {
+      "slug": "country",
+      "name": "Country",
+      "mbid": "5f665615-7fb3-49d8-b541-62a7b239edbe",
+      "mbName": "country",
+      "featured": false,
+      "sortOrder": 21
+    },
+    {
+      "slug": "latin",
+      "name": "Latin",
+      "mbid": "7369bb8b-3399-4180-8cb2-4e37e0e7b0e7",
+      "mbName": "latin",
+      "featured": false,
+      "sortOrder": 22
+    },
+    {
+      "slug": "classical",
+      "name": "Classical",
+      "mbid": "6ed4e4d1-9a97-4e2c-b8df-083754f154f4",
+      "mbName": "classical",
+      "featured": false,
+      "sortOrder": 23
+    },
+    {
+      "slug": "gospel",
+      "name": "Gospel",
+      "mbid": "08289b42-7e41-4987-9263-c28bb4c59da0",
+      "mbName": "gospel",
+      "featured": false,
+      "sortOrder": 24
+    },
+    {
+      "slug": "comedy",
+      "name": "Comedy",
+      "mbid": "119ecf69-7d87-4f63-bc83-2959a0111a55",
+      "mbName": "comedy",
+      "featured": false,
+      "sortOrder": 25
+    }
+  ]
+}

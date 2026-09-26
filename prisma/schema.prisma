@@ -9,7 +9,14 @@ datasource db {
 model Event {
   id         String      @id @default(cuid())
   name       String
+  artist     String?
+  // served by /api/uploads/[name]; null falls back to the gradient tile
+  imageUrl   String?
+  genres     Genre[]
+  // venue name only, e.g. "SVĐ Mỹ Đình"; the province carries the city
   location   String
+  provinceCode Int?
+  province   Province?   @relation(fields: [provinceCode], references: [code])
   startTime  DateTime
   endTime    DateTime
   saleStart  DateTime
@@ -18,6 +25,7 @@ model Event {
   updatedAt  DateTime    @updatedAt
   zones      Zone[]
   phases     SalePhase[]
+  shows      Show[]
 }
 
 model Zone {
@@ -25,10 +33,38 @@ model Zone {
   eventId   String
   event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
   name      String
-  capacity  Int
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   prices    ZonePrice[]
+  // how many tickets of this zone each night sells
+  quotas    ZoneQuota[]
+}
+
+// one night of a multi-night event; the event's start/end span its shows
+model Show {
+  id        String      @id @default(cuid())
+  eventId   String
+  event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name      String
+  startTime DateTime
+  endTime   DateTime
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  quotas    ZoneQuota[]
+}
+
+// tickets of one zone on sale for one night; a missing row means none
+model ZoneQuota {
+  id        String   @id @default(cuid())
+  zoneId    String
+  zone      Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  showId    String
+  show      Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  capacity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([zoneId, showId])
 }
 
 model SalePhase {
@@ -56,4 +92,21 @@ model ZonePrice {
   updatedAt    DateTime  @updatedAt
 
   @@unique([zoneId, phaseId])
+}
+
+model Province {
+  code     Int     @id
+  name     String  @unique
+  fullName String
+  events   Event[]
+}
+
+model Genre {
+  slug      String  @id
+  name      String  @unique
+  // MusicBrainz genre id, so the list can be re-synced against the source
+  mbid      String  @unique
+  featured  Boolean @default(false)
+  sortOrder Int
+  events    Event[]
 }
