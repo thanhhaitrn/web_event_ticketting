@@ -504,7 +504,7 @@ body:has(.hero-full) {
       #ffffff 100%
     );
   background-repeat: no-repeat;
-  background-size: 100% 600px;
+  background-size: 100% 576px;
   background-position: top center;
 }
 .hero-full {
@@ -514,7 +514,7 @@ body:has(.hero-full) {
 .hero-inner {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 40px 24px 100px;
+  padding: 40px 24px 76px;
   display: flex;
   flex-direction: column;
   align-items: center;
