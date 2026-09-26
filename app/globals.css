@@ -2734,3 +2734,32 @@ th.num-col {
   background: #effbfa;
   border-color: #0b9488;
 }
+
+/* =================== static demo (read-only build) =================== */
+/* a layout-neutral wrapper whose only job is `disabled` for everything inside */
+fieldset.demo-lock {
+  display: contents;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+fieldset.phase-actions.demo-lock {
+  display: flex;
+}
+/* locked fields keep their values readable instead of the browser's faded grey */
+.demo-lock:disabled :is(input, select, textarea) {
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+  opacity: 1;
+  cursor: default;
+}
+.demo-note {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6b4a00;
+  background: #fff6e0;
+  border: 1px solid #f1d9a0;
+  border-radius: 12px;
+  padding: 10px 14px;
+}

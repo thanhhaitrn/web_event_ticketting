@@ -8,6 +8,7 @@ import DateTimeRangeField from "@/components/DateTimeRangeField";
 import FilterMenu from "@/components/FilterMenu";
 import ImageField from "@/components/ImageField";
 import ConfirmModal from "@/components/ConfirmModal";
+import { STATIC_DEMO } from "@/lib/demo";
 
 type ZonePrice = {
   id: string;
@@ -200,10 +201,15 @@ export default function EventWorkspace({
           strokeWidth="2"
           aria-hidden="true"
         >
-          <path d="M15 5l-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M15 5l-7 7 7 7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
         Quay lại danh sách sự kiện
       </Link>
+      {STATIC_DEMO && <DemoNote />}
       <div className="page-head">
         <div>
           <h1>{event ? event.name : "Sự kiện mới"}</h1>
@@ -222,6 +228,7 @@ export default function EventWorkspace({
           <button
             type="button"
             className="btn danger"
+            disabled={STATIC_DEMO}
             onClick={() => {
               setDeleteError("");
               setConfirmDelete(true);
@@ -276,34 +283,40 @@ export default function EventWorkspace({
       </div>
 
       {tab === "event" && (
-        <EventTab
-          event={event}
-          setEvent={setEvent}
-          showToast={showToast}
-          provinces={provinces}
-          genres={genres}
-          shows={shows}
-          openShows={() => goTab("shows")}
-        />
+        <fieldset className="demo-lock" disabled={STATIC_DEMO}>
+          <EventTab
+            event={event}
+            setEvent={setEvent}
+            showToast={showToast}
+            provinces={provinces}
+            genres={genres}
+            shows={shows}
+            openShows={() => goTab("shows")}
+          />
+        </fieldset>
       )}
 
       {tab === "shows" && event && (
-        <ShowsTab
-          eventId={event.id}
-          shows={shows}
-          setShows={setShows}
-          showToast={showToast}
-        />
+        <fieldset className="demo-lock" disabled={STATIC_DEMO}>
+          <ShowsTab
+            eventId={event.id}
+            shows={shows}
+            setShows={setShows}
+            showToast={showToast}
+          />
+        </fieldset>
       )}
 
       {tab === "zones" && event && (
-        <ZonesTab
-          eventId={event.id}
-          zones={zones}
-          setZones={setZones}
-          shows={shows}
-          showToast={showToast}
-        />
+        <fieldset className="demo-lock" disabled={STATIC_DEMO}>
+          <ZonesTab
+            eventId={event.id}
+            zones={zones}
+            setZones={setZones}
+            shows={shows}
+            showToast={showToast}
+          />
+        </fieldset>
       )}
 
       {tab === "pricing" && event && (
@@ -597,8 +610,8 @@ function EventTab({
         </button>
         {isNew && (
           <span className="saved-note">
-            Sau khi tạo, bạn sẽ thêm được các đêm diễn khác, khu vực ghế và
-            giá vé.
+            Sau khi tạo, bạn sẽ thêm được các đêm diễn khác, khu vực ghế và giá
+            vé.
           </span>
         )}
       </div>
@@ -1086,6 +1099,7 @@ function PricingTab({
         <button
           className="btn small"
           style={{ marginTop: 10 }}
+          disabled={STATIC_DEMO}
           onClick={() => setShowNewPhase(true)}
         >
           + Tạo đợt mở bán
@@ -1124,7 +1138,7 @@ function PricingTab({
             onPick={setActivePhase}
           />
         )}
-        <div className="phase-actions">
+        <fieldset className="phase-actions demo-lock" disabled={STATIC_DEMO}>
           {phases.length > 0 && activePhase && (
             <button
               className="btn danger small"
@@ -1144,7 +1158,7 @@ function PricingTab({
           >
             + Thêm đợt
           </button>
-        </div>
+        </fieldset>
       </div>
 
       {removingPhase && (
@@ -1163,144 +1177,155 @@ function PricingTab({
         </ConfirmModal>
       )}
 
-      {showNewPhase && (
-        <div className="card form-grid">
-          <div className="field">
-            <label htmlFor="ph-name">Tên đợt</label>
-            <input
-              id="ph-name"
-              value={newPhase.name}
-              onChange={(e) =>
-                setNewPhase({ ...newPhase, name: e.target.value })
+      {/* the phase picker above stays usable, so every phase's prices can be viewed */}
+      <fieldset className="demo-lock" disabled={STATIC_DEMO}>
+        {showNewPhase && (
+          <div className="card form-grid">
+            <div className="field">
+              <label htmlFor="ph-name">Tên đợt</label>
+              <input
+                id="ph-name"
+                value={newPhase.name}
+                onChange={(e) =>
+                  setNewPhase({ ...newPhase, name: e.target.value })
+                }
+                placeholder="VD: Đợt 2 — Chính thức"
+              />
+            </div>
+            <DateTimeRangeField
+              id="ph-when"
+              label="Thời gian đợt mở bán"
+              modalTitle="Thời gian đợt mở bán"
+              from={newPhase.startTime}
+              to={newPhase.endTime}
+              defaultFromTime="09:00"
+              defaultToTime="23:59"
+              onChange={(f, t) =>
+                setNewPhase((prev) => ({ ...prev, startTime: f, endTime: t }))
               }
-              placeholder="VD: Đợt 2 — Chính thức"
             />
+            <div className="actions" style={{ gridColumn: "1 / -1" }}>
+              <button className="btn small" onClick={addPhase}>
+                Tạo đợt
+              </button>
+            </div>
           </div>
-          <DateTimeRangeField
-            id="ph-when"
-            label="Thời gian đợt mở bán"
-            modalTitle="Thời gian đợt mở bán"
-            from={newPhase.startTime}
-            to={newPhase.endTime}
-            defaultFromTime="09:00"
-            defaultToTime="23:59"
-            onChange={(f, t) =>
-              setNewPhase((prev) => ({ ...prev, startTime: f, endTime: t }))
-            }
-          />
-          <div className="actions" style={{ gridColumn: "1 / -1" }}>
-            <button className="btn small" onClick={addPhase}>
-              Tạo đợt
-            </button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {phases.length > 0 && (
-        <>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Khu vực ghế</th>
-                  <th>Giá sàn</th>
-                  <th>Giá cơ bản</th>
-                  <th>Giá trần</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                {zones.length === 0 && (
+        {phases.length > 0 && (
+          <>
+            <div className="table-wrap">
+              <table>
+                <thead>
                   <tr>
-                    <td
-                      colSpan={5}
-                      style={{ color: "var(--muted)", fontSize: 12.5 }}
-                    >
-                      Chưa có khu vực ghế nào — hãy thêm ở tab &quot;Khu vực
-                      ghế&quot;.
-                    </td>
+                    <th>Khu vực ghế</th>
+                    <th>Giá sàn</th>
+                    <th>Giá cơ bản</th>
+                    <th>Giá trần</th>
+                    <th>Trạng thái</th>
                   </tr>
-                )}
-                {zones.map((z) => {
-                  const d = draftFor(z);
-                  const v = validity(d);
-                  return (
-                    <tr key={z.id}>
-                      <td>
-                        <div className="zone-name">{z.name}</div>
-                        <div className="zone-seats">
-                          {fmt.format(totalTickets(z, shows))} vé
-                          {shows.length > 1 && ` · ${shows.length} đêm`}
-                        </div>
-                      </td>
-                      <td className="cell">
-                        <input
-                          className="num"
-                          inputMode="numeric"
-                          value={fv(d.floor)}
-                          onChange={(e) =>
-                            updateDraft(z.id, "floor", e.target.value)
-                          }
-                          placeholder="—"
-                        />
-                      </td>
-                      <td className="cell base">
-                        <input
-                          className="num"
-                          inputMode="numeric"
-                          value={fv(d.base)}
-                          onChange={(e) =>
-                            updateDraft(z.id, "base", e.target.value)
-                          }
-                          placeholder="—"
-                        />
-                      </td>
-                      <td className="cell">
-                        <input
-                          className="num"
-                          inputMode="numeric"
-                          value={fv(d.ceiling)}
-                          onChange={(e) =>
-                            updateDraft(z.id, "ceiling", e.target.value)
-                          }
-                          placeholder="—"
-                        />
-                      </td>
-                      <td>
-                        <span
-                          className={`pill ${v === "ok" ? "ok" : v === "bad" ? "bad" : "empty"}`}
-                        >
-                          {v === "ok"
-                            ? "Hợp lệ"
-                            : v === "bad"
-                              ? "Sai biên"
-                              : "Chưa nhập"}
-                        </span>
+                </thead>
+                <tbody>
+                  {zones.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        style={{ color: "var(--muted)", fontSize: 12.5 }}
+                      >
+                        Chưa có khu vực ghế nào — hãy thêm ở tab &quot;Khu vực
+                        ghế&quot;.
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  )}
+                  {zones.map((z) => {
+                    const d = draftFor(z);
+                    const v = validity(d);
+                    return (
+                      <tr key={z.id}>
+                        <td>
+                          <div className="zone-name">{z.name}</div>
+                          <div className="zone-seats">
+                            {fmt.format(totalTickets(z, shows))} vé
+                            {shows.length > 1 && ` · ${shows.length} đêm`}
+                          </div>
+                        </td>
+                        <td className="cell">
+                          <input
+                            className="num"
+                            inputMode="numeric"
+                            value={fv(d.floor)}
+                            onChange={(e) =>
+                              updateDraft(z.id, "floor", e.target.value)
+                            }
+                            placeholder="—"
+                          />
+                        </td>
+                        <td className="cell base">
+                          <input
+                            className="num"
+                            inputMode="numeric"
+                            value={fv(d.base)}
+                            onChange={(e) =>
+                              updateDraft(z.id, "base", e.target.value)
+                            }
+                            placeholder="—"
+                          />
+                        </td>
+                        <td className="cell">
+                          <input
+                            className="num"
+                            inputMode="numeric"
+                            value={fv(d.ceiling)}
+                            onChange={(e) =>
+                              updateDraft(z.id, "ceiling", e.target.value)
+                            }
+                            placeholder="—"
+                          />
+                        </td>
+                        <td>
+                          <span
+                            className={`pill ${v === "ok" ? "ok" : v === "bad" ? "bad" : "empty"}`}
+                          >
+                            {v === "ok"
+                              ? "Hợp lệ"
+                              : v === "bad"
+                                ? "Sai biên"
+                                : "Chưa nhập"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-          <div className="note">
-            <b>Giá sàn</b> / <b>giá trần</b> là biên an toàn cho tính năng{" "}
-            <b>định giá động</b> ở giai đoạn sau — giá vé sau này sẽ chỉ dao
-            động trong khoảng này.
-          </div>
+            <div className="note">
+              <b>Giá sàn</b> / <b>giá trần</b> là biên an toàn cho tính năng{" "}
+              <b>định giá động</b> ở giai đoạn sau — giá vé sau này sẽ chỉ dao
+              động trong khoảng này.
+            </div>
 
-          <div className="actions">
-            <button
-              className="btn"
-              onClick={saveAll}
-              disabled={savingAll || zones.length === 0}
-            >
-              {savingAll ? "Đang lưu..." : "Lưu thiết lập giá"}
-            </button>
-          </div>
-        </>
-      )}
+            <div className="actions">
+              <button
+                className="btn"
+                onClick={saveAll}
+                disabled={savingAll || zones.length === 0}
+              >
+                {savingAll ? "Đang lưu..." : "Lưu thiết lập giá"}
+              </button>
+            </div>
+          </>
+        )}
+      </fieldset>
+    </div>
+  );
+}
+
+export function DemoNote() {
+  return (
+    <div className="demo-note" role="note">
+      <b>Bản demo tĩnh</b> — chỉ để xem. Các thay đổi không được lưu.
     </div>
   );
 }

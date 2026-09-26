@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import ImageCropModal from "@/components/ImageCropModal";
+import { assetUrl } from "@/lib/demo";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPT = "image/jpeg,image/png,image/webp";
@@ -78,7 +79,7 @@ export default function ImageField({
           <>
             {/* eslint-disable-next-line @next/next/no-img-element -- local upload preview */}
             <img
-              src={value}
+              src={assetUrl(value)}
               alt="Ảnh quảng bá của sự kiện"
               className="image-preview"
             />

@@ -27,3 +27,17 @@ Mở [http://localhost:3000](http://localhost:3000).
 - `prisma/schema.prisma` — model `Event`, `Zone`, `SalePhase`, `ZonePrice`.
 - `app/api/**/route.ts` — Route Handlers (REST API) cho CRUD.
 - `app/events/**` — giao diện quản trị (server components + `components/EventWorkspace.tsx`).
+
+## Bản demo tĩnh (nhánh `static-demo`)
+
+Nhánh này xuất web thành site tĩnh và tự deploy lên GitHub Pages mỗi lần push
+(`.github/workflows/pages.yml`). Dữ liệu là bản chụp cố định trong
+`data/snapshot.json` và ảnh trong `public/uploads/`; trang ban tổ chức chỉ để xem,
+không lưu được thay đổi.
+
+Cập nhật dữ liệu cho bản demo (chạy trên máy có database thật):
+
+```bash
+node scripts/export-snapshot.mjs   # ghi data/snapshot.json + copy ảnh vào public/uploads
+git add data public/uploads && git commit -m "Update demo snapshot" && git push
+```

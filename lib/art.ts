@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { assetUrl } from "@/lib/demo";
 
 // cover the gradient tile with the event's promo image when there is one
 export function artStyle(
@@ -6,7 +7,7 @@ export function artStyle(
 ): CSSProperties | undefined {
   if (!imageUrl) return undefined;
   return {
-    backgroundImage: `url("${imageUrl}")`,
+    backgroundImage: `url("${assetUrl(imageUrl)}")`,
     backgroundSize: "cover",
     backgroundPosition: "center",
   };

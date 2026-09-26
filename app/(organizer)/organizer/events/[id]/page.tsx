@@ -1,8 +1,14 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { getEvent, getEvents } from "@/lib/data";
 import EventWorkspace from "@/components/EventWorkspace";
 import { getProvinces } from "@/lib/provinces";
 import { getGenres } from "@/lib/genres";
+
+// static export: one editor page per event in the snapshot
+export const dynamicParams = false;
+export function generateStaticParams() {
+  return getEvents().map((e) => ({ id: e.id }));
+}
 
 export default async function EventDetailPage({
   params,
@@ -11,18 +17,7 @@ export default async function EventDetailPage({
 }) {
   const { id } = await params;
 
-  const event = await prisma.event.findUnique({
-    where: { id },
-    include: {
-      genres: { select: { slug: true } },
-      zones: {
-        orderBy: { createdAt: "asc" },
-        include: { prices: true, quotas: true },
-      },
-      phases: { orderBy: { startTime: "asc" } },
-      shows: { orderBy: { startTime: "asc" } },
-    },
-  });
+  const event = getEvent(id);
 
   if (!event) notFound();
 

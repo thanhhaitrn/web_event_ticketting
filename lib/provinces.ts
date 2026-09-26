@@ -1,9 +1,8 @@
-import { prisma } from "@/lib/prisma";
+import { getProvinces as snapshotProvinces } from "@/lib/data";
 
-// SQLite can't collate Vietnamese, so the alphabetical sort happens here
+// static demo: provinces come from the snapshot, already sorted in Vietnamese order
 export async function getProvinces() {
-  const rows = await prisma.province.findMany({ select: { code: true, name: true } });
-  return rows.sort((a, b) => a.name.localeCompare(b.name, "vi"));
+  return snapshotProvinces();
 }
 
 export function placeLabel(venue: string, province?: { name: string } | null) {

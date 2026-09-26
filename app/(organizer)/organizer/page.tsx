@@ -1,16 +1,12 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { getEvents } from "@/lib/data";
 import { placeLabel } from "@/lib/provinces";
 
 const moneyFmt = new Intl.NumberFormat("vi-VN");
 const dateFmt = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit" });
 
 export default async function OrganizerLandingPage() {
-  const events = await prisma.event.findMany({
-    orderBy: { startTime: "asc" },
-    take: 4,
-    include: { province: true, zones: { include: { prices: true } } },
-  });
+  const events = getEvents().slice(0, 4);
 
   // only priced events belong on a signed-out page; "chưa đặt giá" is internal setup state
   const showcase = events

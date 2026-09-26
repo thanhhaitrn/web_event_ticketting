@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { getEvents } from "@/lib/data";
+import { DemoNote } from "@/components/EventWorkspace";
 import { artStyle } from "@/lib/art";
 import { placeLabel } from "@/lib/provinces";
 
@@ -18,15 +19,10 @@ function initials(name: string) {
 }
 
 export default async function OrganizerPage() {
-  const events = await prisma.event.findMany({
-    orderBy: { startTime: "asc" },
-    include: {
-      province: true,
-      zones: { include: { prices: true } },
-      phases: true,
-      _count: { select: { shows: true } },
-    },
-  });
+  const events = getEvents().map((ev) => ({
+    ...ev,
+    _count: { shows: ev.shows.length },
+  }));
 
   return (
     <main className="page narrow">
@@ -41,6 +37,8 @@ export default async function OrganizerPage() {
           + Tạo sự kiện
         </Link>
       </div>
+
+      <DemoNote />
 
       {events.length === 0 ? (
         <div className="empty-state">

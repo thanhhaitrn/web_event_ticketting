@@ -1,0 +1,2039 @@
+{
+  "exportedAt": "2026-09-26T16:30:08.624Z",
+  "events": [
+    {
+      "id": "cmuidr9b400009fpjjbllkl5c",
+      "name": "Vietnam Airlines Classic – Hanoi Concert 2026: London Symphony Orchestra",
+      "artist": "London Symphony Orchestra · chỉ huy Sir Antonio Pappano",
+      "imageUrl": "/uploads/0bf17d92-330b-4265-868f-912fb146b863.jpg",
+      "location": "Nhà hát Hồ Gươm",
+      "provinceCode": 1,
+      "startTime": "2026-10-02T13:00:00.000Z",
+      "endTime": "2026-10-03T15:00:00.000Z",
+      "saleStart": "2026-08-20T03:00:00.000Z",
+      "saleEnd": "2026-10-03T11:00:00.000Z",
+      "province": {
+        "code": 1,
+        "name": "Hà Nội",
+        "fullName": "Thành phố Hà Nội"
+      },
+      "genres": [
+        {
+          "slug": "classical"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9b500019fpjo0n6242y",
+          "name": "Hạng A – Tầng trệt",
+          "createdAt": "2026-09-26T12:42:58.144Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9b500019fpjo0n6242y",
+              "phaseId": "cmuidr9b500059fpjaifalfq1",
+              "floorPrice": 3830000,
+              "basePrice": 4500000,
+              "ceilingPrice": 5850000,
+              "id": "cmuidr9b800069fpjrlhvub4p"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "3b19297654fc1e907bc33346",
+              "capacity": 520
+            },
+            {
+              "showId": "70a207115e03161088c1d31d",
+              "capacity": 520
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9b500029fpj98ali1tr",
+          "name": "Hạng B – Tầng trệt",
+          "createdAt": "2026-09-26T12:42:58.144Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9b500029fpj98ali1tr",
+              "phaseId": "cmuidr9b500059fpjaifalfq1",
+              "floorPrice": 2720000,
+              "basePrice": 3200000,
+              "ceilingPrice": 4160000,
+              "id": "cmuidr9b800079fpjbe9svzto"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "3b19297654fc1e907bc33346",
+              "capacity": 480
+            },
+            {
+              "showId": "70a207115e03161088c1d31d",
+              "capacity": 480
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9b500039fpj90710zyv",
+          "name": "Hạng C – Tầng lửng",
+          "createdAt": "2026-09-26T12:42:58.144Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9b500039fpj90710zyv",
+              "phaseId": "cmuidr9b500059fpjaifalfq1",
+              "floorPrice": 1870000,
+              "basePrice": 2200000,
+              "ceilingPrice": 2860000,
+              "id": "cmuidr9b800089fpjmy6taihy"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "3b19297654fc1e907bc33346",
+              "capacity": 400
+            },
+            {
+              "showId": "70a207115e03161088c1d31d",
+              "capacity": 400
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9b500049fpjso7k3qne",
+          "name": "Ban công",
+          "createdAt": "2026-09-26T12:42:58.144Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9b500049fpjso7k3qne",
+              "phaseId": "cmuidr9b500059fpjaifalfq1",
+              "floorPrice": 1020000,
+              "basePrice": 1200000,
+              "ceilingPrice": 1560000,
+              "id": "cmuidr9b800099fpjvdjfqy7e"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "3b19297654fc1e907bc33346",
+              "capacity": 300
+            },
+            {
+              "showId": "70a207115e03161088c1d31d",
+              "capacity": 300
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9b500059fpjaifalfq1",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-08-20T03:00:00.000Z",
+          "endTime": "2026-10-03T11:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "70a207115e03161088c1d31d",
+          "name": "Đêm 1",
+          "startTime": "2026-10-02T13:00:00.000Z",
+          "endTime": "2026-10-02T15:00:00.000Z"
+        },
+        {
+          "id": "3b19297654fc1e907bc33346",
+          "name": "Đêm 2",
+          "startTime": "2026-10-03T13:00:00.000Z",
+          "endTime": "2026-10-03T15:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9bb000a9fpj1i0wk5fu",
+      "name": "Chillies – Tour Lại Từ Đầu 2026",
+      "artist": "Chillies",
+      "imageUrl": "/uploads/53e4483e-d7fc-4fc5-bb0d-5e66484d982c.jpg",
+      "location": "Địa điểm đang cập nhật",
+      "provinceCode": 79,
+      "startTime": "2026-10-03T12:30:00.000Z",
+      "endTime": "2026-10-04T15:30:00.000Z",
+      "saleStart": "2026-08-25T03:00:00.000Z",
+      "saleEnd": "2026-10-04T10:00:00.000Z",
+      "province": {
+        "code": 79,
+        "name": "TP. Hồ Chí Minh",
+        "fullName": "Thành phố Hồ Chí Minh"
+      },
+      "genres": [
+        {
+          "slug": "v-pop"
+        },
+        {
+          "slug": "indie-rock"
+        },
+        {
+          "slug": "alternative-rock"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9bc000b9fpj9vh2a5hi",
+          "name": "Fanzone",
+          "createdAt": "2026-09-26T12:42:58.151Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bc000b9fpj9vh2a5hi",
+              "phaseId": "cmuidr9bc000d9fpjn06xdwd3",
+              "floorPrice": 1280000,
+              "basePrice": 1500000,
+              "ceilingPrice": 1950000,
+              "id": "cmuidr9be000e9fpj61a7jahx"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "bcca2998806bc91e17745f69",
+              "capacity": 800
+            },
+            {
+              "showId": "d10d408a60739d078d187695",
+              "capacity": 800
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9bc000c9fpjvo586arg",
+          "name": "Vé thường",
+          "createdAt": "2026-09-26T12:42:58.151Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bc000c9fpjvo586arg",
+              "phaseId": "cmuidr9bc000d9fpjn06xdwd3",
+              "floorPrice": 770000,
+              "basePrice": 900000,
+              "ceilingPrice": 1170000,
+              "id": "cmuidr9be000f9fpjs2ym1hs1"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "bcca2998806bc91e17745f69",
+              "capacity": 2200
+            },
+            {
+              "showId": "d10d408a60739d078d187695",
+              "capacity": 2200
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9bc000d9fpjn06xdwd3",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-08-25T03:00:00.000Z",
+          "endTime": "2026-10-04T10:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "d10d408a60739d078d187695",
+          "name": "Đêm 1",
+          "startTime": "2026-10-03T12:30:00.000Z",
+          "endTime": "2026-10-03T15:30:00.000Z"
+        },
+        {
+          "id": "bcca2998806bc91e17745f69",
+          "name": "Đêm 2",
+          "startTime": "2026-10-04T12:30:00.000Z",
+          "endTime": "2026-10-04T15:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9bi000g9fpjsomqloxc",
+      "name": "SAO Concert – The Stardom Music Festival | GLAMOROUS",
+      "artist": "SOOBIN, Binz, Rhymastic, Quang Hùng MasterD, Dương Domic, RHYDER, B Ray, F.HERO và gần 60 nghệ sĩ",
+      "imageUrl": "/uploads/5043d6e5-dee9-4ad8-83ac-db4cf70cef02.jpg",
+      "location": "Vạn Phúc City",
+      "provinceCode": 79,
+      "startTime": "2026-10-10T03:00:00.000Z",
+      "endTime": "2026-10-10T16:59:00.000Z",
+      "saleStart": "2026-08-15T03:00:00.000Z",
+      "saleEnd": "2026-10-10T01:00:00.000Z",
+      "province": {
+        "code": 79,
+        "name": "TP. Hồ Chí Minh",
+        "fullName": "Thành phố Hồ Chí Minh"
+      },
+      "genres": [
+        {
+          "slug": "hip-hop"
+        },
+        {
+          "slug": "pop"
+        },
+        {
+          "slug": "r-and-b"
+        },
+        {
+          "slug": "rock"
+        },
+        {
+          "slug": "v-pop"
+        },
+        {
+          "slug": "indie-pop"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9bi000h9fpjdph3gh1j",
+          "name": "VIP Standing",
+          "createdAt": "2026-09-26T12:42:58.158Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bi000h9fpjdph3gh1j",
+              "phaseId": "cmuidr9bj000k9fpjcpc2s0d0",
+              "floorPrice": 2130000,
+              "basePrice": 2500000,
+              "ceilingPrice": 3250000,
+              "id": "cmuidr9bk000l9fpjlvfsfbb8"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "a5b1f5eb05096695827140ba",
+              "capacity": 3000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9bi000i9fpje76ev9qx",
+          "name": "GA Standing",
+          "createdAt": "2026-09-26T12:42:58.158Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bi000i9fpje76ev9qx",
+              "phaseId": "cmuidr9bj000k9fpjcpc2s0d0",
+              "floorPrice": 770000,
+              "basePrice": 900000,
+              "ceilingPrice": 1170000,
+              "id": "cmuidr9bk000m9fpjox3xfgto"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "a5b1f5eb05096695827140ba",
+              "capacity": 18000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9bi000j9fpjydsx3btg",
+          "name": "Khán đài",
+          "createdAt": "2026-09-26T12:42:58.158Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bi000j9fpjydsx3btg",
+              "phaseId": "cmuidr9bj000k9fpjcpc2s0d0",
+              "floorPrice": 1190000,
+              "basePrice": 1400000,
+              "ceilingPrice": 1820000,
+              "id": "cmuidr9bk000n9fpjoc0vtqxs"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "a5b1f5eb05096695827140ba",
+              "capacity": 4000
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9bj000k9fpjcpc2s0d0",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-08-15T03:00:00.000Z",
+          "endTime": "2026-10-10T01:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "a5b1f5eb05096695827140ba",
+          "name": "Đêm 1",
+          "startTime": "2026-10-10T03:00:00.000Z",
+          "endTime": "2026-10-10T16:59:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9br000y9fpjwd520tkh",
+      "name": "Anh Trai Vượt Ngàn Chông Gai 2026 – Concert Day 1 & Day 2",
+      "artist": "34 Anh Tài mùa 2026",
+      "imageUrl": "/uploads/8279795f-84ea-4fcc-8f86-ccc9c2e3afc1.jpg",
+      "location": "KĐT Phú Long – Bình Trưng (The Global City)",
+      "provinceCode": 79,
+      "startTime": "2026-10-17T11:30:00.000Z",
+      "endTime": "2026-10-18T16:00:00.000Z",
+      "saleStart": "2026-08-19T05:00:00.000Z",
+      "saleEnd": "2026-10-18T05:00:00.000Z",
+      "province": {
+        "code": 79,
+        "name": "TP. Hồ Chí Minh",
+        "fullName": "Thành phố Hồ Chí Minh"
+      },
+      "genres": [
+        {
+          "slug": "pop"
+        },
+        {
+          "slug": "rock"
+        },
+        {
+          "slug": "v-pop"
+        },
+        {
+          "slug": "ballad"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9bs000z9fpjfpdtyux0",
+          "name": "Chông Gai VIP",
+          "createdAt": "2026-09-26T12:42:58.167Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bs000z9fpjfpdtyux0",
+              "phaseId": "cmuidr9bs00139fpjxuge8t8i",
+              "floorPrice": 7650000,
+              "basePrice": 9000000,
+              "ceilingPrice": 11700000,
+              "id": "cmuidr9bu00159fpj4ap0q6cr"
+            },
+            {
+              "zoneId": "cmuidr9bs000z9fpjfpdtyux0",
+              "phaseId": "cmuidr9bs00149fpjtvo7t7of",
+              "floorPrice": 8500000,
+              "basePrice": 10000000,
+              "ceilingPrice": 13000000,
+              "id": "cmuidr9bu00199fpjapnim664"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "33f58b1e39ce9dff0fd173a3",
+              "capacity": 1500
+            },
+            {
+              "showId": "e8f70ae89eff15b03f984109",
+              "capacity": 1500
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9bs00109fpjx0sgxfuh",
+          "name": "Hạng Vàng",
+          "createdAt": "2026-09-26T12:42:58.167Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bs00109fpjx0sgxfuh",
+              "phaseId": "cmuidr9bs00139fpjxuge8t8i",
+              "floorPrice": 4590000,
+              "basePrice": 5400000,
+              "ceilingPrice": 7020000,
+              "id": "cmuidr9bu00169fpjj7t6i31g"
+            },
+            {
+              "zoneId": "cmuidr9bs00109fpjx0sgxfuh",
+              "phaseId": "cmuidr9bs00149fpjtvo7t7of",
+              "floorPrice": 5100000,
+              "basePrice": 6000000,
+              "ceilingPrice": 7800000,
+              "id": "cmuidr9bu001a9fpj0mecvvis"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "33f58b1e39ce9dff0fd173a3",
+              "capacity": 5000
+            },
+            {
+              "showId": "e8f70ae89eff15b03f984109",
+              "capacity": 5000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9bs00119fpj8p0qq2z6",
+          "name": "Hạng Bạc",
+          "createdAt": "2026-09-26T12:42:58.167Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bs00119fpj8p0qq2z6",
+              "phaseId": "cmuidr9bs00139fpjxuge8t8i",
+              "floorPrice": 2680000,
+              "basePrice": 3150000,
+              "ceilingPrice": 4100000,
+              "id": "cmuidr9bu00179fpj17sjijms"
+            },
+            {
+              "zoneId": "cmuidr9bs00119fpj8p0qq2z6",
+              "phaseId": "cmuidr9bs00149fpjtvo7t7of",
+              "floorPrice": 2980000,
+              "basePrice": 3500000,
+              "ceilingPrice": 4550000,
+              "id": "cmuidr9bu001b9fpj46xoz3y9"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "33f58b1e39ce9dff0fd173a3",
+              "capacity": 8000
+            },
+            {
+              "showId": "e8f70ae89eff15b03f984109",
+              "capacity": 8000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9bs00129fpj21vc5ss2",
+          "name": "Khu đứng",
+          "createdAt": "2026-09-26T12:42:58.167Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bs00129fpj21vc5ss2",
+              "phaseId": "cmuidr9bs00139fpjxuge8t8i",
+              "floorPrice": 1380000,
+              "basePrice": 1620000,
+              "ceilingPrice": 2110000,
+              "id": "cmuidr9bu00189fpj7w2vhsoc"
+            },
+            {
+              "zoneId": "cmuidr9bs00129fpj21vc5ss2",
+              "phaseId": "cmuidr9bs00149fpjtvo7t7of",
+              "floorPrice": 1530000,
+              "basePrice": 1800000,
+              "ceilingPrice": 2340000,
+              "id": "cmuidr9bu001c9fpj712bec1k"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "33f58b1e39ce9dff0fd173a3",
+              "capacity": 10500
+            },
+            {
+              "showId": "e8f70ae89eff15b03f984109",
+              "capacity": 10500
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9bs00139fpjxuge8t8i",
+          "name": "Mở bán sớm",
+          "startTime": "2026-08-19T05:00:00.000Z",
+          "endTime": "2026-08-31T16:59:00.000Z"
+        },
+        {
+          "id": "cmuidr9bs00149fpjtvo7t7of",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-09-01T05:00:00.000Z",
+          "endTime": "2026-10-18T05:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "33f58b1e39ce9dff0fd173a3",
+          "name": "Đêm 1",
+          "startTime": "2026-10-17T11:30:00.000Z",
+          "endTime": "2026-10-17T16:00:00.000Z"
+        },
+        {
+          "id": "e8f70ae89eff15b03f984109",
+          "name": "Đêm 2",
+          "startTime": "2026-10-18T11:30:00.000Z",
+          "endTime": "2026-10-18T16:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9bn000o9fpjf9r5g3mo",
+      "name": "Tinh Hà “Say Hi” Concert – Hẹn Giữa Tinh Hà",
+      "artist": "Dàn 24 nghệ sĩ Tinh Hà “Say Hi” (Vie Channel)",
+      "imageUrl": "/uploads/476c0772-ef88-4df5-8cbc-bbd4ca84f88a.jpg",
+      "location": "Vạn Phúc City – Sân số 2",
+      "provinceCode": 79,
+      "startTime": "2026-10-17T12:00:00.000Z",
+      "endTime": "2026-10-17T16:00:00.000Z",
+      "saleStart": "2026-09-05T05:00:00.000Z",
+      "saleEnd": "2026-10-17T05:00:00.000Z",
+      "province": {
+        "code": 79,
+        "name": "TP. Hồ Chí Minh",
+        "fullName": "Thành phố Hồ Chí Minh"
+      },
+      "genres": [
+        {
+          "slug": "hip-hop"
+        },
+        {
+          "slug": "pop"
+        },
+        {
+          "slug": "v-pop"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9bn000p9fpjlnrwtkod",
+          "name": "Tinh Hà Package",
+          "createdAt": "2026-09-26T12:42:58.163Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bn000p9fpjlnrwtkod",
+              "phaseId": "cmuidr9bn000t9fpjwd70lmix",
+              "floorPrice": 42500000,
+              "basePrice": 50000000,
+              "ceilingPrice": 65000000,
+              "id": "cmuidr9bp000u9fpjf7ow0j09"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "f4743059ee3c6dd1a1fbb349",
+              "capacity": 200
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9bn000q9fpjve3bff9n",
+          "name": "VIP",
+          "createdAt": "2026-09-26T12:42:58.163Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bn000q9fpjve3bff9n",
+              "phaseId": "cmuidr9bn000t9fpjwd70lmix",
+              "floorPrice": 4250000,
+              "basePrice": 5000000,
+              "ceilingPrice": 6500000,
+              "id": "cmuidr9bp000v9fpj7mfm44ka"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "f4743059ee3c6dd1a1fbb349",
+              "capacity": 3000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9bn000r9fpjij1j6kd8",
+          "name": "GA",
+          "createdAt": "2026-09-26T12:42:58.163Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bn000r9fpjij1j6kd8",
+              "phaseId": "cmuidr9bn000t9fpjwd70lmix",
+              "floorPrice": 2130000,
+              "basePrice": 2500000,
+              "ceilingPrice": 3250000,
+              "id": "cmuidr9bp000w9fpjigihmsuu"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "f4743059ee3c6dd1a1fbb349",
+              "capacity": 8000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9bn000s9fpjzmgg567y",
+          "name": "Standing xa",
+          "createdAt": "2026-09-26T12:42:58.163Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9bn000s9fpjzmgg567y",
+              "phaseId": "cmuidr9bn000t9fpjwd70lmix",
+              "floorPrice": 1020000,
+              "basePrice": 1200000,
+              "ceilingPrice": 1560000,
+              "id": "cmuidr9bp000x9fpjl0mburvq"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "f4743059ee3c6dd1a1fbb349",
+              "capacity": 6000
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9bn000t9fpjwd70lmix",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-09-05T05:00:00.000Z",
+          "endTime": "2026-10-17T05:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "f4743059ee3c6dd1a1fbb349",
+          "name": "Đêm 1",
+          "startTime": "2026-10-17T12:00:00.000Z",
+          "endTime": "2026-10-17T16:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9bx001d9fpjso33soc3",
+      "name": "Phùng Khánh Linh – Giữa Một Vạn Tour (Bản mở rộng)",
+      "artist": "Phùng Khánh Linh",
+      "imageUrl": "/uploads/a3607838-02e1-485c-9c03-b420b9d4752d.jpg",
+      "location": "Nhà thi đấu Phú Thọ",
+      "provinceCode": 79,
+      "startTime": "2026-10-17T12:30:00.000Z",
+      "endTime": "2026-10-17T15:30:00.000Z",
+      "saleStart": "2026-08-28T03:00:00.000Z",
+      "saleEnd": "2026-10-17T10:00:00.000Z",
+      "province": {
+        "code": 79,
+        "name": "TP. Hồ Chí Minh",
+        "fullName": "Thành phố Hồ Chí Minh"
+      },
+      "genres": [
+        {
+          "slug": "v-pop"
+        },
+        {
+          "slug": "indie-pop"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9by001e9fpj0f2m4v9w",
+          "name": "VIP",
+          "createdAt": "2026-09-26T12:42:58.174Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9by001e9fpj0f2m4v9w",
+              "phaseId": "cmuidr9by001h9fpj7pu8mqay",
+              "floorPrice": 1870000,
+              "basePrice": 2200000,
+              "ceilingPrice": 2860000,
+              "id": "cmuidr9bz001i9fpjas83nj1k"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "3ecf889707b6c87c07e18d01",
+              "capacity": 500
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9by001f9fpjdd32alq9",
+          "name": "Hạng 1",
+          "createdAt": "2026-09-26T12:42:58.174Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9by001f9fpjdd32alq9",
+              "phaseId": "cmuidr9by001h9fpj7pu8mqay",
+              "floorPrice": 1280000,
+              "basePrice": 1500000,
+              "ceilingPrice": 1950000,
+              "id": "cmuidr9bz001j9fpj2allvwoc"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "3ecf889707b6c87c07e18d01",
+              "capacity": 1500
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9by001g9fpjbj3q72j2",
+          "name": "Hạng 2",
+          "createdAt": "2026-09-26T12:42:58.174Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9by001g9fpjbj3q72j2",
+              "phaseId": "cmuidr9by001h9fpj7pu8mqay",
+              "floorPrice": 770000,
+              "basePrice": 900000,
+              "ceilingPrice": 1170000,
+              "id": "cmuidr9bz001k9fpj6lt5udjc"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "3ecf889707b6c87c07e18d01",
+              "capacity": 2000
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9by001h9fpj7pu8mqay",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-08-28T03:00:00.000Z",
+          "endTime": "2026-10-17T10:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "3ecf889707b6c87c07e18d01",
+          "name": "Đêm 1",
+          "startTime": "2026-10-17T12:30:00.000Z",
+          "endTime": "2026-10-17T15:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9c3001l9fpjor3rmmsr",
+      "name": "Tiffany Young: Edge of Calm Tour in Ho Chi Minh City",
+      "artist": "Tiffany Young (Girls' Generation)",
+      "imageUrl": "/uploads/df437d63-c6b5-4697-892d-fb73c8b1c498.jpg",
+      "location": "Nhà thi đấu Nguyễn Du",
+      "provinceCode": 79,
+      "startTime": "2026-10-17T12:30:00.000Z",
+      "endTime": "2026-10-17T15:00:00.000Z",
+      "saleStart": "2026-09-15T05:00:00.000Z",
+      "saleEnd": "2026-10-17T10:00:00.000Z",
+      "province": {
+        "code": 79,
+        "name": "TP. Hồ Chí Minh",
+        "fullName": "Thành phố Hồ Chí Minh"
+      },
+      "genres": [
+        {
+          "slug": "pop"
+        },
+        {
+          "slug": "k-pop"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9c4001m9fpjg8u64fci",
+          "name": "VIP Standing",
+          "createdAt": "2026-09-26T12:42:58.179Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9c4001m9fpjg8u64fci",
+              "phaseId": "cmuidr9c5001q9fpju16l9m4p",
+              "floorPrice": 4680000,
+              "basePrice": 5500000,
+              "ceilingPrice": 7150000,
+              "id": "cmuidr9c7001r9fpjnss3ur8r"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02a662fc50f3420ca922987c",
+              "capacity": 600
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9c4001n9fpjfmn51hyl",
+          "name": "CAT 1",
+          "createdAt": "2026-09-26T12:42:58.179Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9c4001n9fpjfmn51hyl",
+              "phaseId": "cmuidr9c5001q9fpju16l9m4p",
+              "floorPrice": 3570000,
+              "basePrice": 4200000,
+              "ceilingPrice": 5460000,
+              "id": "cmuidr9c7001s9fpjdxnaw971"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02a662fc50f3420ca922987c",
+              "capacity": 800
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9c4001o9fpjre695upn",
+          "name": "CAT 2",
+          "createdAt": "2026-09-26T12:42:58.179Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9c4001o9fpjre695upn",
+              "phaseId": "cmuidr9c5001q9fpju16l9m4p",
+              "floorPrice": 2550000,
+              "basePrice": 3000000,
+              "ceilingPrice": 3900000,
+              "id": "cmuidr9c7001t9fpjice7f66v"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02a662fc50f3420ca922987c",
+              "capacity": 1000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9c4001p9fpjqkrldxf8",
+          "name": "CAT 3",
+          "createdAt": "2026-09-26T12:42:58.179Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9c4001p9fpjqkrldxf8",
+              "phaseId": "cmuidr9c5001q9fpju16l9m4p",
+              "floorPrice": 1530000,
+              "basePrice": 1800000,
+              "ceilingPrice": 2340000,
+              "id": "cmuidr9c7001u9fpjf9azcxfz"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02a662fc50f3420ca922987c",
+              "capacity": 1200
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9c5001q9fpju16l9m4p",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-09-15T05:00:00.000Z",
+          "endTime": "2026-10-17T10:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "02a662fc50f3420ca922987c",
+          "name": "Đêm 1",
+          "startTime": "2026-10-17T12:30:00.000Z",
+          "endTime": "2026-10-17T15:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9ca001v9fpj2pxea68l",
+      "name": "BIGBANG 2026–2027 WORLD TOUR <XX : COSMOS> IN HANOI",
+      "artist": "BIGBANG (G-DRAGON, TAEYANG, DAESUNG)",
+      "imageUrl": "/uploads/564213a2-74d2-457e-8769-6d1dd52b4a6b.jpg",
+      "location": "SVĐ Quốc gia Mỹ Đình",
+      "provinceCode": 1,
+      "startTime": "2026-10-24T12:30:00.000Z",
+      "endTime": "2026-10-25T15:30:00.000Z",
+      "saleStart": "2026-08-14T03:00:00.000Z",
+      "saleEnd": "2026-10-25T05:00:00.000Z",
+      "province": {
+        "code": 1,
+        "name": "Hà Nội",
+        "fullName": "Thành phố Hà Nội"
+      },
+      "genres": [
+        {
+          "slug": "hip-hop"
+        },
+        {
+          "slug": "pop"
+        },
+        {
+          "slug": "k-pop"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9cb001w9fpjn7b0kugs",
+          "name": "ULTIMATE VIP PACKAGE",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb001w9fpjn7b0kugs",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 8930000,
+              "basePrice": 10500000,
+              "ceilingPrice": 13650000,
+              "id": "cmuidr9cf00289fpjck2drnqc"
+            },
+            {
+              "zoneId": "cmuidr9cb001w9fpjn7b0kugs",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 8930000,
+              "basePrice": 10500000,
+              "ceilingPrice": 13650000,
+              "id": "cmuidr9cf002i9fpjn52rlvlg"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 300
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 300
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cb001x9fpjadgpmqhr",
+          "name": "DIAMOND VIP PACKAGE",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb001x9fpjadgpmqhr",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 8330000,
+              "basePrice": 9800000,
+              "ceilingPrice": 12740000,
+              "id": "cmuidr9cf00299fpjejeuo67m"
+            },
+            {
+              "zoneId": "cmuidr9cb001x9fpjadgpmqhr",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 8330000,
+              "basePrice": 9800000,
+              "ceilingPrice": 12740000,
+              "id": "cmuidr9cf002j9fpj20xde191"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 500
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 500
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cb001y9fpj125503ke",
+          "name": "GOLD VIP PACKAGE",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb001y9fpj125503ke",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 7230000,
+              "basePrice": 8500000,
+              "ceilingPrice": 11050000,
+              "id": "cmuidr9cf002a9fpjccy4dh29"
+            },
+            {
+              "zoneId": "cmuidr9cb001y9fpj125503ke",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 7230000,
+              "basePrice": 8500000,
+              "ceilingPrice": 11050000,
+              "id": "cmuidr9cf002k9fpjmpjwgzm3"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 1000
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 1000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cb001z9fpjdakm2o6f",
+          "name": "PREMIUM SEATING",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb001z9fpjdakm2o6f",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 6380000,
+              "basePrice": 7500000,
+              "ceilingPrice": 9750000,
+              "id": "cmuidr9cf002b9fpjdgb0h9sy"
+            },
+            {
+              "zoneId": "cmuidr9cb001z9fpjdakm2o6f",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 6380000,
+              "basePrice": 7500000,
+              "ceilingPrice": 9750000,
+              "id": "cmuidr9cf002l9fpjh9xfr5cl"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 2000
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 2000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cb00209fpj29gzas9l",
+          "name": "STANDING ZONE",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb00209fpj29gzas9l",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 3830000,
+              "basePrice": 4500000,
+              "ceilingPrice": 5850000,
+              "id": "cmuidr9cf002c9fpjxlpyuvkm"
+            },
+            {
+              "zoneId": "cmuidr9cb00209fpj29gzas9l",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 3830000,
+              "basePrice": 4500000,
+              "ceilingPrice": 5850000,
+              "id": "cmuidr9cf002m9fpjeqfdg33m"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 8000
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 8000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cb00219fpj8u0p4nzi",
+          "name": "CAT 1",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb00219fpj8u0p4nzi",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 5530000,
+              "basePrice": 6500000,
+              "ceilingPrice": 8450000,
+              "id": "cmuidr9cf002d9fpjcqxlt7ds"
+            },
+            {
+              "zoneId": "cmuidr9cb00219fpj8u0p4nzi",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 5530000,
+              "basePrice": 6500000,
+              "ceilingPrice": 8450000,
+              "id": "cmuidr9cf002n9fpjxhospl9d"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 5000
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 5000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cb00229fpjh7ohmvr4",
+          "name": "CAT 2",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb00229fpjh7ohmvr4",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 4680000,
+              "basePrice": 5500000,
+              "ceilingPrice": 7150000,
+              "id": "cmuidr9cf002e9fpjdgy1rf5i"
+            },
+            {
+              "zoneId": "cmuidr9cb00229fpjh7ohmvr4",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 4680000,
+              "basePrice": 5500000,
+              "ceilingPrice": 7150000,
+              "id": "cmuidr9cf002o9fpj6hdb1z42"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 6000
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 6000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cb00239fpj57hi3plz",
+          "name": "CAT 3",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb00239fpj57hi3plz",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 2980000,
+              "basePrice": 3500000,
+              "ceilingPrice": 4550000,
+              "id": "cmuidr9cf002f9fpj9tzmlzwg"
+            },
+            {
+              "zoneId": "cmuidr9cb00239fpj57hi3plz",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 2980000,
+              "basePrice": 3500000,
+              "ceilingPrice": 4550000,
+              "id": "cmuidr9cf002p9fpjdjp7p8wh"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 7000
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 7000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cb00249fpj8y3h9ynb",
+          "name": "CAT 4",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb00249fpj8y3h9ynb",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 1700000,
+              "basePrice": 2000000,
+              "ceilingPrice": 2600000,
+              "id": "cmuidr9cf002g9fpjx1dxalmj"
+            },
+            {
+              "zoneId": "cmuidr9cb00249fpj8y3h9ynb",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 1700000,
+              "basePrice": 2000000,
+              "ceilingPrice": 2600000,
+              "id": "cmuidr9cf002q9fpjz3z67b4t"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 6000
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 6000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cb00259fpjx6u4pmip",
+          "name": "CAT 5",
+          "createdAt": "2026-09-26T12:42:58.186Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cb00259fpjx6u4pmip",
+              "phaseId": "cmuidr9cb00269fpjiowc9ot3",
+              "floorPrice": 850000,
+              "basePrice": 1000000,
+              "ceilingPrice": 1300000,
+              "id": "cmuidr9cf002h9fpjlfrhpto8"
+            },
+            {
+              "zoneId": "cmuidr9cb00259fpjx6u4pmip",
+              "phaseId": "cmuidr9cb00279fpjg9d3my9z",
+              "floorPrice": 850000,
+              "basePrice": 1000000,
+              "ceilingPrice": 1300000,
+              "id": "cmuidr9cf002r9fpjp4rdwp4b"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "02e571b66d2377385f044d4d",
+              "capacity": 4000
+            },
+            {
+              "showId": "73dcdcc4ec5dd2fcc2919dc9",
+              "capacity": 4000
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9cb00269fpjiowc9ot3",
+          "name": "Mở bán sớm",
+          "startTime": "2026-08-14T03:00:00.000Z",
+          "endTime": "2026-08-16T16:59:00.000Z"
+        },
+        {
+          "id": "cmuidr9cb00279fpjg9d3my9z",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-08-17T03:00:00.000Z",
+          "endTime": "2026-10-25T05:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "02e571b66d2377385f044d4d",
+          "name": "Đêm 1",
+          "startTime": "2026-10-24T12:30:00.000Z",
+          "endTime": "2026-10-24T15:30:00.000Z"
+        },
+        {
+          "id": "73dcdcc4ec5dd2fcc2919dc9",
+          "name": "Đêm 2",
+          "startTime": "2026-10-25T12:30:00.000Z",
+          "endTime": "2026-10-25T15:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9ch002s9fpjhf2dek1z",
+      "name": "Mr Siro – Encore Extended: Ai Cũng Giấu Trong Lòng Tảng Băng",
+      "artist": "Mr Siro",
+      "imageUrl": "/uploads/648db546-ef6e-45ef-9954-5eb88db325a9.jpg",
+      "location": "Trung tâm Hội nghị Quốc gia",
+      "provinceCode": 1,
+      "startTime": "2026-11-01T12:00:00.000Z",
+      "endTime": "2026-11-01T15:00:00.000Z",
+      "saleStart": "2026-09-10T05:00:00.000Z",
+      "saleEnd": "2026-11-01T08:00:00.000Z",
+      "province": {
+        "code": 1,
+        "name": "Hà Nội",
+        "fullName": "Thành phố Hà Nội"
+      },
+      "genres": [
+        {
+          "slug": "v-pop"
+        },
+        {
+          "slug": "ballad"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9ch002t9fpj1ipnaofp",
+          "name": "VVIP",
+          "createdAt": "2026-09-26T12:42:58.193Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9ch002t9fpj1ipnaofp",
+              "phaseId": "cmuidr9ch002x9fpjxm21rom4",
+              "floorPrice": 2980000,
+              "basePrice": 3500000,
+              "ceilingPrice": 4550000,
+              "id": "cmuidr9cj002y9fpjgwae49cf"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "f218d0aa47c53764596b35fd",
+              "capacity": 300
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9ch002u9fpjrcobryr0",
+          "name": "VIP",
+          "createdAt": "2026-09-26T12:42:58.193Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9ch002u9fpjrcobryr0",
+              "phaseId": "cmuidr9ch002x9fpjxm21rom4",
+              "floorPrice": 2130000,
+              "basePrice": 2500000,
+              "ceilingPrice": 3250000,
+              "id": "cmuidr9cj002z9fpje54idx2p"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "f218d0aa47c53764596b35fd",
+              "capacity": 700
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9ch002v9fpjcxvqjatk",
+          "name": "Hạng 1",
+          "createdAt": "2026-09-26T12:42:58.193Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9ch002v9fpjcxvqjatk",
+              "phaseId": "cmuidr9ch002x9fpjxm21rom4",
+              "floorPrice": 1360000,
+              "basePrice": 1600000,
+              "ceilingPrice": 2080000,
+              "id": "cmuidr9cj00309fpjts61vnat"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "f218d0aa47c53764596b35fd",
+              "capacity": 1000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9ch002w9fpjbf70ebdq",
+          "name": "Hạng 2",
+          "createdAt": "2026-09-26T12:42:58.193Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9ch002w9fpjbf70ebdq",
+              "phaseId": "cmuidr9ch002x9fpjxm21rom4",
+              "floorPrice": 680000,
+              "basePrice": 800000,
+              "ceilingPrice": 1040000,
+              "id": "cmuidr9cj00319fpj3giwhn27"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "f218d0aa47c53764596b35fd",
+              "capacity": 1500
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9ch002x9fpjxm21rom4",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-09-10T05:00:00.000Z",
+          "endTime": "2026-11-01T08:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "f218d0aa47c53764596b35fd",
+          "name": "Đêm 1",
+          "startTime": "2026-11-01T12:00:00.000Z",
+          "endTime": "2026-11-01T15:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9cl00329fpjnfsn5nfo",
+      "name": "Liên Quân 10Fest – Đại Nhạc Hội 10 Tuổi",
+      "artist": "Đại nhạc hội kỷ niệm 10 năm Liên Quân Mobile",
+      "imageUrl": "/uploads/215859e3-b51e-4e43-a01d-fe03bf4171b1.jpg",
+      "location": "SVĐ Quốc gia Mỹ Đình",
+      "provinceCode": 1,
+      "startTime": "2026-11-08T11:00:00.000Z",
+      "endTime": "2026-11-08T16:00:00.000Z",
+      "saleStart": "2026-09-26T03:00:00.000Z",
+      "saleEnd": "2026-11-08T07:00:00.000Z",
+      "province": {
+        "code": 1,
+        "name": "Hà Nội",
+        "fullName": "Thành phố Hà Nội"
+      },
+      "genres": [
+        {
+          "slug": "hip-hop"
+        },
+        {
+          "slug": "v-pop"
+        },
+        {
+          "slug": "edm"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9cm00339fpj3et4bnli",
+          "name": "VIP",
+          "createdAt": "2026-09-26T12:42:58.197Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cm00339fpj3et4bnli",
+              "phaseId": "cmuidr9cm00379fpja4b43v41",
+              "floorPrice": 1440000,
+              "basePrice": 1699000,
+              "ceilingPrice": 2210000,
+              "id": "cmuidr9cn00389fpj2si8h5vc"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "382722bda8723852a1f74103",
+              "capacity": 3000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cm00349fpjf4ny8qcl",
+          "name": "Standing",
+          "createdAt": "2026-09-26T12:42:58.197Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cm00349fpjf4ny8qcl",
+              "phaseId": "cmuidr9cm00379fpja4b43v41",
+              "floorPrice": 850000,
+              "basePrice": 999000,
+              "ceilingPrice": 1300000,
+              "id": "cmuidr9cn00399fpjj4rfc2et"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "382722bda8723852a1f74103",
+              "capacity": 10000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cm00359fpjq4w8q1dl",
+          "name": "CAT 1",
+          "createdAt": "2026-09-26T12:42:58.197Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cm00359fpjq4w8q1dl",
+              "phaseId": "cmuidr9cm00379fpja4b43v41",
+              "floorPrice": 590000,
+              "basePrice": 699000,
+              "ceilingPrice": 910000,
+              "id": "cmuidr9cn003a9fpj8avvsmpk"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "382722bda8723852a1f74103",
+              "capacity": 12000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cm00369fpjiybuv3bw",
+          "name": "CAT 2",
+          "createdAt": "2026-09-26T12:42:58.197Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cm00369fpjiybuv3bw",
+              "phaseId": "cmuidr9cm00379fpja4b43v41",
+              "floorPrice": 250000,
+              "basePrice": 299000,
+              "ceilingPrice": 390000,
+              "id": "cmuidr9cn003b9fpj8susduzn"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "382722bda8723852a1f74103",
+              "capacity": 15000
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9cm00379fpja4b43v41",
+          "name": "Mở bán đại chúng",
+          "startTime": "2026-09-26T03:00:00.000Z",
+          "endTime": "2026-11-08T07:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "382722bda8723852a1f74103",
+          "name": "Đêm 1",
+          "startTime": "2026-11-08T11:00:00.000Z",
+          "endTime": "2026-11-08T16:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cmuidr9cq003c9fpj10b59e08",
+      "name": "Tùng Dương – Live Concert “Bay Về Phía Mặt Trời”",
+      "artist": "Tùng Dương",
+      "imageUrl": "/uploads/c8ee3e58-6791-410d-ada3-003f5b34edf6.jpg",
+      "location": "SVĐ Quốc gia Mỹ Đình",
+      "provinceCode": 1,
+      "startTime": "2026-12-19T13:00:00.000Z",
+      "endTime": "2026-12-19T16:00:00.000Z",
+      "saleStart": "2026-10-20T03:00:00.000Z",
+      "saleEnd": "2026-12-19T07:00:00.000Z",
+      "province": {
+        "code": 1,
+        "name": "Hà Nội",
+        "fullName": "Thành phố Hà Nội"
+      },
+      "genres": [
+        {
+          "slug": "rock"
+        },
+        {
+          "slug": "jazz"
+        },
+        {
+          "slug": "v-pop"
+        }
+      ],
+      "zones": [
+        {
+          "id": "cmuidr9cq003d9fpji9sap6ak",
+          "name": "VVIP",
+          "createdAt": "2026-09-26T12:42:58.202Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cq003d9fpji9sap6ak",
+              "phaseId": "cmuidr9cr003i9fpj4qa0bklz",
+              "floorPrice": 3830000,
+              "basePrice": 4500000,
+              "ceilingPrice": 5850000,
+              "id": "cmuidr9ct003k9fpjw2uoweym"
+            },
+            {
+              "zoneId": "cmuidr9cq003d9fpji9sap6ak",
+              "phaseId": "cmuidr9cr003j9fpjptr2mbqa",
+              "floorPrice": 4250000,
+              "basePrice": 5000000,
+              "ceilingPrice": 6500000,
+              "id": "cmuidr9ct003p9fpjgbfnh0rg"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "e10acf19e346ddef515dbb52",
+              "capacity": 1000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cq003e9fpj6a3a79yj",
+          "name": "VIP",
+          "createdAt": "2026-09-26T12:42:58.202Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cq003e9fpj6a3a79yj",
+              "phaseId": "cmuidr9cr003i9fpj4qa0bklz",
+              "floorPrice": 2680000,
+              "basePrice": 3150000,
+              "ceilingPrice": 4100000,
+              "id": "cmuidr9ct003l9fpj26afqqij"
+            },
+            {
+              "zoneId": "cmuidr9cq003e9fpj6a3a79yj",
+              "phaseId": "cmuidr9cr003j9fpjptr2mbqa",
+              "floorPrice": 2980000,
+              "basePrice": 3500000,
+              "ceilingPrice": 4550000,
+              "id": "cmuidr9ct003q9fpjsk7n8v46"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "e10acf19e346ddef515dbb52",
+              "capacity": 4000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cq003f9fpjv2epra2b",
+          "name": "Hạng 1",
+          "createdAt": "2026-09-26T12:42:58.202Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cq003f9fpjv2epra2b",
+              "phaseId": "cmuidr9cr003i9fpj4qa0bklz",
+              "floorPrice": 1910000,
+              "basePrice": 2250000,
+              "ceilingPrice": 2930000,
+              "id": "cmuidr9ct003m9fpj2zt4kd1n"
+            },
+            {
+              "zoneId": "cmuidr9cq003f9fpjv2epra2b",
+              "phaseId": "cmuidr9cr003j9fpjptr2mbqa",
+              "floorPrice": 2130000,
+              "basePrice": 2500000,
+              "ceilingPrice": 3250000,
+              "id": "cmuidr9ct003r9fpjecejwijd"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "e10acf19e346ddef515dbb52",
+              "capacity": 10000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cq003g9fpjq5ji9o1o",
+          "name": "Hạng 2",
+          "createdAt": "2026-09-26T12:42:58.202Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cq003g9fpjq5ji9o1o",
+              "phaseId": "cmuidr9cr003i9fpj4qa0bklz",
+              "floorPrice": 1150000,
+              "basePrice": 1350000,
+              "ceilingPrice": 1760000,
+              "id": "cmuidr9ct003n9fpjqohnlvyf"
+            },
+            {
+              "zoneId": "cmuidr9cq003g9fpjq5ji9o1o",
+              "phaseId": "cmuidr9cr003j9fpjptr2mbqa",
+              "floorPrice": 1280000,
+              "basePrice": 1500000,
+              "ceilingPrice": 1950000,
+              "id": "cmuidr9ct003s9fpj5agktpyd"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "e10acf19e346ddef515dbb52",
+              "capacity": 15000
+            }
+          ]
+        },
+        {
+          "id": "cmuidr9cq003h9fpj3r1wte8r",
+          "name": "Hạng 3",
+          "createdAt": "2026-09-26T12:42:58.202Z",
+          "prices": [
+            {
+              "zoneId": "cmuidr9cq003h9fpj3r1wte8r",
+              "phaseId": "cmuidr9cr003i9fpj4qa0bklz",
+              "floorPrice": 610000,
+              "basePrice": 720000,
+              "ceilingPrice": 940000,
+              "id": "cmuidr9ct003o9fpjo8dp62mq"
+            },
+            {
+              "zoneId": "cmuidr9cq003h9fpj3r1wte8r",
+              "phaseId": "cmuidr9cr003j9fpjptr2mbqa",
+              "floorPrice": 680000,
+              "basePrice": 800000,
+              "ceilingPrice": 1040000,
+              "id": "cmuidr9ct003t9fpjupqmk2t0"
+            }
+          ],
+          "quotas": [
+            {
+              "showId": "e10acf19e346ddef515dbb52",
+              "capacity": 15000
+            }
+          ]
+        }
+      ],
+      "phases": [
+        {
+          "id": "cmuidr9cr003i9fpj4qa0bklz",
+          "name": "Mở bán sớm",
+          "startTime": "2026-10-20T03:00:00.000Z",
+          "endTime": "2026-11-05T16:59:00.000Z"
+        },
+        {
+          "id": "cmuidr9cr003j9fpjptr2mbqa",
+          "name": "Mở bán chính thức",
+          "startTime": "2026-11-06T03:00:00.000Z",
+          "endTime": "2026-12-19T07:00:00.000Z"
+        }
+      ],
+      "shows": [
+        {
+          "id": "e10acf19e346ddef515dbb52",
+          "name": "Đêm 1",
+          "startTime": "2026-12-19T13:00:00.000Z",
+          "endTime": "2026-12-19T16:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "provinces": [
+    {
+      "code": 91,
+      "name": "An Giang"
+    },
+    {
+      "code": 24,
+      "name": "Bắc Ninh"
+    },
+    {
+      "code": 96,
+      "name": "Cà Mau"
+    },
+    {
+      "code": 4,
+      "name": "Cao Bằng"
+    },
+    {
+      "code": 92,
+      "name": "Cần Thơ"
+    },
+    {
+      "code": 48,
+      "name": "Đà Nẵng"
+    },
+    {
+      "code": 66,
+      "name": "Đắk Lắk"
+    },
+    {
+      "code": 11,
+      "name": "Điện Biên"
+    },
+    {
+      "code": 75,
+      "name": "Đồng Nai"
+    },
+    {
+      "code": 82,
+      "name": "Đồng Tháp"
+    },
+    {
+      "code": 52,
+      "name": "Gia Lai"
+    },
+    {
+      "code": 1,
+      "name": "Hà Nội"
+    },
+    {
+      "code": 42,
+      "name": "Hà Tĩnh"
+    },
+    {
+      "code": 31,
+      "name": "Hải Phòng"
+    },
+    {
+      "code": 46,
+      "name": "Huế"
+    },
+    {
+      "code": 33,
+      "name": "Hưng Yên"
+    },
+    {
+      "code": 56,
+      "name": "Khánh Hòa"
+    },
+    {
+      "code": 12,
+      "name": "Lai Châu"
+    },
+    {
+      "code": 20,
+      "name": "Lạng Sơn"
+    },
+    {
+      "code": 15,
+      "name": "Lào Cai"
+    },
+    {
+      "code": 68,
+      "name": "Lâm Đồng"
+    },
+    {
+      "code": 40,
+      "name": "Nghệ An"
+    },
+    {
+      "code": 37,
+      "name": "Ninh Bình"
+    },
+    {
+      "code": 25,
+      "name": "Phú Thọ"
+    },
+    {
+      "code": 51,
+      "name": "Quảng Ngãi"
+    },
+    {
+      "code": 22,
+      "name": "Quảng Ninh"
+    },
+    {
+      "code": 44,
+      "name": "Quảng Trị"
+    },
+    {
+      "code": 14,
+      "name": "Sơn La"
+    },
+    {
+      "code": 80,
+      "name": "Tây Ninh"
+    },
+    {
+      "code": 19,
+      "name": "Thái Nguyên"
+    },
+    {
+      "code": 38,
+      "name": "Thanh Hóa"
+    },
+    {
+      "code": 79,
+      "name": "TP. Hồ Chí Minh"
+    },
+    {
+      "code": 8,
+      "name": "Tuyên Quang"
+    },
+    {
+      "code": 86,
+      "name": "Vĩnh Long"
+    }
+  ],
+  "genres": [
+    {
+      "slug": "hip-hop",
+      "name": "Hip Hop",
+      "featured": true
+    },
+    {
+      "slug": "pop",
+      "name": "Pop",
+      "featured": true
+    },
+    {
+      "slug": "r-and-b",
+      "name": "R&B",
+      "featured": true
+    },
+    {
+      "slug": "rock",
+      "name": "Rock",
+      "featured": true
+    },
+    {
+      "slug": "metal",
+      "name": "Metal",
+      "featured": true
+    },
+    {
+      "slug": "jazz",
+      "name": "Jazz",
+      "featured": true
+    },
+    {
+      "slug": "v-pop",
+      "name": "V-Pop",
+      "featured": true
+    },
+    {
+      "slug": "bolero",
+      "name": "Bolero",
+      "featured": true
+    },
+    {
+      "slug": "nhac-truyen-thong",
+      "name": "Nhạc truyền thống",
+      "featured": false
+    },
+    {
+      "slug": "k-pop",
+      "name": "K-Pop",
+      "featured": true
+    },
+    {
+      "slug": "ballad",
+      "name": "Ballad",
+      "featured": true
+    },
+    {
+      "slug": "indie-pop",
+      "name": "Indie Pop",
+      "featured": true
+    },
+    {
+      "slug": "indie-rock",
+      "name": "Indie Rock",
+      "featured": false
+    },
+    {
+      "slug": "alternative-rock",
+      "name": "Alternative Rock",
+      "featured": false
+    },
+    {
+      "slug": "punk",
+      "name": "Punk",
+      "featured": false
+    },
+    {
+      "slug": "edm",
+      "name": "EDM",
+      "featured": true
+    },
+    {
+      "slug": "electronic",
+      "name": "Electronic",
+      "featured": true
+    },
+    {
+      "slug": "soul",
+      "name": "Soul",
+      "featured": true
+    },
+    {
+      "slug": "blues",
+      "name": "Blues",
+      "featured": true
+    },
+    {
+      "slug": "reggae",
+      "name": "Reggae",
+      "featured": false
+    },
+    {
+      "slug": "folk",
+      "name": "Folk",
+      "featured": true
+    },
+    {
+      "slug": "country",
+      "name": "Country",
+      "featured": false
+    },
+    {
+      "slug": "latin",
+      "name": "Latin",
+      "featured": false
+    },
+    {
+      "slug": "classical",
+      "name": "Classical",
+      "featured": false
+    },
+    {
+      "slug": "gospel",
+      "name": "Gospel",
+      "featured": false
+    },
+    {
+      "slug": "comedy",
+      "name": "Comedy",
+      "featured": false
+    }
+  ]
+}

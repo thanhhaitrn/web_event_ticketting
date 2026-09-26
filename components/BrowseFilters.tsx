@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import DateRangeModal from "@/components/DateRangeModal";
 import FilterMenu, { type Option } from "@/components/FilterMenu";
 
@@ -21,13 +21,16 @@ const shortDate = (iso: string) => {
 export default function BrowseFilters({
   cities,
   city,
+  search,
 }: {
   cities: string[];
-  /** resolved on the server, which defaults to a city when the param is absent */
+  /** resolved by the page, which defaults to a city when the param is absent */
   city: string;
+  /** the page's current query string; the static demo reads it once for the whole page */
+  search: string;
 }) {
   const router = useRouter();
-  const params = useSearchParams();
+  const params = new URLSearchParams(search);
   const when = params.get("khi") ?? "";
   const from = params.get("tu") ?? "";
   const to = params.get("den") ?? "";
