@@ -2719,7 +2719,10 @@ th.num-col {
   color: #969aa1;
 }
 
-/* the hero search button is the one teal action on the fan site */
+/* the hero search button and the suggestion sparkles are the fan site's teal accents */
+.site-fans .hero-suggest svg {
+  color: #0b9488;
+}
 .site-fans .ask-btn {
   border-color: #0b9488;
   color: #08766d;
