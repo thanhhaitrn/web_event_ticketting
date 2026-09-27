@@ -1,9 +1,24 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Repository instructions
 
-# This is NOT the Next.js you know
+## Workflow
+- Never work directly on main.
+- Inspect existing implementations before creating new abstractions.
+- Make the smallest change that solves the requested problem.
+- Do not modify unrelated files.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## Environment
+- Follow the dependency versions already defined by the repository.
+- Do not upgrade dependencies unless explicitly required.
+- Never commit secrets or .env files.
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+## Verification
+- Run only tests relevant to the changed area first.
+- Run broader tests when the change affects shared components.
+- Report commands run and failures clearly.
 
-<!-- END:nextjs-agent-rules -->
+## Git
+- Do not commit or push unless explicitly asked.
+- Show git diff after implementation.
+
+## Documentation
+- Update documentation only when behavior, setup, or architecture changes.
