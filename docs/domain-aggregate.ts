@@ -1,5 +1,4 @@
 // Class hóa thực thể — EventTicketing (mô hình DDD Aggregate)
-// Khớp với sơ đồ trong OOP_WEBTICKET.docx: Event là Aggregate Root,
 // Show/Zone/SalePhase chỉ sửa được thông qua Event; các giá trị bọc
 // thành Value Object bất biến (Money, TimeRange, Capacity, PriceBounds...).
 
