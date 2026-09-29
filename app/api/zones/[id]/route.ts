@@ -1,7 +1,8 @@
 import { validBody, validAmount } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Capacity, DomainError } from "@/lib/domain";
+import { Capacity } from "@/lib/domain";
+import { domainErrorResponse } from "@/lib/api-errors";
 import { eventRepository } from "@/lib/event-repository";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -55,8 +56,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
       event.setCapacity(id, showId, new Capacity(n));
     }
   } catch (e) {
-    if (e instanceof DomainError) return NextResponse.json({ error: e.message }, { status: 400 });
-    throw e;
+    return domainErrorResponse(e);
   }
   await eventRepository.save(event);
 
@@ -69,9 +69,13 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
 
 export async function DELETE(_request: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
-  const result = await prisma.zone.deleteMany({ where: { id } });
-  if (!result.count) {
+  const row = await prisma.zone.findUnique({ where: { id } });
+  const event = row && (await eventRepository.findById(row.eventId));
+  if (!event?.zone(id)) {
     return NextResponse.json({ error: "Không tìm thấy khu vực." }, { status: 404 });
   }
+  // the zone's ticket counts and prices go with it
+  event.removeZone(id);
+  await eventRepository.save(event);
   return NextResponse.json({ ok: true });
 }

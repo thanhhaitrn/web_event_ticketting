@@ -18,6 +18,13 @@ const MAX_INT = 2147483647;
 const isStoredInt = (n: unknown): n is number =>
   typeof n === "number" && Number.isInteger(n) && n >= 0 && n <= MAX_INT;
 
+/** tên / địa điểm: không rỗng, tối đa 500 ký tự; trả về chuỗi đã cắt khoảng trắng */
+export function requireText(value: string, message: string): string {
+  const text = value.trim();
+  if (!text || value.length > 500) throw new DomainError(message);
+  return text;
+}
+
 // ─────────────────────────────────────────────────────────
 // VALUE OBJECTS — bất biến, tự validate khi khởi tạo
 // ─────────────────────────────────────────────────────────
@@ -290,6 +297,14 @@ export class SalePhase {
     return this.time.contains(now);
   }
 
+  rename(name: string): void {
+    this.name = requireText(name, "Tên đợt mở bán không được để trống.");
+  }
+
+  reschedule(time: TimeRange): void {
+    this.time = time;
+  }
+
   isUpcoming(now: Date): boolean {
     return this.time.getStart().getTime() > now.getTime();
   }
@@ -353,6 +368,68 @@ export class Event {
     return event;
   }
 
+  /**
+   * sự kiện mới luôn có sẵn "Đêm 1", và vé không được mở bán sau đêm diễn đầu tiên
+   */
+  static create(input: {
+    name: string;
+    artist?: string;
+    venue: Venue;
+    genres: Genre[];
+    saleWindow: TimeRange;
+    firstShow: TimeRange;
+    image?: ImageRef;
+  }): Event {
+    const event = new Event(
+      crypto.randomUUID(),
+      requireText(input.name, "Thiếu thông tin bắt buộc."),
+      input.venue,
+      input.genres,
+      input.saleWindow,
+      input.artist?.trim() || undefined,
+    );
+    requireText(input.venue.getLocation(), "Thiếu thông tin bắt buộc.");
+    event.image = input.image;
+    event.addShow(input.firstShow, "Đêm 1");
+    event.checkSaleWindow(input.saleWindow);
+    return event;
+  }
+
+  rename(name: string): void {
+    this.name = requireText(name, "Tên sự kiện không được để trống.");
+  }
+
+  setArtist(artist: string | undefined): void {
+    this.artist = artist?.trim() || undefined;
+  }
+
+  relocate(venue: Venue): void {
+    requireText(venue.getLocation(), "Địa điểm không được để trống.");
+    this.venue = venue;
+  }
+
+  setGenres(genres: Genre[]): void {
+    this.genres = genres;
+  }
+
+  setImage(image: ImageRef | undefined): void {
+    this.image = image;
+  }
+
+  reopenSales(window: TimeRange): void {
+    this.checkSaleWindow(window);
+    this.saleWindow = window;
+  }
+
+  private checkSaleWindow(window: TimeRange): void {
+    const first = this.schedule();
+    if (first && window.start.getTime() > first.start.getTime()) {
+      throw new DomainError(
+        "Lịch mở bán không hợp lệ: kết thúc phải sau bắt đầu, và mở bán không được sau đêm diễn đầu tiên.",
+      );
+    }
+  }
+
   getName(): string { return this.name; }
   getArtist(): string | undefined { return this.artist; }
   getVenue(): Venue { return this.venue; }
@@ -391,10 +468,14 @@ export class Event {
   }
 
   addZone(name: string): Zone {
-    if (!name.trim()) throw new DomainError("Tên khu vực không được để trống.");
-    const zone = new Zone(crypto.randomUUID(), name.trim());
+    const zone = new Zone(crypto.randomUUID(), requireText(name, "Tên khu vực không được để trống."));
     this.zones.push(zone);
     return zone;
+  }
+
+  removeZone(id: ZoneId): void {
+    if (!this.zone(id)) throw new DomainError("Không tìm thấy khu vực.");
+    this.zones = this.zones.filter((z) => z.id !== id);
   }
 
   /** số vé chỉ được gán cho đêm thuộc chính sự kiện này */
@@ -414,10 +495,25 @@ export class Event {
   }
 
   addSalePhase(name: string, time: TimeRange): SalePhase {
-    if (!name.trim()) throw new DomainError("Tên đợt mở bán không được để trống.");
-    const phase = new SalePhase(crypto.randomUUID(), name.trim(), time);
+    const title = requireText(name, "Tên đợt mở bán không được để trống.");
+    this.checkNoOverlap(time);
+    const phase = new SalePhase(crypto.randomUUID(), title, time);
     this.phases.push(phase);
     return phase;
+  }
+
+  reschedulePhase(id: PhaseId, time: TimeRange): void {
+    const phase = this.phase(id);
+    if (!phase) throw new DomainError("Không tìm thấy đợt mở bán.");
+    this.checkNoOverlap(time, id);
+    phase.reschedule(time);
+  }
+
+  // hai đợt của cùng một sự kiện không được chồng thời gian lên nhau
+  private checkNoOverlap(time: TimeRange, except?: PhaseId): void {
+    if (this.phases.some((p) => p.id !== except && p.getTime().overlaps(time))) {
+      throw new DomainError("Thời gian bị trùng với đợt mở bán khác.");
+    }
   }
 
   removeSalePhase(id: PhaseId): void {

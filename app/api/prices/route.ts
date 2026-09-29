@@ -2,7 +2,8 @@ import { validBody } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validAmount } from "@/lib/validation";
-import { DomainError, PriceBounds } from "@/lib/domain";
+import { PriceBounds } from "@/lib/domain";
+import { domainErrorResponse } from "@/lib/api-errors";
 import { eventRepository } from "@/lib/event-repository";
 
 export async function POST(request: NextRequest) {
@@ -39,8 +40,7 @@ export async function POST(request: NextRequest) {
   try {
     event.setPrice(zoneId, phaseId, PriceBounds.fromAmounts(floorPrice, basePrice, ceilingPrice));
   } catch (e) {
-    if (e instanceof DomainError) return NextResponse.json({ error: e.message }, { status: 400 });
-    throw e;
+    return domainErrorResponse(e);
   }
   await eventRepository.save(event);
 

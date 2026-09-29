@@ -1,6 +1,8 @@
 import { validBody } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { eventRepository } from "@/lib/event-repository";
+import { domainErrorResponse } from "@/lib/api-errors";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -19,14 +21,23 @@ export async function POST(request: NextRequest, ctx: Ctx) {
     );
   }
 
-  // ticket counts start empty; the organizer fills them in per night
-  if (!await prisma.event.findUnique({ where: { id } })) {
+  const event = await eventRepository.findById(id);
+  if (!event) {
     return NextResponse.json({ error: "Không tìm thấy sự kiện." }, { status: 404 });
   }
-  const zone = await prisma.zone.create({
-    data: { eventId: id, name: name.trim() },
+
+  let zoneId: string;
+  try {
+    // ticket counts start empty; the organizer fills them in per night
+    zoneId = event.addZone(name).id;
+  } catch (e) {
+    return domainErrorResponse(e);
+  }
+  await eventRepository.save(event);
+
+  const zone = await prisma.zone.findUnique({
+    where: { id: zoneId },
     include: { prices: true, quotas: true },
   });
-
   return NextResponse.json(zone, { status: 201 });
 }

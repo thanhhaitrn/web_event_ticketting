@@ -151,6 +151,30 @@ test("API regression: invalid requests cannot change data; valid edits still wor
     assert.equal((await showEdit.DELETE(req("DELETE", {}), context("missing"))).status, 404);
     // the price that was saved earlier survives the repository round trips
     assert.equal(await prisma.zonePrice.count(), 1);
+
+    // create: sales may not open after the first night
+    assert.equal((await events.POST(req("POST", { ...eventBody, saleStart: "2026-10-05T00:00Z", saleEnd: "2026-10-06T00:00Z" }))).status, 400);
+    assert.equal((await events.POST(req("POST", { ...eventBody, genreSlugs: ["no-such-genre"] }))).status, 400);
+    assert.equal((await events.POST(req("POST", { ...eventBody, provinceCode: 999 }))).status, 400);
+    // edit: same sale-window rule, and a changed night moves the event's dates
+    assert.equal((await eventEdit.PATCH(req("PATCH", { saleStart: "2026-10-05T00:00Z", saleEnd: "2026-10-06T00:00Z" }), context(a.id))).status, 400);
+    assert.equal((await eventEdit.PATCH(req("PATCH", { artist: "  Band  ", location: " Hall " }), context(a.id))).status, 200);
+    const edited = await prisma.event.findUnique({ where: { id: a.id } });
+    assert.deepEqual([edited.artist, edited.location, edited.name], ["Band", "Hall", "Updated"]);
+    assert.equal((await showEdit.PATCH(req("PATCH", { endTime: "2026-10-04T18:00Z" }), context(show.id))).status, 200);
+    assert.equal((await prisma.event.findUnique({ where: { id: a.id } })).endTime.toISOString(), "2026-10-04T18:00:00.000Z");
+    // phases: moving one onto another is rejected like creating one there
+    assert.equal((await phaseEdit.PATCH(req("PATCH", { startTime: "2026-09-12T00:00Z", endTime: "2026-09-15T00:00Z" }), context(phase.id))).status, 400);
+    // deleting a phase takes its prices; deleting a zone takes its counts
+    assert.equal((await phaseEdit.DELETE(req("DELETE", {}), context(phase.id))).status, 200);
+    assert.equal(await prisma.zonePrice.count(), 0);
+    assert.equal((await phaseEdit.DELETE(req("DELETE", {}), context(phase.id))).status, 404);
+    assert.equal((await zoneEdit.DELETE(req("DELETE", {}), context(zone.id))).status, 200);
+    assert.equal(await prisma.zoneQuota.count({ where: { zoneId: zone.id } }), 0);
+    // deleting the event removes the whole aggregate
+    assert.equal((await eventEdit.DELETE(req("DELETE", {}), context(b.id))).status, 200);
+    assert.deepEqual([await prisma.show.count({ where: { eventId: b.id } }), await prisma.salePhase.count({ where: { eventId: b.id } })], [0, 0]);
+    assert.equal((await eventEdit.DELETE(req("DELETE", {}), context(b.id))).status, 404);
   } finally {
     await prisma.$disconnect();
     fs.rmSync(dir, { recursive: true, force: true });

@@ -2,8 +2,10 @@ import { validBody, validName } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseShowTimes } from "@/lib/shows";
-import { checkGenreSlugs } from "@/lib/genres";
 import { isValidImageUrl } from "@/lib/uploads";
+import { Event, ImageRef, Venue } from "@/lib/domain";
+import { eventRepository, findGenres, findProvince } from "@/lib/event-repository";
+import { domainErrorResponse } from "@/lib/api-errors";
 
 export async function GET() {
   const events = await prisma.event.findMany({
@@ -31,6 +33,7 @@ export async function POST(request: NextRequest) {
     saleEnd,
   } = body;
 
+  // định dạng dữ liệu gửi lên; quy tắc nghiệp vụ nằm trong Event.create
   if (!validName(name) || !validName(location) || (artist != null && typeof artist !== "string")) {
     return NextResponse.json(
       { error: "Thiếu thông tin bắt buộc." },
@@ -39,15 +42,14 @@ export async function POST(request: NextRequest) {
   }
 
   const times = parseShowTimes(startTime, endTime);
-  const saleTimes = parseShowTimes(saleStart, saleEnd);
   if (!times) {
     return NextResponse.json(
       { error: "Sự kiện phải kết thúc sau khi bắt đầu." },
       { status: 400 },
     );
   }
-
-  if (!saleTimes || saleTimes.start > times.start) {
+  const saleTimes = parseShowTimes(saleStart, saleEnd);
+  if (!saleTimes) {
     return NextResponse.json({ error: "Lịch mở bán không hợp lệ: kết thúc phải sau bắt đầu, và mở bán không được sau đêm diễn đầu tiên." }, { status: 400 });
   }
 
@@ -58,8 +60,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const genres =
-    genreSlugs === undefined ? undefined : await checkGenreSlugs(genreSlugs);
+  const genres = genreSlugs === undefined ? [] : await findGenres(genreSlugs);
   if (genres === null) {
     return NextResponse.json(
       { error: "Vui lòng chọn thể loại từ danh sách." },
@@ -67,9 +68,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const province = typeof provinceCode === "number" && Number.isInteger(provinceCode)
-    ? await prisma.province.findUnique({ where: { code: provinceCode } })
-    : null;
+  const province = await findProvince(provinceCode);
   if (!province) {
     return NextResponse.json(
       { error: "Vui lòng chọn tỉnh/thành từ danh sách." },
@@ -77,28 +76,23 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const event = await prisma.event.create({
-    data: {
-      name: name.trim(),
-      artist: typeof artist === "string" ? artist.trim() || null : null,
-      imageUrl: imageUrl || null,
-      genres: { connect: (genres ?? []).map((slug) => ({ slug })) },
-      location: location.trim(),
-      provinceCode: province.code,
-      startTime: times.start,
-      endTime: times.end,
-      saleStart: saleTimes.start,
-      saleEnd: saleTimes.end,
-      // the first night; more can be added from the "Đêm diễn" tab
-      shows: {
-        create: {
-          name: "Đêm 1",
-          startTime: times.start,
-          endTime: times.end,
-        },
-      },
-    },
-  });
+  let event: Event;
+  try {
+    // tạo sẵn "Đêm 1"; thêm đêm khác ở tab "Đêm diễn"
+    event = Event.create({
+      name,
+      artist: typeof artist === "string" ? artist : undefined,
+      venue: new Venue(location.trim(), province),
+      genres,
+      saleWindow: saleTimes,
+      firstShow: times,
+      image: imageUrl ? ImageRef.parse(imageUrl) : undefined,
+    });
+  } catch (e) {
+    return domainErrorResponse(e);
+  }
+  await eventRepository.save(event);
 
-  return NextResponse.json(event, { status: 201 });
+  const saved = await prisma.event.findUnique({ where: { id: event.id } });
+  return NextResponse.json(saved, { status: 201 });
 }

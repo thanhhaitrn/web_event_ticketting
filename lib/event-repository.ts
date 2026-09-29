@@ -148,7 +148,34 @@ export class PrismaEventRepository implements EventRepository {
     const prices = diff(before.prices, after.prices);
     const split = (key: string) => key.split("|") as [string, string];
 
+    const isNew = !this.loaded.has(event);
+    const venue = event.getVenue();
+    const scalars = {
+      name: event.getName(),
+      artist: event.getArtist() ?? null,
+      location: venue.getLocation(),
+      provinceCode: venue.getProvince()?.getCode() ?? null,
+      imageUrl: event.getImage()?.getUrl() ?? null,
+      saleStart: event.getSaleWindow().start,
+      saleEnd: event.getSaleWindow().end,
+    };
+
     await prisma.$transaction(async (tx) => {
+      // sự kiện mới: tạo dòng Event trước, các đêm / đợt / khu vực ghi tiếp bên dưới
+      if (isNew) {
+        const schedule = event.schedule();
+        if (!schedule) throw new Error("Sự kiện mới phải có ít nhất một đêm diễn.");
+        await tx.event.create({
+          data: {
+            id: event.id,
+            ...scalars,
+            startTime: schedule.start,
+            endTime: schedule.end,
+            genres: { connect: event.getGenres().map((g) => ({ slug: g.getSlug() })) },
+          },
+        });
+      }
+
       // số vé và giá gắn với đêm / đợt / khu vực bị xoá được database xoá theo (onDelete: Cascade)
       if (shows.removed.length) await tx.show.deleteMany({ where: { eventId: event.id, id: { in: shows.removed } } });
       if (phases.removed.length) await tx.salePhase.deleteMany({ where: { eventId: event.id, id: { in: phases.removed } } });
@@ -201,18 +228,11 @@ export class PrismaEventRepository implements EventRepository {
         });
       }
 
-      if (before.event !== after.event) {
-        const venue = event.getVenue();
+      if (!isNew && before.event !== after.event) {
         await tx.event.update({
           where: { id: event.id },
           data: {
-            name: event.getName(),
-            artist: event.getArtist() ?? null,
-            location: venue.getLocation(),
-            provinceCode: venue.getProvince()?.getCode() ?? null,
-            imageUrl: event.getImage()?.getUrl() ?? null,
-            saleStart: event.getSaleWindow().start,
-            saleEnd: event.getSaleWindow().end,
+            ...scalars,
             genres: { set: event.getGenres().map((g) => ({ slug: g.getSlug() })) },
           },
         });
@@ -235,6 +255,37 @@ export class PrismaEventRepository implements EventRepository {
 
     this.loaded.set(event, after);
   }
+
+  /** xoá sự kiện; đêm, khu vực, đợt, số vé và giá đi theo (onDelete: Cascade) */
+  async delete(event: Event): Promise<void> {
+    await prisma.event.delete({ where: { id: event.id } });
+    this.loaded.delete(event);
+  }
+
+  /** còn sự kiện nào khác dùng ảnh này không (để biết có nên xoá file ảnh) */
+  async isImageUsed(url: string): Promise<boolean> {
+    return (await prisma.event.count({ where: { imageUrl: url } })) > 0;
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// dữ liệu tham chiếu: chỉ đọc, dùng để dựng Venue và danh sách Genre
+// ─────────────────────────────────────────────────────────
+
+export async function findProvince(code: unknown): Promise<Province | null> {
+  if (typeof code !== "number" || !Number.isInteger(code)) return null;
+  const row = await prisma.province.findUnique({ where: { code } });
+  return row ? new Province(row.code, row.name, row.fullName) : null;
+}
+
+/** null khi đầu vào không phải danh sách slug, hoặc có slug không tồn tại */
+export async function findGenres(slugs: unknown): Promise<Genre[] | null> {
+  if (!Array.isArray(slugs) || !slugs.every((s) => typeof s === "string")) return null;
+  const unique = [...new Set(slugs as string[])];
+  if (unique.length === 0) return [];
+  const rows = await prisma.genre.findMany({ where: { slug: { in: unique } } });
+  if (rows.length !== unique.length) return null;
+  return rows.map((g) => new Genre(g.slug, g.name, g.mbid, g.featured, g.sortOrder));
 }
 
 export const eventRepository = new PrismaEventRepository();

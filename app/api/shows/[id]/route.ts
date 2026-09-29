@@ -1,9 +1,9 @@
 import { validBody } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { parseShowTimes, syncEventSpan } from "@/lib/shows";
-import { DomainError } from "@/lib/domain";
+import { parseShowTimes } from "@/lib/shows";
 import { eventRepository } from "@/lib/event-repository";
+import { domainErrorResponse } from "@/lib/api-errors";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -15,24 +15,27 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   }
   const { name, startTime, endTime } = body;
 
-  const current = await prisma.show.findUnique({ where: { id } });
-  if (!current) {
+  const row = await prisma.show.findUnique({ where: { id } });
+  const event = row && (await eventRepository.findById(row.eventId));
+  const show = event?.show(id);
+  if (!event || !show) {
     return NextResponse.json(
       { error: "Không tìm thấy đêm diễn." },
       { status: 404 },
     );
   }
 
-  if (name !== undefined && (typeof name !== "string" || !name.trim())) {
+  if (name !== undefined && typeof name !== "string") {
     return NextResponse.json(
       { error: "Tên đêm diễn không được để trống." },
       { status: 400 },
     );
   }
 
+  const current = show.getTime();
   const times = parseShowTimes(
-    startTime === undefined ? current.startTime.toISOString() : startTime,
-    endTime === undefined ? current.endTime.toISOString() : endTime,
+    startTime === undefined ? current.start.toISOString() : startTime,
+    endTime === undefined ? current.end.toISOString() : endTime,
   );
   if (!times) {
     return NextResponse.json(
@@ -41,17 +44,16 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
     );
   }
 
-  const show = await prisma.show.update({
-    where: { id },
-    data: {
-      ...(name !== undefined ? { name: name.trim() } : {}),
-      startTime: times.start,
-      endTime: times.end,
-    },
-  });
-  await syncEventSpan(show.eventId);
+  try {
+    if (typeof name === "string") show.rename(name);
+    show.reschedule(times);
+  } catch (e) {
+    return domainErrorResponse(e);
+  }
+  // saving also moves the event's dates to span every night
+  await eventRepository.save(event);
 
-  return NextResponse.json(show);
+  return NextResponse.json(await prisma.show.findUnique({ where: { id } }));
 }
 
 export async function DELETE(_request: NextRequest, ctx: Ctx) {
@@ -73,8 +75,7 @@ export async function DELETE(_request: NextRequest, ctx: Ctx) {
   try {
     event.removeShow(id);
   } catch (e) {
-    if (e instanceof DomainError) return NextResponse.json({ error: e.message }, { status: 400 });
-    throw e;
+    return domainErrorResponse(e);
   }
   await eventRepository.save(event);
 

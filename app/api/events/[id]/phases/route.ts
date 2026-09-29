@@ -1,8 +1,9 @@
-import { validBody } from "@/lib/validation";
+import { validBody, validName } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseShowTimes } from "@/lib/shows";
-import { validName } from "@/lib/validation";
+import { eventRepository } from "@/lib/event-repository";
+import { domainErrorResponse } from "@/lib/api-errors";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -22,23 +23,20 @@ export async function POST(request: NextRequest, ctx: Ctx) {
     );
   }
 
-  if (!await prisma.event.findUnique({ where: { id } })) {
+  const event = await eventRepository.findById(id);
+  if (!event) {
     return NextResponse.json({ error: "Không tìm thấy sự kiện." }, { status: 404 });
   }
-  const overlap = await prisma.salePhase.findFirst({
-    where: { eventId: id, startTime: { lt: times.end }, endTime: { gt: times.start } },
-  });
-  if (overlap) {
-    return NextResponse.json({ error: "Thời gian bị trùng với đợt mở bán khác." }, { status: 400 });
-  }
-  const phase = await prisma.salePhase.create({
-    data: {
-      eventId: id,
-      name: name.trim(),
-      startTime: times.start,
-      endTime: times.end,
-    },
-  });
 
+  let phaseId: string;
+  try {
+    // Event rejects a phase that overlaps another one of the same event
+    phaseId = event.addSalePhase(name, times).id;
+  } catch (e) {
+    return domainErrorResponse(e);
+  }
+  await eventRepository.save(event);
+
+  const phase = await prisma.salePhase.findUnique({ where: { id: phaseId } });
   return NextResponse.json(phase, { status: 201 });
 }
