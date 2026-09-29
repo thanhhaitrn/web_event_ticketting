@@ -2,6 +2,8 @@ import { validBody } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseShowTimes, syncEventSpan } from "@/lib/shows";
+import { DomainError } from "@/lib/domain";
+import { eventRepository } from "@/lib/event-repository";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -62,17 +64,19 @@ export async function DELETE(_request: NextRequest, ctx: Ctx) {
     );
   }
 
-  // an event always keeps at least one night, which is where its dates come from
-  const count = await prisma.show.count({ where: { eventId: show.eventId } });
-  if (count <= 1) {
-    return NextResponse.json(
-      { error: "Sự kiện cần ít nhất một đêm diễn." },
-      { status: 400 },
-    );
+  // Event.removeShow keeps at least one night and drops that night's ticket counts;
+  // saving also moves the event's dates to span the remaining nights
+  const event = await eventRepository.findById(show.eventId);
+  if (!event) {
+    return NextResponse.json({ error: "Không tìm thấy sự kiện." }, { status: 404 });
   }
-
-  await prisma.show.delete({ where: { id } });
-  await syncEventSpan(show.eventId);
+  try {
+    event.removeShow(id);
+  } catch (e) {
+    if (e instanceof DomainError) return NextResponse.json({ error: e.message }, { status: 400 });
+    throw e;
+  }
+  await eventRepository.save(event);
 
   return NextResponse.json({ ok: true });
 }

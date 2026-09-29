@@ -130,8 +130,85 @@ test("API regression: invalid requests cannot change data; valid edits still wor
     assert.equal((await prisma.zoneQuota.findFirst()).capacity, 50);
     assert.equal((await zoneEdit.DELETE(req("DELETE", {}), context("missing"))).status, 404);
     assert.equal((await get("app/api/shows/[id]/route.ts").PATCH(req("PATCH", { startTime: null }), context(show.id))).status, 400);
+
+    // deleting nights goes through Event.removeShow + the repository
+    const showEdit = get("app/api/shows/[id]/route.ts");
+    assert.equal((await showEdit.DELETE(req("DELETE", {}), context(show.id))).status, 400); // last night stays
+    const addNight = await get("app/api/events/[id]/shows/route.ts").POST(req("POST", { name: "Đêm 2", startTime: "2026-10-05T12:00Z", endTime: "2026-10-05T15:00Z" }), context(a.id));
+    const night2 = await addNight.json();
+    // two requests at once, each for a different night: neither may erase the other's count
+    const [r1, r2] = await Promise.all([
+      zoneEdit.PATCH(req("PATCH", { capacities: { [show.id]: 70 } }), context(zone.id)),
+      zoneEdit.PATCH(req("PATCH", { capacities: { [night2.id]: 30 } }), context(zone.id)),
+    ]);
+    assert.deepEqual([r1.status, r2.status], [200, 200]);
+    assert.deepEqual((await prisma.zoneQuota.findMany({ where: { zoneId: zone.id }, orderBy: { capacity: "asc" } })).map((q) => q.capacity), [30, 70]);
+    assert.equal((await prisma.event.findUnique({ where: { id: a.id } })).endTime.toISOString(), "2026-10-05T15:00:00.000Z");
+    assert.equal((await showEdit.DELETE(req("DELETE", {}), context(night2.id))).status, 200);
+    assert.equal(await prisma.show.count({ where: { eventId: a.id } }), 1);
+    assert.equal(await prisma.zoneQuota.count({ where: { showId: night2.id } }), 0);
+    assert.equal((await prisma.event.findUnique({ where: { id: a.id } })).endTime.toISOString(), "2026-10-04T15:00:00.000Z");
+    assert.equal((await showEdit.DELETE(req("DELETE", {}), context("missing"))).status, 404);
+    // the price that was saved earlier survives the repository round trips
+    assert.equal(await prisma.zonePrice.count(), 1);
   } finally {
     await prisma.$disconnect();
     fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("domain classes enforce the business rules", () => {
+  const d = load("lib/domain.ts");
+  const at = (iso) => new Date(iso);
+  const range = (a, b) => new d.TimeRange(at(a), at(b));
+
+  assert.throws(() => d.Money.vnd(-1), d.DomainError);
+  assert.throws(() => d.Money.vnd(1.5), d.DomainError);
+  assert.throws(() => d.Money.vnd(2147483648), d.DomainError);
+  assert.throws(() => d.PriceBounds.fromAmounts(100, 50, 200), d.DomainError);
+  assert.throws(() => d.PriceBounds.fromAmounts(100, 250, 200), d.DomainError);
+  const bounds = d.PriceBounds.fromAmounts(100, 150, 200);
+  assert.equal(bounds.clamp(d.Money.vnd(90)).getAmount(), 100);
+  assert.equal(bounds.clamp(d.Money.vnd(999)).getAmount(), 200);
+  assert.equal(bounds.clamp(d.Money.vnd(170)).getAmount(), 170);
+  assert.throws(() => new d.Capacity(-1), d.DomainError);
+
+  assert.throws(() => range("2026-10-02T00:00Z", "2026-10-01T00:00Z"), d.DomainError);
+  assert.equal(d.TimeRange.tryParse("2026-10-02", "2026-10-01"), null);
+  assert.equal(d.TimeRange.tryParse(null, "2026-10-01"), null);
+  const phase = range("2026-10-01T00:00Z", "2026-10-02T00:00Z");
+  assert.equal(phase.contains(at("2026-10-01T00:00Z")), true);
+  assert.equal(phase.contains(at("2026-10-02T00:00Z")), false); // half-open, like lib/sales.ts
+  assert.equal(d.TimeRange.span([]), null);
+
+  const event = d.Event.restore({
+    id: "e1", name: "Test", venue: new d.Venue("SVĐ", new d.Province(1, "Hà Nội", "Thành phố Hà Nội")), genres: [],
+    saleWindow: range("2026-09-01T00:00Z", "2026-10-10T00:00Z"),
+    shows: [{ id: "s1", name: "Đêm 1", time: range("2026-10-10T12:00Z", "2026-10-10T15:00Z") }],
+    phases: [
+      { id: "p2", name: "Chính thức", time: range("2026-09-10T00:00Z", "2026-10-10T00:00Z") },
+      { id: "p1", name: "Sớm", time: range("2026-09-01T00:00Z", "2026-09-10T00:00Z") },
+    ],
+    zones: [{ id: "z1", name: "VIP", quotas: [{ showId: "s1", capacity: 100 }], prices: [{ phaseId: "p1", floor: 1, base: 2, ceiling: 3 }] }],
+  });
+  assert.equal(event.getVenue().label(), "SVĐ, Hà Nội");
+  assert.throws(() => event.removeShow("s1"), /ít nhất một đêm/);
+  const s2 = event.addShow(range("2026-10-11T12:00Z", "2026-10-11T15:00Z"));
+  assert.equal(s2.getName(), "Đêm 2");
+  event.setCapacity("z1", s2.id, new d.Capacity(40));
+  assert.equal(event.zone("z1").totalCapacity().getValue(), 140);
+  assert.equal(event.schedule().end.toISOString(), "2026-10-11T15:00:00.000Z");
+  assert.throws(() => event.setCapacity("z1", "other-event-show", new d.Capacity(1)), d.DomainError);
+  assert.throws(() => event.setPrice("z1", "other-event-phase", bounds), d.DomainError);
+  event.removeShow(s2.id);
+  assert.equal(event.zone("z1").totalCapacity().getValue(), 100);
+  event.removeSalePhase("p1");
+  assert.equal(event.zone("z1").priceFor("p1"), undefined);
+
+  // sale status agrees with lib/sales.ts, which the public pages use
+  for (const iso of ["2026-08-01T00:00Z", "2026-09-05T00:00Z", "2026-09-10T00:00Z", "2026-10-11T00:00Z"]) {
+    const summary = saleSummary([{ id: "p2", startTime: at("2026-09-10T00:00Z"), endTime: at("2026-10-10T00:00Z") }], at(iso));
+    const expected = summary.isSelling ? "on_sale" : summary.isUpcoming ? "upcoming" : "closed";
+    assert.equal(event.saleStatus(at(iso)), expected, iso);
   }
 });

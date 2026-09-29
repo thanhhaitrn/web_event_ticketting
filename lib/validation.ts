@@ -1,10 +1,12 @@
+import { Money } from "@/lib/domain";
+
 export function validName(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0 && value.length <= 500;
 }
 
+// the rule lives on the Money value object (non-negative 32-bit integer, as stored)
 export function validAmount(value: unknown): value is number {
-  // Prisma Int is a signed 32-bit integer.
-  return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 2147483647;
+  return Money.isValidAmount(value);
 }
 
 export function validBody(value: unknown): value is Record<string, unknown> {

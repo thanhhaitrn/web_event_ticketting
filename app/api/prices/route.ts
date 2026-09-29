@@ -2,6 +2,8 @@ import { validBody } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validAmount } from "@/lib/validation";
+import { DomainError, PriceBounds } from "@/lib/domain";
+import { eventRepository } from "@/lib/event-repository";
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -20,12 +22,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Dữ liệu giá không hợp lệ." }, { status: 400 });
   }
 
-  if (floorPrice < 0 || floorPrice > ceilingPrice || basePrice < floorPrice || basePrice > ceilingPrice) {
-    return NextResponse.json(
-      { error: "Giá cơ bản phải nằm trong khoảng giá sàn và giá trần." },
-      { status: 400 }
-    );
-  }
 
   const [zone, phase] = await Promise.all([
     prisma.zone.findUnique({ where: { id: zoneId } }),
@@ -34,15 +30,20 @@ export async function POST(request: NextRequest) {
   if (!zone || !phase) {
     return NextResponse.json({ error: "Không tìm thấy khu vực hoặc đợt mở bán." }, { status: 404 });
   }
-  if (zone.eventId !== phase.eventId) {
-    return NextResponse.json({ error: "Khu vực và đợt mở bán phải thuộc cùng sự kiện." }, { status: 400 });
+
+  // PriceBounds enforces sàn ≤ cơ bản ≤ trần; the Event checks the phase belongs to the zone's event
+  const event = await eventRepository.findById(zone.eventId);
+  if (!event) {
+    return NextResponse.json({ error: "Không tìm thấy sự kiện." }, { status: 404 });
   }
+  try {
+    event.setPrice(zoneId, phaseId, PriceBounds.fromAmounts(floorPrice, basePrice, ceilingPrice));
+  } catch (e) {
+    if (e instanceof DomainError) return NextResponse.json({ error: e.message }, { status: 400 });
+    throw e;
+  }
+  await eventRepository.save(event);
 
-  const price = await prisma.zonePrice.upsert({
-    where: { zoneId_phaseId: { zoneId, phaseId } },
-    update: { floorPrice, basePrice, ceilingPrice },
-    create: { zoneId, phaseId, floorPrice, basePrice, ceilingPrice },
-  });
-
+  const price = await prisma.zonePrice.findUnique({ where: { zoneId_phaseId: { zoneId, phaseId } } });
   return NextResponse.json(price);
 }

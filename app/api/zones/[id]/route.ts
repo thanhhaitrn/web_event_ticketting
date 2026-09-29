@@ -1,6 +1,8 @@
 import { validBody, validAmount } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Capacity, DomainError } from "@/lib/domain";
+import { eventRepository } from "@/lib/event-repository";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -24,7 +26,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
     );
   }
 
-  if (name !== undefined && (typeof name !== "string" || !name.trim())) {
+  if (name !== undefined && typeof name !== "string") {
     return NextResponse.json(
       { error: "Tên khu vực không được để trống." },
       { status: 400 },
@@ -35,43 +37,33 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: "Dữ liệu số vé không hợp lệ." }, { status: 400 });
   }
   const entries = Object.entries(capacities ?? {});
-  if (
-    entries.some(
-      ([, n]) => !validAmount(n),
-    )
-  ) {
+  if (entries.some(([, n]) => !validAmount(n))) {
     return NextResponse.json(
       { error: "Số vé phải là số nguyên không âm." },
       { status: 400 },
     );
   }
-  if (entries.length > 0) {
-    const owned = await prisma.show.count({
-      where: { id: { in: entries.map(([showId]) => showId) }, eventId: zone.eventId },
-    });
-    if (owned !== entries.length) {
-      return NextResponse.json(
-        { error: "Đêm diễn không thuộc sự kiện này." },
-        { status: 400 },
-      );
-    }
+
+  // the Event checks the zone's name and that every night belongs to it; nothing is saved on error
+  const event = await eventRepository.findById(zone.eventId);
+  if (!event) {
+    return NextResponse.json({ error: "Không tìm thấy sự kiện." }, { status: 404 });
   }
-
-  const updated = await prisma.$transaction(async (tx) => {
-    for (const [showId, capacity] of entries as [string, number][]) {
-      await tx.zoneQuota.upsert({
-        where: { zoneId_showId: { zoneId: id, showId } },
-        create: { zoneId: id, showId, capacity },
-        update: { capacity },
-      });
+  try {
+    if (typeof name === "string") event.zone(id)!.rename(name);
+    for (const [showId, n] of entries as [string, number][]) {
+      event.setCapacity(id, showId, new Capacity(n));
     }
-    return tx.zone.update({
-      where: { id },
-      data: typeof name === "string" ? { name: name.trim() } : {},
-      include: { prices: true, quotas: true },
-    });
-  });
+  } catch (e) {
+    if (e instanceof DomainError) return NextResponse.json({ error: e.message }, { status: 400 });
+    throw e;
+  }
+  await eventRepository.save(event);
 
+  const updated = await prisma.zone.findUnique({
+    where: { id },
+    include: { prices: true, quotas: true },
+  });
   return NextResponse.json(updated);
 }
 

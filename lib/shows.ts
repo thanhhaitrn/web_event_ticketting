@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { TimeRange } from "@/lib/domain";
 
 /** the event's start/end always span its nights, so listings and date filters stay right */
 export async function syncEventSpan(eventId: string) {
@@ -14,12 +15,7 @@ export async function syncEventSpan(eventId: string) {
   });
 }
 
-/** parses a start/end pair; null when either is missing or unparseable or end is not after start */
-export function parseShowTimes(startTime: unknown, endTime: unknown) {
-  if (typeof startTime !== "string" || typeof endTime !== "string") return null;
-  const start = new Date(startTime);
-  const end = new Date(endTime);
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
-  if (end <= start) return null;
-  return { start, end };
+/** parses a start/end pair into a TimeRange; null when either is missing or unparseable or end is not after start */
+export function parseShowTimes(startTime: unknown, endTime: unknown): TimeRange | null {
+  return TimeRange.tryParse(startTime, endTime);
 }
