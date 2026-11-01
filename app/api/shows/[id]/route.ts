@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { parseShowTimes } from "@/lib/shows";
 import { eventRepository } from "@/lib/event-repository";
 import { domainErrorResponse } from "@/lib/api-errors";
+import { seatService } from "@/lib/seat-service";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -71,6 +72,9 @@ export async function DELETE(_request: NextRequest, ctx: Ctx) {
   const event = await eventRepository.findById(show.eventId);
   if (!event) {
     return NextResponse.json({ error: "Không tìm thấy sự kiện." }, { status: 404 });
+  }
+  if ((await seatService.countInUse({ showId: id })) > 0) {
+    return NextResponse.json({ error: "Đêm diễn này đã có vé được giữ hoặc bán nên không thể xoá." }, { status: 409 });
   }
   try {
     event.removeShow(id);

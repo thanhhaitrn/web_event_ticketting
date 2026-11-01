@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Capacity } from "@/lib/domain";
 import { domainErrorResponse } from "@/lib/api-errors";
+import { seatService } from "@/lib/seat-service";
 import { eventRepository } from "@/lib/event-repository";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -45,6 +46,17 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
     );
   }
 
+  // a night can't shrink below a seat someone already holds or bought
+  for (const [showId, n] of entries as [string, number][]) {
+    const top = await seatService.highestSeatInUse(showId, id);
+    if (n < top) {
+      return NextResponse.json(
+        { error: `Ghế số ${top} đã được giữ hoặc bán nên số vé không thể nhỏ hơn ${top}.` },
+        { status: 409 },
+      );
+    }
+  }
+
   // the Event checks the zone's name and that every night belongs to it; nothing is saved on error
   const event = await eventRepository.findById(zone.eventId);
   if (!event) {
@@ -73,6 +85,9 @@ export async function DELETE(_request: NextRequest, ctx: Ctx) {
   const event = row && (await eventRepository.findById(row.eventId));
   if (!event?.zone(id)) {
     return NextResponse.json({ error: "Không tìm thấy khu vực." }, { status: 404 });
+  }
+  if ((await seatService.countInUse({ zoneId: id })) > 0) {
+    return NextResponse.json({ error: "Khu vực này đã có vé được giữ hoặc bán nên không thể xoá." }, { status: 409 });
   }
   // the zone's ticket counts and prices go with it
   event.removeZone(id);

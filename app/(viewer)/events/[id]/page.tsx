@@ -4,15 +4,17 @@ import { EVENT_TIME_ZONE } from "@/lib/browse";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { artStyle } from "@/lib/art";
-import { placeLabel } from "@/lib/provinces";
 
 const moneyFmt = new Intl.NumberFormat("vi-VN");
-const dateTimeFmt = new Intl.DateTimeFormat("vi-VN", {
+const longDateFmt = new Intl.DateTimeFormat("vi-VN", {
   timeZone: EVENT_TIME_ZONE,
   weekday: "long",
   day: "numeric",
   month: "numeric",
   year: "numeric",
+});
+const timeFmt = new Intl.DateTimeFormat("vi-VN", {
+  timeZone: EVENT_TIME_ZONE,
   hour: "2-digit",
   minute: "2-digit",
 });
@@ -60,6 +62,7 @@ export default async function PublicEventPage({
     where: { id },
     include: {
       province: true,
+      artists: { orderBy: { createdAt: "asc" } },
       zones: {
         orderBy: { createdAt: "asc" },
         include: { prices: true, quotas: true },
@@ -93,39 +96,95 @@ export default async function PublicEventPage({
     : [];
 
   return (
-    <main className="page narrow">
-      <Link href="/" className="back-link">
-        ← Tất cả sự kiện
-      </Link>
-
-      <div className="detail-head">
-        <div className="detail-art" style={artStyle(event.imageUrl)}>
-          {!event.imageUrl && initials(event.name)}
-        </div>
-        <div className="detail-info">
-          <h1>{event.name}</h1>
-          <div className="detail-meta">
-            {event.shows.length > 1 ? (
-              event.shows.map((show) => (
-                <div key={show.id}>
-                  {show.name} · {dateTimeFmt.format(show.startTime)}
-                </div>
-              ))
-            ) : (
-              <div>{dateTimeFmt.format(event.startTime)}</div>
+    <>
+    <section className="event-hero">
+      <div className="event-hero-inner">
+        <div className="event-hero-copy">
+          <div className="event-eyebrow">
+            <span>Concert</span>
+            {activePhase && (
+              <span
+                className={`pill ${isSellingNow ? "ok" : isUpcoming ? "empty" : "bad"}`}
+              >
+                {label}
+              </span>
             )}
-            <div>{placeLabel(event.location, event.province)}</div>
           </div>
-          {activePhase && (
-            <span
-              className={`pill ${isSellingNow ? "ok" : isUpcoming ? "empty" : "bad"}`}
-            >
-              {label}
-            </span>
+          <h1>{event.name}</h1>
+
+          <div className="event-facts">
+            <div className="event-fact">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z" strokeLinejoin="round" />
+                <circle cx="12" cy="10" r="2.6" />
+              </svg>
+              <div>
+                <b>{event.location}</b>
+                {event.province && <span>{event.province.name}</span>}
+              </div>
+            </div>
+            <div className="event-fact">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="15" rx="3" />
+                <path d="M3.5 9.5h17M8 3.5v3M16 3.5v3" strokeLinecap="round" />
+              </svg>
+              <div className="event-nights">
+                {event.shows.map((show) => (
+                  <div key={show.id}>
+                    <b>{longDateFmt.format(show.startTime)}</b>
+                    <span>
+                      {event.shows.length > 1 && `${show.name} · `}
+                      {timeFmt.format(show.startTime)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="event-actions">
+            {rows.length > 0 && (
+              <a href="#gia-ve" className="btn ghost event-btn">
+                Xem giá vé
+              </a>
+            )}
+            {isSellingNow && rows.length > 0 && night && night.endTime > now && (
+              <Link
+                href={`/events/${event.id}/seats?dem=${night.id}`}
+                className="btn event-btn"
+              >
+                Mua vé
+              </Link>
+            )}
+          </div>
+
+          {event.artists.length === 1 && (
+            <Link href={`/artists/${event.artists[0].slug}`} className="event-all">
+              Xem tất cả sự kiện của nghệ sĩ này
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          )}
+          {event.artists.length > 1 && (
+            <div className="event-artists">
+              <span>Nghệ sĩ:</span>
+              {event.artists.map((a) => (
+                <Link key={a.id} href={`/artists/${a.slug}`}>
+                  {a.name}
+                </Link>
+              ))}
+            </div>
           )}
         </div>
-      </div>
 
+        <div className="event-poster" style={artStyle(event.imageUrl)}>
+          {!event.imageUrl && initials(event.name)}
+        </div>
+      </div>
+    </section>
+
+    <main className="page narrow" id="gia-ve">
       {!activePhase || priced.length === 0 ? (
         <div className="empty-state">Sự kiện chưa công bố giá vé.</div>
       ) : (
@@ -194,5 +253,6 @@ export default async function PublicEventPage({
         </>
       )}
     </main>
+    </>
   );
 }

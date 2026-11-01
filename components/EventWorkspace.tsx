@@ -7,6 +7,7 @@ import type { GenreOption } from "@/lib/genres";
 import DateTimeRangeField from "@/components/DateTimeRangeField";
 import FilterMenu from "@/components/FilterMenu";
 import ImageField from "@/components/ImageField";
+import ArtistPicker from "@/components/ArtistPicker";
 import ConfirmModal from "@/components/ConfirmModal";
 
 type ZonePrice = {
@@ -44,8 +45,9 @@ type Phase = {
 type EventInfo = {
   id: string;
   name: string;
-  artist: string | null;
+  artists: string[];
   imageUrl: string | null;
+  seatMapUrl: string | null;
   genreSlugs: string[];
   location: string;
   provinceCode: number | null;
@@ -122,6 +124,7 @@ export default function EventWorkspace({
   shows: initialShows = [],
   provinces,
   genres,
+  artistNames,
 }: {
   event: EventInfo | null;
   zones?: Zone[];
@@ -129,6 +132,7 @@ export default function EventWorkspace({
   shows?: Show[];
   provinces: ProvinceOption[];
   genres: GenreOption[];
+  artistNames: string[];
 }) {
   const [tab, setTab] = useState<Tab>("event");
   const [event, setEvent] = useState<EventInfo | null>(initialEvent);
@@ -282,6 +286,7 @@ export default function EventWorkspace({
           showToast={showToast}
           provinces={provinces}
           genres={genres}
+          artistNames={artistNames}
           shows={shows}
           openShows={() => goTab("shows")}
         />
@@ -333,6 +338,7 @@ function EventTab({
   showToast,
   provinces,
   genres,
+  artistNames,
   shows,
   openShows,
 }: {
@@ -341,6 +347,7 @@ function EventTab({
   showToast: (m: string) => void;
   provinces: ProvinceOption[];
   genres: GenreOption[];
+  artistNames: string[];
   shows: Show[];
   openShows: () => void;
 }) {
@@ -348,8 +355,9 @@ function EventTab({
   const isNew = event === null;
   const [form, setForm] = useState({
     name: event?.name ?? "",
-    artist: event?.artist ?? "",
+    artists: event?.artists ?? [],
     imageUrl: event?.imageUrl ?? "",
+    seatMapUrl: event?.seatMapUrl ?? "",
     genreSlugs: event?.genreSlugs ?? [],
     location: event?.location ?? "",
     provinceCode: event?.provinceCode ? String(event.provinceCode) : "",
@@ -362,7 +370,7 @@ function EventTab({
   const [error, setError] = useState("");
 
   function update(
-    key: Exclude<keyof typeof form, "genreSlugs">,
+    key: Exclude<keyof typeof form, "genreSlugs" | "artists">,
     value: string,
   ) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -440,6 +448,7 @@ function EventTab({
       saleStart: new Date(saved.saleStart).toISOString(),
       saleEnd: new Date(saved.saleEnd).toISOString(),
       genreSlugs: form.genreSlugs,
+      artists: form.artists,
     });
     showToast("Đã lưu thông tin sự kiện.");
   }
@@ -463,17 +472,18 @@ function EventTab({
         value={form.imageUrl}
         onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
       />
-      <div className="form-grid full">
-        <div className="field">
-          <label htmlFor="ev-artist">Nghệ sĩ / ban nhạc</label>
-          <input
-            id="ev-artist"
-            value={form.artist}
-            onChange={(e) => update("artist", e.target.value)}
-            placeholder="VD: Mỹ Tâm"
-          />
-        </div>
-      </div>
+      <ImageField
+        label="Sơ đồ khu vực"
+        hint="hiện ở trang mua vé; giữ nguyên tỉ lệ ảnh, tối đa 5 MB"
+        crop={false}
+        value={form.seatMapUrl}
+        onChange={(url) => setForm((f) => ({ ...f, seatMapUrl: url }))}
+      />
+      <ArtistPicker
+        value={form.artists}
+        suggestions={artistNames}
+        onChange={(artists) => setForm((f) => ({ ...f, artists }))}
+      />
       <fieldset className="field genre-field">
         <legend>
           Thể loại{" "}

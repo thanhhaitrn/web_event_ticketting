@@ -6,6 +6,7 @@ import { artStyle } from "@/lib/art";
 import { getProvinces, placeLabel } from "@/lib/provinces";
 import BrowseFilters from "@/components/BrowseFilters";
 import ShowMore from "@/components/ShowMore";
+import EventCard, { initials } from "@/components/EventCard";
 import { getGenres } from "@/lib/genres";
 
 const dateFmt = new Intl.DateTimeFormat("vi-VN", {
@@ -19,17 +20,6 @@ const timeFmt = new Intl.DateTimeFormat("vi-VN", {
   hour: "2-digit",
   minute: "2-digit",
 });
-
-function initials(name: string) {
-  // only words that start with a letter, so "(TP.HCM)" or "–" never become an initial
-  const words = name
-    .trim()
-    .split(/\s+/)
-    .filter((w) => /^\p{L}/u.test(w));
-  if (words.length === 0) return "?";
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return (words[0][0] + words[words.length - 1][0]).toUpperCase();
-}
 
 // one full row of six before "Xem thêm"
 const GRID_CAP = 6;
@@ -287,36 +277,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
             cap={GRID_CAP}
           >
             {events.map((ev) => (
-              <Link
-                href={`/events/${ev.id}`}
-                key={ev.id}
-                className="event-card"
-              >
-                <div className="art" style={artStyle(ev.imageUrl)}>
-                  {!ev.imageUrl && initials(ev.name)}
-                  <span className="badge" aria-hidden="true">
-                    <svg
-                      width="17"
-                      height="17"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M20.8 8.6c0 5-8.8 10.2-8.8 10.2S3.2 13.6 3.2 8.6a4.6 4.6 0 018.8-1.8 4.6 4.6 0 018.8 1.8z" />
-                    </svg>
-                  </span>
-                </div>
-                <div className="name">{ev.name}</div>
-                <div className="when">
-                  {dateFmt.format(ev.startTime)} •{" "}
-                  {timeFmt.format(ev.startTime)}
-                </div>
-                <div className="loc">{ev.province?.name ?? ev.location}</div>
-                <div className="meta">
-                  {ev.zones.length} khu vực · {ev.phases.length} đợt mở bán
-                </div>
-              </Link>
+              <EventCard key={ev.id} event={ev} />
             ))}
           </ShowMore>
         )}

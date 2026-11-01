@@ -5,9 +5,18 @@
 // Lớp này không biết gì về Prisma hay HTTP: API route bắt DomainError và trả 400,
 // còn việc đọc/ghi database nằm ở lib/event-repository.ts.
 
+import { MAX_SEATS_PER_ORDER } from "@/lib/seat-layout";
+import { slugify } from "@/lib/slug";
+
 /** vi phạm quy tắc nghiệp vụ; message viết sẵn để hiển thị cho người dùng */
 export class DomainError extends Error {
-  constructor(message: string) {
+  constructor(
+    message: string,
+    /** mã HTTP khi lỗi này đi ra API */
+    readonly status: number = 400,
+    /** dữ liệu kèm theo cho giao diện, VD các ghế vừa bị người khác giữ */
+    readonly details?: Record<string, unknown>,
+  ) {
     super(message);
     this.name = "DomainError";
   }
@@ -106,6 +115,34 @@ export class Capacity {
   }
 }
 
+/** các ghế một người chọn trong một lần giữ: 1–5 ghế, không trùng, nằm trong sức chứa */
+export class SeatSelection {
+  readonly seats: readonly number[];
+
+  constructor(seats: unknown) {
+    if (
+      !Array.isArray(seats) ||
+      seats.length === 0 ||
+      !seats.every((n) => Number.isInteger(n) && n >= 1 && n <= MAX_INT)
+    ) {
+      throw new DomainError("Danh sách ghế không hợp lệ.");
+    }
+    if (seats.length > MAX_SEATS_PER_ORDER) {
+      throw new DomainError(`Mỗi lần chỉ được chọn tối đa ${MAX_SEATS_PER_ORDER} vé.`);
+    }
+    if (new Set(seats).size !== seats.length) {
+      throw new DomainError("Danh sách ghế bị trùng.");
+    }
+    this.seats = [...(seats as number[])].sort((a, b) => a - b);
+  }
+
+  assertWithin(capacity: Capacity): void {
+    if (this.seats.some((n) => n > capacity.getValue())) {
+      throw new DomainError("Ghế không tồn tại trong khu vực này.");
+    }
+  }
+}
+
 export class PriceBounds {
   private constructor(
     private readonly floor: Money,
@@ -180,6 +217,25 @@ export class Province {
   getCode(): number { return this.code; }
   getName(): string { return this.name; }
   getFullName(): string { return this.fullName; }
+}
+
+export class Artist {
+  constructor(
+    public readonly id: string,
+    private readonly name: string,
+    private readonly slug: string,
+  ) {}
+
+  /** nghệ sĩ mới từ tên ban tổ chức nhập; slug là thứ quyết định hai tên có phải một người không */
+  static fromName(name: string): Artist {
+    const text = requireText(name, "Tên nghệ sĩ không hợp lệ.");
+    const slug = slugify(text);
+    if (!slug) throw new DomainError("Tên nghệ sĩ không hợp lệ.");
+    return new Artist(crypto.randomUUID(), text, slug);
+  }
+
+  getName(): string { return this.name; }
+  getSlug(): string { return this.slug; }
 }
 
 export class Genre {
@@ -323,11 +379,12 @@ export type SaleStatus = "upcoming" | "on_sale" | "closed" | "unannounced";
 export type EventSnapshot = {
   id: EventId;
   name: string;
-  artist?: string;
+  artists: Artist[];
   venue: Venue;
   genres: Genre[];
   saleWindow: TimeRange;
   image?: ImageRef;
+  seatMap?: ImageRef;
   shows: { id: ShowId; name: string; time: TimeRange }[];
   phases: { id: PhaseId; name: string; time: TimeRange }[];
   zones: {
@@ -343,6 +400,7 @@ export class Event {
   private zones: Zone[] = [];
   private phases: SalePhase[] = [];
   private image?: ImageRef;
+  private seatMap?: ImageRef;
 
   constructor(
     public readonly id: EventId,
@@ -350,13 +408,14 @@ export class Event {
     private venue: Venue,
     private genres: Genre[],
     private saleWindow: TimeRange,
-    private artist?: string,
+    private artists: Artist[] = [],
   ) {}
 
   /** dựng lại aggregate từ dữ liệu đã lưu, giữ nguyên id của từng đêm, khu vực và đợt */
   static restore(s: EventSnapshot): Event {
-    const event = new Event(s.id, s.name, s.venue, s.genres, s.saleWindow, s.artist);
+    const event = new Event(s.id, s.name, s.venue, s.genres, s.saleWindow, s.artists);
     event.image = s.image;
+    event.seatMap = s.seatMap;
     event.shows = s.shows.map((x) => new Show(x.id, x.name, x.time));
     event.phases = s.phases.map((x) => new SalePhase(x.id, x.name, x.time));
     event.zones = s.zones.map((z) => {
@@ -373,12 +432,13 @@ export class Event {
    */
   static create(input: {
     name: string;
-    artist?: string;
+    artists?: Artist[];
     venue: Venue;
     genres: Genre[];
     saleWindow: TimeRange;
     firstShow: TimeRange;
     image?: ImageRef;
+    seatMap?: ImageRef;
   }): Event {
     const event = new Event(
       crypto.randomUUID(),
@@ -386,10 +446,11 @@ export class Event {
       input.venue,
       input.genres,
       input.saleWindow,
-      input.artist?.trim() || undefined,
+      input.artists ?? [],
     );
     requireText(input.venue.getLocation(), "Thiếu thông tin bắt buộc.");
     event.image = input.image;
+    event.seatMap = input.seatMap;
     event.addShow(input.firstShow, "Đêm 1");
     event.checkSaleWindow(input.saleWindow);
     return event;
@@ -399,8 +460,8 @@ export class Event {
     this.name = requireText(name, "Tên sự kiện không được để trống.");
   }
 
-  setArtist(artist: string | undefined): void {
-    this.artist = artist?.trim() || undefined;
+  setArtists(artists: Artist[]): void {
+    this.artists = artists;
   }
 
   relocate(venue: Venue): void {
@@ -414,6 +475,10 @@ export class Event {
 
   setImage(image: ImageRef | undefined): void {
     this.image = image;
+  }
+
+  setSeatMap(seatMap: ImageRef | undefined): void {
+    this.seatMap = seatMap;
   }
 
   reopenSales(window: TimeRange): void {
@@ -431,10 +496,11 @@ export class Event {
   }
 
   getName(): string { return this.name; }
-  getArtist(): string | undefined { return this.artist; }
+  getArtists(): readonly Artist[] { return this.artists; }
   getVenue(): Venue { return this.venue; }
   getGenres(): readonly Genre[] { return this.genres; }
   getImage(): ImageRef | undefined { return this.image; }
+  getSeatMap(): ImageRef | undefined { return this.seatMap; }
   getSaleWindow(): TimeRange { return this.saleWindow; }
   getShows(): readonly Show[] { return this.shows; }
   getZones(): readonly Zone[] { return this.zones; }

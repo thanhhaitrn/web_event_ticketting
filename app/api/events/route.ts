@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { parseShowTimes } from "@/lib/shows";
 import { isValidImageUrl } from "@/lib/uploads";
 import { Event, ImageRef, Venue } from "@/lib/domain";
-import { eventRepository, findGenres, findProvince } from "@/lib/event-repository";
+import { eventRepository, findGenres, findProvince, resolveArtists } from "@/lib/event-repository";
 import { domainErrorResponse } from "@/lib/api-errors";
 
 export async function GET() {
@@ -22,8 +22,9 @@ export async function POST(request: NextRequest) {
   }
   const {
     name,
-    artist,
+    artists: artistNames,
     imageUrl,
+    seatMapUrl,
     genreSlugs,
     location,
     provinceCode,
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
   } = body;
 
   // định dạng dữ liệu gửi lên; quy tắc nghiệp vụ nằm trong Event.create
-  if (!validName(name) || !validName(location) || (artist != null && typeof artist !== "string")) {
+  if (!validName(name) || !validName(location)) {
     return NextResponse.json(
       { error: "Thiếu thông tin bắt buộc." },
       { status: 400 },
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Lịch mở bán không hợp lệ: kết thúc phải sau bắt đầu, và mở bán không được sau đêm diễn đầu tiên." }, { status: 400 });
   }
 
-  if (imageUrl !== undefined && !isValidImageUrl(imageUrl)) {
+  if ((imageUrl !== undefined && !isValidImageUrl(imageUrl)) || (seatMapUrl !== undefined && !isValidImageUrl(seatMapUrl))) {
     return NextResponse.json(
       { error: "Ảnh quảng bá không hợp lệ." },
       { status: 400 },
@@ -78,15 +79,20 @@ export async function POST(request: NextRequest) {
 
   let event: Event;
   try {
+    const artists = artistNames === undefined ? [] : await resolveArtists(artistNames);
+    if (artists === null) {
+      return NextResponse.json({ error: "Danh sách nghệ sĩ không hợp lệ." }, { status: 400 });
+    }
     // tạo sẵn "Đêm 1"; thêm đêm khác ở tab "Đêm diễn"
     event = Event.create({
       name,
-      artist: typeof artist === "string" ? artist : undefined,
+      artists,
       venue: new Venue(location.trim(), province),
       genres,
       saleWindow: saleTimes,
       firstShow: times,
       image: imageUrl ? ImageRef.parse(imageUrl) : undefined,
+      seatMap: seatMapUrl ? ImageRef.parse(seatMapUrl) : undefined,
     });
   } catch (e) {
     return domainErrorResponse(e);

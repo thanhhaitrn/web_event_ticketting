@@ -23,8 +23,8 @@
 
   /* one type scale for both the fan and organizer sites */
   --fs-hero: clamp(34px, 4.8vw, 66px);
-  /* section titles on both sites (32px desktop, 24px phone) */
-  --fs-section: clamp(24px, 2.4vw, 32px);
+  /* section titles on both sites (30px desktop, 24px phone) */
+  --fs-section: clamp(24px, 2.4vw, 30px);
   --fs-lead: 16px;
   --fs-card-title: 18px;
   --fs-body: 15px;
@@ -821,50 +821,9 @@ body:has(.hero-full) {
 .back-link:hover {
   color: var(--ink);
 }
-/* poster left, event info right; stacks on phones */
-.detail-head {
-  display: flex;
-  gap: 32px;
-  align-items: flex-start;
-}
-.detail-info {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-@media (max-width: 600px) {
-  .detail-head {
-    flex-direction: column;
-    gap: 20px;
-  }
-}
-.detail-art {
-  width: 200px;
-  height: 200px;
-  flex: 0 0 auto;
-  border-radius: 14px;
-  background: var(--grad-art);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: rgba(255, 255, 255, 0.95);
-}
-.detail-head h1 {
-  font-size: 28px;
-  line-height: 1.3;
-}
-.detail-meta {
-  font-size: 15px;
-  color: var(--muted);
-  margin: 10px 0 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
 
 .ticket-list {
+  background: var(--surface);
   display: flex;
   flex-direction: column;
   border: 1px solid var(--line);
@@ -2826,4 +2785,906 @@ th.num-col {
 .site-fans .ask-btn:hover {
   background: #effbfa;
   border-color: #0b9488;
+}
+
+/* =================== fan seat map =================== */
+.seat-title {
+  font-size: 28px;
+  line-height: 1.3;
+}
+.seat-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+.seat-dot.free { background: var(--seat-free); }
+.seat-dot.sold { background: var(--seat-sold); }
+.seat-dot.held { background: var(--seat-held); }
+.seat-dot.picked { background: var(--ink); }
+.seat-panel-sub,
+.seat-panel-empty,
+.seat-panel-note {
+  font-size: 13.5px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.seat-panel-note {
+  font-size: 12.5px;
+}
+.seat-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+.seat-lines li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.seat-line-go {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  margin-right: auto;
+}
+.seat-line-go:hover {
+  text-decoration: underline;
+}
+.seat-line-x {
+  border: 0;
+  background: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+}
+.seat-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+}
+.seat-notice {
+  font-size: 13.5px;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* =================== fan event page: hero =================== */
+/* same gradient as the home hero, running behind the header; taller, to fit the poster */
+body:has(.event-hero, .artist-hero) {
+  background-color: #fff;
+  background-image:
+    radial-gradient(
+      120% 80% at 78% 0%,
+      rgba(150, 196, 240, 0.55) 0%,
+      rgba(150, 196, 240, 0) 62%
+    ),
+    linear-gradient(
+      180deg,
+      #5fe2d7 0%,
+      #83ebe0 25%,
+      #bdf3ed 55%,
+      #e9fbf9 82%,
+      #ffffff 100%
+    );
+  background-repeat: no-repeat;
+  background-size: 100% 690px;
+  background-position: top center;
+}
+body:has(.event-hero, .artist-hero) .topnav {
+  background: transparent;
+  border-bottom-color: transparent;
+  position: relative;
+}
+body:has(.event-hero, .artist-hero) .topnav .search input {
+  background: #fff;
+}
+.event-hero-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 44px 24px 56px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+  gap: 56px;
+  align-items: center;
+}
+.event-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.event-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.event-hero h1 {
+  font-size: clamp(32px, 3.6vw, 52px);
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+  margin-top: 14px;
+  text-wrap: balance;
+}
+.event-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 40px;
+  margin-top: 32px;
+}
+.event-fact {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+.event-fact svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+.event-fact b {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.event-fact span {
+  display: block;
+  font-size: 15px;
+  margin-top: 3px;
+}
+.event-nights {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.event-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+.event-btn {
+  min-width: 160px;
+  justify-content: center;
+  padding: 14px 28px;
+  font-size: 15px;
+}
+.event-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+  font-size: 15px;
+  font-weight: 500;
+}
+.event-all:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.event-poster {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 24px;
+  background: var(--grad-art);
+  box-shadow: 0 18px 44px rgba(16, 17, 20, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: rgba(255, 255, 255, 0.95);
+}
+#gia-ve {
+  scroll-margin-top: 16px;
+}
+@media (max-width: 900px) {
+  .event-hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 24px 16px 36px;
+    gap: 32px;
+  }
+  .event-poster {
+    order: -1;
+    max-width: 360px;
+  }
+  body:has(.event-hero) {
+    background-size: 100% 1000px;
+  }
+}
+
+/* =================== fan artist page =================== */
+body:has(.artist-hero) {
+  background-size: 100% 560px;
+}
+.artist-hero-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 36px 24px 56px;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 56px;
+  align-items: center;
+}
+.artist-portrait {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: var(--grad-art);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: rgba(255, 255, 255, 0.95);
+}
+.artist-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.artist-eyebrow {
+  font-size: 15px;
+  font-weight: 600;
+}
+.artist-hero h1 {
+  font-size: clamp(32px, 4vw, 56px);
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+  text-wrap: balance;
+}
+.artist-badge {
+  margin-top: 18px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.artist-stats {
+  margin-top: 18px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.artist-page {
+  max-width: 1120px;
+}
+.artist-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.artist-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.artist-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 2px rgba(16, 17, 20, 0.06), 0 4px 16px rgba(16, 17, 20, 0.06);
+}
+.date-tile {
+  flex: 0 0 auto;
+  width: 64px;
+  padding: 8px 4px;
+  border-radius: 10px;
+  background: #d9f6f2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.date-tile b {
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+.date-tile.past {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.artist-row-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.artist-row-name {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.artist-row-place {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.artist-row .btn {
+  flex: 0 0 auto;
+}
+@media (max-width: 720px) {
+  .artist-hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 20px 16px 32px;
+  }
+  .artist-portrait {
+    width: 180px;
+  }
+  .artist-row {
+    flex-wrap: wrap;
+    gap: 12px 14px;
+    padding: 14px 16px;
+  }
+  .artist-row-copy {
+    flex-basis: calc(100% - 80px);
+  }
+  .artist-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.event-artists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 28px;
+  font-size: 15px;
+}
+.event-artists span {
+  font-weight: 600;
+}
+.event-artists a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* organizer form: chosen artists */
+.artist-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.artist-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 14px;
+  border-radius: var(--radius-pill);
+  background: #24132e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.artist-chip button {
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+/* =================== fan ticket page: map on the left, ticket types on the right =================== */
+body:has(.buy-page) .topnav,
+body:has(.buy-page) .footer {
+  display: none;
+}
+.buy-page {
+  --seat-free: #1f9d61;
+  --seat-sold: #d33a3a;
+  --seat-held: #a3a7ae;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+}
+/* dark bar and event strip, on this page only */
+.buy-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 24px;
+  color: var(--ink);
+}
+.buy-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.buy-head {
+  background: linear-gradient(100deg, #5fe2d7 0%, #83ebe0 45%, #96c4f0 100%);
+}
+.buy-event {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px 14px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.buy-thumb {
+  flex: 0 0 auto;
+  width: 76px;
+  height: 76px;
+  border-radius: 6px;
+  background: var(--grad-art);
+}
+.buy-event-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.buy-event-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+.buy-event-name h1 {
+  font-size: 17px;
+  line-height: 1.3;
+}
+.buy-info {
+  padding: 2px 12px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.buy-info:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+.buy-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+}
+.buy-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  flex: 0 0 auto;
+  background: #fff;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.buy-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  background: #eceef1;
+}
+.seat-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.seat-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.venue {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.venue.zoomed {
+  cursor: grab;
+}
+.venue.dark {
+  background: #2a120b;
+}
+.venue-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.venue-ground {
+  fill: #f6f7f9;
+}
+.venue-stage {
+  fill: #16171b;
+}
+.venue-decor {
+  stroke: #2a120b;
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+.venue-decor-text {
+  fill: #111;
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: none;
+}
+.venue-decor-text.on-dark {
+  fill: #fff;
+}
+.venue-stage-text {
+  fill: #fff;
+  font-weight: 700;
+  pointer-events: none;
+}
+.venue-section {
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: fill-opacity 0.15s ease;
+}
+.venue-section:focus,
+.map-seat:focus {
+  outline: none;
+}
+.venue-section.focused {
+  stroke-width: 4;
+}
+.map-seat {
+  stroke-linejoin: round;
+}
+/* each state fills and strokes alike: the round stroke is what rounds the corners */
+.map-seat.free { fill: var(--seat-free); stroke: var(--seat-free); cursor: pointer; }
+.map-seat.sold { fill: var(--seat-sold); stroke: var(--seat-sold); cursor: not-allowed; }
+.map-seat.held { fill: var(--seat-held); stroke: var(--seat-held); cursor: not-allowed; }
+/* the viewer's own hold is grey like any hold, ringed so they can find it */
+.map-seat.mine { fill: var(--seat-held); stroke: var(--ink); }
+.map-seat.picked { fill: var(--ink); stroke: var(--ink); cursor: pointer; }
+.map-seat.free:hover,
+.map-seat:focus-visible {
+  outline: none;
+  stroke: var(--ink);
+}
+.map-seats.off .map-seat.free {
+  fill-opacity: 0.55;
+  stroke-opacity: 0.55;
+  cursor: default;
+}
+.map-seat-number {
+  fill: #fff;
+  font-weight: 700;
+  pointer-events: none;
+}
+.map-row-name {
+  fill: var(--muted);
+  font-weight: 700;
+  pointer-events: none;
+}
+.venue-legend {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  padding: 7px 12px;
+  background: var(--surface);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.venue-section.open {
+  cursor: pointer;
+}
+.venue-section.open:hover,
+.venue-section.open:focus-visible {
+  outline: none;
+  stroke: #fff;
+  stroke-width: 2.5;
+}
+.venue-label {
+  fill: #fff;
+  font-weight: 700;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: rgba(16, 17, 20, 0.35);
+  stroke-width: 0.8;
+}
+.venue-buttons {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.venue-buttons button {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #b9bcc2;
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+.venue-buttons button:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.venue-buttons button:disabled {
+  color: #b9bcc2;
+  cursor: default;
+}
+.venue.focused .venue-decor,
+.venue.focused .venue-decor-text,
+.venue.focused .venue-stage-text {
+  opacity: 0.25;
+}
+.venue-caption {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 90px);
+  padding: 8px 14px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #b9bcc2;
+  font-size: 14px;
+}
+.buy-photo {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+}
+.buy-hint {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+.zoom-box {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+  /* at normal size a finger still scrolls the page; once zoomed it moves the picture */
+  touch-action: pan-y;
+}
+.zoom-box:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.zoom-box.zoomed {
+  cursor: grab;
+  touch-action: none;
+}
+.zoom-box.zoomed.dragging {
+  cursor: grabbing;
+}
+.zoom-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: center;
+  will-change: transform;
+}
+.zoom-controls {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: 0 4px 16px rgba(16, 17, 20, 0.22);
+}
+.zoom-controls button {
+  min-width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.zoom-controls .zoom-level {
+  min-width: 56px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.zoom-controls button:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.zoom-controls button:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+.buy-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+  background: var(--surface-2);
+  border-left: 1px solid var(--line);
+}
+.buy-nights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ticket-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface);
+  flex: 0 0 auto;
+}
+.ticket-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 14px 16px;
+  border-left: 8px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+.ticket-card:last-child {
+  border-bottom: 0;
+}
+.ticket-card.active {
+  background: var(--accent-soft);
+}
+.ticket-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.ticket-card-copy b {
+  font-size: 15px;
+  font-weight: 700;
+}
+.ticket-card-price {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.ticket-card-left {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.ticket-add {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+}
+.ticket-add:hover:not(:disabled) {
+  background: #2b2d33;
+}
+.ticket-add:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.ticket-add:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.buy-basket,
+.buy-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 16px;
+  flex: 0 0 auto;
+}
+.buy-basket {
+  position: sticky;
+  bottom: 0;
+  box-shadow: 0 -6px 20px rgba(16, 17, 20, 0.1);
+}
+.buy-panel h2 {
+  font-size: 18px;
+}
+.buy-basket .btn,
+.buy-panel .btn {
+  justify-content: center;
+}
+.image-preview.whole {
+  aspect-ratio: auto;
+  object-fit: contain;
+  max-height: 240px;
+  width: auto;
+  height: auto;
+}
+@media (max-width: 900px) {
+  .buy-page {
+    height: auto;
+    min-height: 100dvh;
+  }
+  .buy-top {
+    padding: 10px 16px;
+  }
+  .buy-event {
+    padding: 0 16px 12px;
+    gap: 12px;
+  }
+  .buy-thumb {
+    width: 56px;
+    height: 56px;
+  }
+  .buy-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .buy-stage {
+    height: 70dvh;
+  }
+  .buy-side {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    overflow: visible;
+    padding: 16px;
+  }
 }

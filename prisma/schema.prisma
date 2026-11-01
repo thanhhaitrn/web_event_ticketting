@@ -9,9 +9,13 @@ datasource db {
 model Event {
   id         String      @id @default(cuid())
   name       String
-  artist     String?
   // served by /api/uploads/[name]; null falls back to the gradient tile
   imageUrl   String?
+  // venue map shown on the ticket page, same upload rules as the poster
+  seatMapUrl String?
+  // key of a hand-drawn plan in lib/venue-plans.ts; null draws rings from the ticket tiers
+  venuePlan  String?
+  artists    Artist[]
   genres     Genre[]
   // venue name only, e.g. "SVĐ Mỹ Đình"; the province carries the city
   location   String
@@ -33,11 +37,14 @@ model Zone {
   eventId   String
   event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
   name      String
+  // hex colour matching the venue map, so buyers can find the zone on it
+  color     String?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   prices    ZonePrice[]
   // how many tickets of this zone each night sells
   quotas    ZoneQuota[]
+  reservations SeatReservation[]
 }
 
 // one night of a multi-night event; the event's start/end span its shows
@@ -51,6 +58,8 @@ model Show {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   quotas    ZoneQuota[]
+  orders    Order[]
+  reservations SeatReservation[]
 }
 
 // tickets of one zone on sale for one night; a missing row means none
@@ -108,5 +117,57 @@ model Genre {
   mbid      String  @unique
   featured  Boolean @default(false)
   sortOrder Int
+  events    Event[]
+}
+
+// one purchase attempt: seats are held while HELD and sold once PAID
+model Order {
+  id          String   @id @default(cuid())
+  // anonymous browser id from the venu_buyer cookie, until accounts exist
+  buyerId     String
+  showId      String
+  show        Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  status      String   // HELD | PAID | EXPIRED | CANCELLED
+  // "buyer:show" while HELD, null afterwards: the database allows one live hold per buyer per night
+  activeKey   String?  @unique
+  seatCount   Int
+  totalAmount Int
+  expiresAt   DateTime
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+  seats       SeatReservation[]
+
+  @@index([status, expiresAt])
+}
+
+// Seats are numbered 1..capacity and have no row of their own; a row exists only
+// while a seat is held or sold. The unique index is what makes overselling impossible.
+model SeatReservation {
+  id         String    @id @default(cuid())
+  showId     String
+  show       Show      @relation(fields: [showId], references: [id], onDelete: Cascade)
+  zoneId     String
+  zone       Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  seatNumber Int
+  orderId    String
+  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status     String    // HELD | SOLD
+  price      Int
+  // set while HELD; once past, the seat counts as free
+  expiresAt  DateTime?
+
+  @@unique([showId, zoneId, seatNumber])
+  @@index([status, expiresAt])
+  @@index([orderId])
+}
+
+model Artist {
+  id        String   @id @default(cuid())
+  // for the page address (/artists/bigbang); also what makes "soobin" and "SOOBIN" one artist
+  slug      String   @unique
+  name      String   @unique
+  // own photo; null falls back to the poster of one of their events
+  imageUrl  String?
+  createdAt DateTime @default(now())
   events    Event[]
 }

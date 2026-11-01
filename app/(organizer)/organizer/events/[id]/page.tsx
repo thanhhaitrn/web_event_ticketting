@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import EventWorkspace from "@/components/EventWorkspace";
 import { getProvinces } from "@/lib/provinces";
 import { getGenres } from "@/lib/genres";
+import { getArtistNames } from "@/lib/artists";
 
 export default async function EventDetailPage({
   params,
@@ -15,6 +16,7 @@ export default async function EventDetailPage({
     where: { id },
     include: {
       genres: { select: { slug: true } },
+      artists: { select: { name: true }, orderBy: { createdAt: "asc" } },
       zones: {
         orderBy: { createdAt: "asc" },
         include: { prices: true, quotas: true },
@@ -26,17 +28,19 @@ export default async function EventDetailPage({
 
   if (!event) notFound();
 
-  const [provinces, genres] = await Promise.all([getProvinces(), getGenres()]);
+  const [provinces, genres, artistNames] = await Promise.all([getProvinces(), getGenres(), getArtistNames()]);
 
   return (
     <EventWorkspace
       provinces={provinces}
       genres={genres}
+      artistNames={artistNames}
       event={{
         id: event.id,
         name: event.name,
-        artist: event.artist,
+        artists: event.artists.map((a) => a.name),
         imageUrl: event.imageUrl,
+        seatMapUrl: event.seatMapUrl,
         genreSlugs: event.genres.map((g) => g.slug),
         location: event.location,
         provinceCode: event.provinceCode,

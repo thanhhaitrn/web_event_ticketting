@@ -3,6 +3,7 @@
 // Ghi: so aggregate với database rồi thêm / sửa / xoá đúng các dòng con.
 import { prisma } from "@/lib/prisma";
 import {
+  Artist,
   Event,
   Genre,
   ImageRef,
@@ -16,6 +17,7 @@ import {
 const include = {
   province: true,
   genres: true,
+  artists: true,
   shows: { orderBy: { startTime: "asc" as const } },
   phases: { orderBy: { startTime: "asc" as const } },
   zones: {
@@ -35,11 +37,12 @@ function toDomain(row: Row): Event {
   return Event.restore({
     id: row.id,
     name: row.name,
-    artist: row.artist ?? undefined,
+    artists: row.artists.map((a) => new Artist(a.id, a.name, a.slug)),
     venue: new Venue(row.location, province),
     genres: row.genres.map((g) => new Genre(g.slug, g.name, g.mbid, g.featured, g.sortOrder)),
     saleWindow: new TimeRange(row.saleStart, row.saleEnd),
     image: row.imageUrl ? ImageRef.parse(row.imageUrl) : undefined,
+    seatMap: row.seatMapUrl ? ImageRef.parse(row.seatMapUrl) : undefined,
     shows: row.shows.map((s) => ({ id: s.id, name: s.name, time: new TimeRange(s.startTime, s.endTime) })),
     phases: row.phases.map((p) => ({ id: p.id, name: p.name, time: new TimeRange(p.startTime, p.endTime) })),
     zones: row.zones.map((z) => ({
@@ -73,10 +76,11 @@ function stateOf(event: Event): State {
   const state: State = {
     event: JSON.stringify([
       event.getName(),
-      event.getArtist() ?? null,
+      event.getArtists().map((a) => a.getSlug()),
       venue.getLocation(),
       venue.getProvince()?.getCode() ?? null,
       event.getImage()?.getUrl() ?? null,
+      event.getSeatMap()?.getUrl() ?? null,
       range(event.getSaleWindow()),
       event.getGenres().map((g) => g.getSlug()),
     ]),
@@ -152,15 +156,26 @@ export class PrismaEventRepository implements EventRepository {
     const venue = event.getVenue();
     const scalars = {
       name: event.getName(),
-      artist: event.getArtist() ?? null,
       location: venue.getLocation(),
       provinceCode: venue.getProvince()?.getCode() ?? null,
       imageUrl: event.getImage()?.getUrl() ?? null,
+      seatMapUrl: event.getSeatMap()?.getUrl() ?? null,
       saleStart: event.getSaleWindow().start,
       saleEnd: event.getSaleWindow().end,
     };
 
     await prisma.$transaction(async (tx) => {
+      // nghệ sĩ mới được tạo tại đây, nên một sự kiện lưu thất bại không để lại nghệ sĩ thừa
+      if (isNew || before.event !== after.event) {
+        for (const a of event.getArtists()) {
+          await tx.artist.upsert({
+            where: { slug: a.getSlug() },
+            update: {},
+            create: { id: a.id, slug: a.getSlug(), name: a.getName() },
+          });
+        }
+      }
+
       // sự kiện mới: tạo dòng Event trước, các đêm / đợt / khu vực ghi tiếp bên dưới
       if (isNew) {
         const schedule = event.schedule();
@@ -172,6 +187,7 @@ export class PrismaEventRepository implements EventRepository {
             startTime: schedule.start,
             endTime: schedule.end,
             genres: { connect: event.getGenres().map((g) => ({ slug: g.getSlug() })) },
+            artists: { connect: event.getArtists().map((a) => ({ slug: a.getSlug() })) },
           },
         });
       }
@@ -234,6 +250,7 @@ export class PrismaEventRepository implements EventRepository {
           data: {
             ...scalars,
             genres: { set: event.getGenres().map((g) => ({ slug: g.getSlug() })) },
+            artists: { set: event.getArtists().map((a) => ({ slug: a.getSlug() })) },
           },
         });
       }
@@ -264,13 +281,31 @@ export class PrismaEventRepository implements EventRepository {
 
   /** còn sự kiện nào khác dùng ảnh này không (để biết có nên xoá file ảnh) */
   async isImageUsed(url: string): Promise<boolean> {
-    return (await prisma.event.count({ where: { imageUrl: url } })) > 0;
+    return (await prisma.event.count({ where: { OR: [{ imageUrl: url }, { seatMapUrl: url }] } })) > 0;
   }
 }
 
 // ─────────────────────────────────────────────────────────
 // dữ liệu tham chiếu: chỉ đọc, dùng để dựng Venue và danh sách Genre
 // ─────────────────────────────────────────────────────────
+
+/**
+ * Tên gửi lên → các Artist: tên đã có thì dùng nghệ sĩ đó, tên mới thì tạo mới khi lưu.
+ * "soobin" và "SOOBIN" là một người. null khi đầu vào không phải danh sách tên.
+ */
+export async function resolveArtists(names: unknown): Promise<Artist[] | null> {
+  if (!Array.isArray(names) || names.length > 100 || !names.every((n) => typeof n === "string")) {
+    return null;
+  }
+  const bySlug = new Map<string, Artist>();
+  for (const name of names as string[]) {
+    const artist = Artist.fromName(name);
+    if (!bySlug.has(artist.getSlug())) bySlug.set(artist.getSlug(), artist);
+  }
+  const existing = await prisma.artist.findMany({ where: { slug: { in: [...bySlug.keys()] } } });
+  for (const a of existing) bySlug.set(a.slug, new Artist(a.id, a.name, a.slug));
+  return [...bySlug.values()];
+}
 
 export async function findProvince(code: unknown): Promise<Province | null> {
   if (typeof code !== "number" || !Number.isInteger(code)) return null;

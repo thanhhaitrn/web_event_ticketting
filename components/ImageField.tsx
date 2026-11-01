@@ -9,9 +9,16 @@ const ACCEPT = "image/jpeg,image/png,image/webp";
 export default function ImageField({
   value,
   onChange,
+  label = "Ảnh quảng bá",
+  hint = "JPG, PNG hoặc WebP, tối đa 5 MB",
+  crop = true,
 }: {
   value: string;
   onChange: (url: string) => void;
+  label?: string;
+  hint?: string;
+  /** square crop for posters; a venue map keeps its own shape */
+  crop?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -33,13 +40,14 @@ export default function ImageField({
       setError("Ảnh vượt quá 5 MB.");
       return;
     }
-    setCropSrc(URL.createObjectURL(file));
+    if (crop) setCropSrc(URL.createObjectURL(file));
+    else void upload(file);
   }
 
   async function upload(blob: Blob) {
     setUploading(true);
     const body = new FormData();
-    body.append("file", new File([blob], "event.jpg", { type: "image/jpeg" }));
+    body.append("file", blob instanceof File ? blob : new File([blob], "event.jpg", { type: "image/jpeg" }));
     const res = await fetch("/api/uploads", { method: "POST", body }).catch(
       () => null,
     );
@@ -56,8 +64,7 @@ export default function ImageField({
   return (
     <div className="field">
       <span className="field-label">
-        Ảnh quảng bá{" "}
-        <span className="field-hint">JPG, PNG hoặc WebP, tối đa 5 MB</span>
+        {label} <span className="field-hint">{hint}</span>
       </span>
 
       <div
@@ -79,8 +86,8 @@ export default function ImageField({
             {/* eslint-disable-next-line @next/next/no-img-element -- local upload preview */}
             <img
               src={value}
-              alt="Ảnh quảng bá của sự kiện"
-              className="image-preview"
+              alt={label}
+              className={`image-preview ${crop ? "" : "whole"}`}
             />
             <div className="image-actions">
               <button

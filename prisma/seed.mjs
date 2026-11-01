@@ -29,7 +29,6 @@ async function main() {
   const event = await prisma.event.create({
     data: {
       name: "Concert Mùa Hè Rực Rỡ 2026",
-      artist: "Nhiều nghệ sĩ",
       genres: { connect: [{ slug: "pop" }] },
       location: "SVĐ Mỹ Đình",
       provinceCode: 1,

@@ -6,6 +6,7 @@ import pkg from "@prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { seedProvinces } from "./seed-provinces.mjs";
 import { seedGenres } from "./seed-genres.mjs";
+import { slugify } from "./seed-artists.mjs";
 import { existsSync } from "node:fs";
 
 const { PrismaClient } = pkg;
@@ -44,7 +45,7 @@ function nights(start, end) {
 const EVENTS = [
   {
     name: "Vietnam Airlines Classic – Hanoi Concert 2026: London Symphony Orchestra",
-    artist: "London Symphony Orchestra · chỉ huy Sir Antonio Pappano",
+    artists: ["London Symphony Orchestra", "Antonio Pappano"],
     genres: ["classical"],
     location: "Nhà hát Hồ Gươm",
     provinceCode: HANOI,
@@ -60,7 +61,7 @@ const EVENTS = [
   },
   {
     name: "Chillies – Tour Lại Từ Đầu 2026 (TP.HCM)",
-    artist: "Chillies",
+    artists: ["Chillies"],
     genres: ["indie-rock", "alternative-rock", "v-pop"],
     location: "Địa điểm đang cập nhật",
     provinceCode: HCMC,
@@ -74,7 +75,7 @@ const EVENTS = [
   },
   {
     name: "SAO Concert – The Stardom Music Festival | GLAMOROUS",
-    artist: "SOOBIN, Binz, Rhymastic, Quang Hùng MasterD, Dương Domic, RHYDER, B Ray, F.HERO và gần 60 nghệ sĩ",
+    artists: ["SOOBIN", "Binz", "Rhymastic", "Quang Hùng MasterD", "Dương Domic", "RHYDER", "B Ray", "F.HERO"],
     genres: ["v-pop", "hip-hop", "pop", "r-and-b", "rock", "indie-pop"],
     location: "Vạn Phúc City",
     provinceCode: HCMC,
@@ -89,7 +90,7 @@ const EVENTS = [
   },
   {
     name: "Tinh Hà “Say Hi” Concert – Hẹn Giữa Tinh Hà",
-    artist: "Dàn 24 nghệ sĩ Tinh Hà “Say Hi” (Vie Channel)",
+    artists: ["Tinh Hà Say Hi"],
     genres: ["v-pop", "pop", "hip-hop"],
     location: "Vạn Phúc City – Sân số 2",
     provinceCode: HCMC,
@@ -105,7 +106,7 @@ const EVENTS = [
   },
   {
     name: "Anh Trai Vượt Ngàn Chông Gai 2026 – Concert Day 1 & Day 2",
-    artist: "34 Anh Tài mùa 2026",
+    artists: ["Anh Trai Vượt Ngàn Chông Gai"],
     genres: ["v-pop", "pop", "ballad", "rock"],
     location: "KĐT Phú Long – Bình Trưng (The Global City)",
     provinceCode: HCMC,
@@ -124,7 +125,7 @@ const EVENTS = [
   },
   {
     name: "Phùng Khánh Linh – Giữa Một Vạn Tour (Bản mở rộng)",
-    artist: "Phùng Khánh Linh",
+    artists: ["Phùng Khánh Linh"],
     genres: ["indie-pop", "v-pop"],
     location: "Nhà thi đấu Phú Thọ",
     provinceCode: HCMC,
@@ -139,7 +140,7 @@ const EVENTS = [
   },
   {
     name: "Tiffany Young: Edge of Calm Tour in Ho Chi Minh City",
-    artist: "Tiffany Young (Girls' Generation)",
+    artists: ["Tiffany Young"],
     genres: ["k-pop", "pop"],
     location: "Nhà thi đấu Nguyễn Du",
     provinceCode: HCMC,
@@ -155,7 +156,7 @@ const EVENTS = [
   },
   {
     name: "BIGBANG 2026–2027 WORLD TOUR <XX : COSMOS> IN HANOI",
-    artist: "BIGBANG (G-DRAGON, TAEYANG, DAESUNG)",
+    artists: ["BIGBANG"],
     genres: ["k-pop", "hip-hop", "pop"],
     location: "SVĐ Quốc gia Mỹ Đình",
     provinceCode: HANOI,
@@ -183,7 +184,7 @@ const EVENTS = [
   },
   {
     name: "Mr Siro – Encore Extended: Ai Cũng Giấu Trong Lòng Tảng Băng",
-    artist: "Mr Siro",
+    artists: ["Mr Siro"],
     genres: ["ballad", "v-pop"],
     location: "Trung tâm Hội nghị Quốc gia",
     provinceCode: HANOI,
@@ -199,7 +200,7 @@ const EVENTS = [
   },
   {
     name: "Liên Quân 10Fest – Đại Nhạc Hội 10 Tuổi",
-    artist: "Đại nhạc hội kỷ niệm 10 năm Liên Quân Mobile",
+    artists: [],
     genres: ["v-pop", "edm", "hip-hop"],
     location: "SVĐ Quốc gia Mỹ Đình",
     provinceCode: HANOI,
@@ -215,22 +216,32 @@ const EVENTS = [
   },
   {
     name: "Tùng Dương – Live Concert “Bay Về Phía Mặt Trời”",
-    artist: "Tùng Dương",
+    artists: ["Tùng Dương"],
     genres: ["v-pop", "jazz", "rock"],
     location: "SVĐ Quốc gia Mỹ Đình",
     provinceCode: HANOI,
-    start: "2026-12-19T20:00", end: "2026-12-19T23:00",
+    start: "2026-12-19T19:30", end: "2026-12-19T23:00",
+    venuePlan: "tung-duong-my-dinh",
+    // the published prices apply in both phases
+    earlyDiscount: false,
     saleStart: "2026-10-20T10:00", saleEnd: "2026-12-19T14:00",
     phases: [
       { name: "Mở bán sớm", start: "2026-10-20T10:00", end: "2026-11-05T23:59" },
       { name: "Mở bán chính thức", start: "2026-11-06T10:00", end: "2026-12-19T14:00" },
     ],
     zones: [
-      ["VVIP", 1_000, 5_000_000],
-      ["VIP", 4_000, 3_500_000],
-      ["Hạng 1", 10_000, 2_500_000],
-      ["Hạng 2", 15_000, 1_500_000],
-      ["Hạng 3", 15_000, 800_000],
+      // published tiers and prices; capacities are placeholders; the last value is the colour on the venue map
+      ["Skybox Phượng Hoàng", 100, 12_000_000, "#d4a93a"],
+      ["SVIP Mặt Trời", 1_000, 6_000_000, "#f4b63f"],
+      ["VVIP Trời và Đất", 1_000, 5_000_000, "#8f9be0"],
+      ["VIP Gold Tái Sinh", 1_500, 4_200_000, "#c2255c"],
+      ["Đậm Sâu", 1_500, 3_500_000, "#7ed957"],
+      ["Ánh Sáng", 6_000, 3_000_000, "#2ec4b6"],
+      ["Khăn Piêu (đứng)", 4_000, 2_800_000, "#9b4fd1"],
+      ["Quê Nhà", 8_000, 1_900_000, "#3f3fb5"],
+      ["Human", 3_000, 1_600_000, "#e5383b"],
+      ["Mây (đứng)", 4_000, 1_500_000, "#f04fc0"],
+      ["Con Cò", 5_000, 1_300_000, "#3a9bdc"],
     ],
   },
 ];
@@ -244,7 +255,13 @@ async function main() {
     const created = await prisma.event.create({
       data: {
         name: ev.name,
-        artist: ev.artist,
+        venuePlan: ev.venuePlan,
+        artists: {
+          connectOrCreate: ev.artists.map((name) => ({
+            where: { slug: slugify(name) },
+            create: { slug: slugify(name), name },
+          })),
+        },
         location: ev.location,
         provinceCode: ev.provinceCode,
         startTime: t(ev.start),
@@ -252,7 +269,7 @@ async function main() {
         saleStart: t(ev.saleStart),
         saleEnd: t(ev.saleEnd),
         genres: { connect: ev.genres.map((slug) => ({ slug })) },
-        zones: { create: ev.zones.map(([name]) => ({ name })) },
+        zones: { create: ev.zones.map(([name, , , color]) => ({ name, color })) },
         phases: { create: ev.phases.map((p) => ({ name: p.name, startTime: t(p.start), endTime: t(p.end) })) },
         shows: { create: nights(ev.start, ev.end) },
       },

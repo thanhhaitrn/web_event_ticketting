@@ -3,8 +3,9 @@ import { parseShowTimes } from "@/lib/shows";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ImageRef, Venue } from "@/lib/domain";
-import { eventRepository, findGenres, findProvince } from "@/lib/event-repository";
+import { eventRepository, findGenres, findProvince, resolveArtists } from "@/lib/event-repository";
 import { domainErrorResponse } from "@/lib/api-errors";
+import { seatService } from "@/lib/seat-service";
 import { unlink } from "node:fs/promises";
 import path from "node:path";
 import { isValidImageUrl, UPLOAD_DIR, UPLOAD_URL } from "@/lib/uploads";
@@ -43,8 +44,9 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   }
   const {
     name,
-    artist,
+    artists: artistNames,
     imageUrl,
+    seatMapUrl,
     genreSlugs,
     location,
     provinceCode,
@@ -57,7 +59,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
   if (!event) {
     return NextResponse.json({ error: "Không tìm thấy sự kiện." }, { status: 404 });
   }
-  if ((name !== undefined && !validName(name)) || (location !== undefined && !validName(location)) || (artist != null && typeof artist !== "string")) {
+  if ((name !== undefined && !validName(name)) || (location !== undefined && !validName(location))) {
     return NextResponse.json({ error: "Tên, nghệ sĩ hoặc địa điểm không hợp lệ." }, { status: 400 });
   }
   const current = event.getSaleWindow();
@@ -69,7 +71,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: "Lịch mở bán không hợp lệ: kết thúc phải sau bắt đầu, và mở bán không được sau đêm diễn đầu tiên." }, { status: 400 });
   }
 
-  if (imageUrl !== undefined && !isValidImageUrl(imageUrl)) {
+  if ((imageUrl !== undefined && !isValidImageUrl(imageUrl)) || (seatMapUrl !== undefined && !isValidImageUrl(seatMapUrl))) {
     return NextResponse.json(
       { error: "Ảnh quảng bá không hợp lệ." },
       { status: 400 },
@@ -94,7 +96,13 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
 
   try {
     if (typeof name === "string") event.rename(name);
-    if (artist !== undefined) event.setArtist(typeof artist === "string" ? artist : undefined);
+    if (artistNames !== undefined) {
+      const artists = await resolveArtists(artistNames);
+      if (artists === null) {
+        return NextResponse.json({ error: "Danh sách nghệ sĩ không hợp lệ." }, { status: 400 });
+      }
+      event.setArtists(artists);
+    }
     if (location !== undefined || province !== undefined) {
       const venue = event.getVenue();
       event.relocate(
@@ -102,6 +110,7 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
       );
     }
     if (imageUrl !== undefined) event.setImage(imageUrl ? ImageRef.parse(imageUrl) : undefined);
+    if (seatMapUrl !== undefined) event.setSeatMap(seatMapUrl ? ImageRef.parse(seatMapUrl) : undefined);
     if (genres !== undefined) event.setGenres(genres);
     if (saleStart !== undefined || saleEnd !== undefined) event.reopenSales(saleTimes);
   } catch (e) {
@@ -123,13 +132,18 @@ export async function DELETE(_request: NextRequest, ctx: Ctx) {
     );
   }
 
-  const imageUrl = event.getImage()?.getUrl();
+  if ((await seatService.countInUse({ eventId: id })) > 0) {
+    return NextResponse.json({ error: "Sự kiện này đã có vé được giữ hoặc bán nên không thể xoá." }, { status: 409 });
+  }
+
+  const images = [event.getImage()?.getUrl(), event.getSeatMap()?.getUrl()];
   await eventRepository.delete(event);
 
   // drop the uploaded image too, unless another event still points at it
-  if (imageUrl && UPLOAD_URL.test(imageUrl) && !(await eventRepository.isImageUsed(imageUrl))) {
-    const name = imageUrl.split("/").pop()!;
-    await unlink(path.join(UPLOAD_DIR, name)).catch(() => {});
+  for (const url of images) {
+    if (url && UPLOAD_URL.test(url) && !(await eventRepository.isImageUsed(url))) {
+      await unlink(path.join(UPLOAD_DIR, url.split("/").pop()!)).catch(() => {});
+    }
   }
 
   return NextResponse.json({ ok: true });
