@@ -66,6 +66,10 @@ export default function SeatPicker({
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  // shown on the map, where the viewer's eyes are when they press a sixth seat
+  const [overLimit, setOverLimit] = useState(false);
+  const limitTimer = useRef(0);
+  useEffect(() => () => window.clearTimeout(limitTimer.current), []);
 
   const zone = zones.find((z) => z.id === zoneId) ?? null;
   const active = venue.sections.find((s) => s.key === activeKey) ?? null;
@@ -226,10 +230,13 @@ export default function SeatPicker({
 
   function toggle(seat: number) {
     setNotice("");
+    window.clearTimeout(limitTimer.current);
+    setOverLimit(false);
     if (selected.includes(seat)) {
       setSelected(selected.filter((n) => n !== seat));
     } else if (selected.length >= MAX_SEATS_PER_ORDER) {
-      setNotice(`Mỗi lần chỉ được chọn tối đa ${MAX_SEATS_PER_ORDER} vé.`);
+      setOverLimit(true);
+      limitTimer.current = window.setTimeout(() => setOverLimit(false), 4000);
     } else {
       setSelected([...selected, seat].sort((a, b) => a - b));
     }
@@ -400,6 +407,12 @@ export default function SeatPicker({
                       {active.title !== active.zoneName && ` · ${active.title}`}
                     </span>
                   </div>
+                  {overLimit && (
+                    <p className="venue-warning" role="alert">
+                      Mỗi lần chỉ được chọn tối đa {MAX_SEATS_PER_ORDER} vé. Bỏ
+                      bớt một ghế để chọn ghế khác.
+                    </p>
+                  )}
                   <ul className="seat-legend venue-legend">
                     <li>
                       <i className="seat-dot free" /> Trống

@@ -6,9 +6,7 @@ import { ImageRef, Venue } from "@/lib/domain";
 import { eventRepository, findGenres, findProvince, resolveArtists } from "@/lib/event-repository";
 import { domainErrorResponse } from "@/lib/api-errors";
 import { seatService } from "@/lib/seat-service";
-import { unlink } from "node:fs/promises";
-import path from "node:path";
-import { isValidImageUrl, UPLOAD_DIR, UPLOAD_URL } from "@/lib/uploads";
+import { isValidImageUrl, removeImage } from "@/lib/uploads";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -141,9 +139,7 @@ export async function DELETE(_request: NextRequest, ctx: Ctx) {
 
   // drop the uploaded image too, unless another event still points at it
   for (const url of images) {
-    if (url && UPLOAD_URL.test(url) && !(await eventRepository.isImageUsed(url))) {
-      await unlink(path.join(UPLOAD_DIR, url.split("/").pop()!)).catch(() => {});
-    }
+    if (url && !(await eventRepository.isImageUsed(url))) await removeImage(url);
   }
 
   return NextResponse.json({ ok: true });

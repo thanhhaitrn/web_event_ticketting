@@ -52,9 +52,9 @@ function whereFor(
   if (query) {
     clauses.push({
       OR: [
-        { name: { contains: query } },
-        { location: { contains: query } },
-        { province: { name: { contains: query } } },
+        { name: { contains: query, mode: "insensitive" } },
+        { location: { contains: query, mode: "insensitive" } },
+        { province: { name: { contains: query, mode: "insensitive" } } },
       ],
     });
   }

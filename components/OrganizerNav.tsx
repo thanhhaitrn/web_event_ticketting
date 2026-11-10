@@ -9,6 +9,7 @@ export default function OrganizerNav() {
   const pathname = usePathname();
   // the static export uses trailing slashes ("/organizer/"), so compare without one
   const onLanding = pathname.replace(/\/$/, "") === "/organizer";
+  const inWorkspace = pathname.startsWith("/organizer/events");
 
   return (
     <header className="org-nav">
@@ -25,7 +26,7 @@ export default function OrganizerNav() {
         <div className="org-nav-actions">
           {onLanding ? (
             <>
-              <Link href="/organizer/events" className="org-btn outline">
+              <Link href="/organizer/login" className="org-btn outline">
                 Đăng nhập
               </Link>
               <Link href="/organizer/events" className="org-btn solid">
@@ -33,6 +34,13 @@ export default function OrganizerNav() {
               </Link>
             </>
           ) : null}
+          {inWorkspace && (
+            <form action="/api/organizer/logout" method="post">
+              <button type="submit" className="org-btn outline">
+                Đăng xuất
+              </button>
+            </form>
+          )}
           <SiteToggle />
         </div>
       </div>

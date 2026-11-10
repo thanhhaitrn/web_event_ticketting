@@ -4,10 +4,11 @@ import { existsSync } from "node:fs";
 // a local .env is optional: hosts usually set DATABASE_URL in their environment
 if (existsSync(".env")) process.loadEnvFile(".env");
 
-const databaseUrl = process.env.DATABASE_URL;
+// migrations need a direct connection; the app itself may go through a pooler (DATABASE_URL)
+const databaseUrl = process.env.POSTGRES_URL ?? process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
+  throw new Error("POSTGRES_URL or DATABASE_URL is required");
 }
 
 export default defineConfig({

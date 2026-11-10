@@ -2,22 +2,12 @@
 // ticket tiers) come from press/ticketing sources; zone capacities, floor/ceiling
 // prices, sale windows and unpublished show times are sensible placeholders.
 // Re-runnable: each event is replaced by name, nothing else is touched.
-import pkg from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { createPrisma } from "./client.mjs";
 import { seedProvinces } from "./seed-provinces.mjs";
 import { seedGenres } from "./seed-genres.mjs";
 import { slugify } from "./seed-artists.mjs";
-import { existsSync } from "node:fs";
 
-const { PrismaClient } = pkg;
-
-// a local .env is optional: hosts usually set DATABASE_URL in their environment
-if (existsSync(".env")) process.loadEnvFile(".env");
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
-}
-const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: databaseUrl }) });
+const prisma = createPrisma();
 
 const HANOI = 1;
 const HCMC = 79;

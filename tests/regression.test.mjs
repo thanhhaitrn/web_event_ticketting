@@ -1,19 +1,51 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import ts from "typescript";
-import Database from "better-sqlite3";
+import pg from "pg";
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const root = process.cwd();
 const require = createRequire(import.meta.url);
-// Execute the actual route handlers against a disposable SQLite database.
+// Execute the actual route handlers against a disposable Postgres schema.
 // Only the database connection is substituted; validation and queries are real.
+// TEST_DATABASE_URL must point at a Postgres database the tests may create schemas in;
+// .env is not read, so they never touch the app's own database by accident.
+const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL;
+const needsDatabase = { skip: !TEST_DATABASE_URL && "set TEST_DATABASE_URL to run database tests" };
+
+async function freshDatabase() {
+  const schema = `test_${randomUUID().replaceAll("-", "")}`;
+  const sql = execFileSync(path.join(root, "node_modules/.bin/prisma"), ["migrate", "diff", "--from-empty", "--to-schema", "prisma/schema.prisma", "--script"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  const admin = new pg.Client({ connectionString: TEST_DATABASE_URL });
+  await admin.connect();
+  try {
+    await admin.query(`CREATE SCHEMA "${schema}"`);
+    await admin.query(`SET search_path TO "${schema}"`);
+    await admin.query(sql.replace('CREATE SCHEMA IF NOT EXISTS "public";', ""));
+  } finally {
+    await admin.end();
+  }
+  // raw SQL is not schema-qualified, so the connection's search path points at the test schema too
+  const url = new URL(TEST_DATABASE_URL);
+  url.searchParams.set("options", `-c search_path=${schema}`);
+  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url.toString() }, { schema }) });
+  return {
+    prisma,
+    async drop() {
+      await prisma.$disconnect();
+      const client = new pg.Client({ connectionString: TEST_DATABASE_URL });
+      await client.connect();
+      await client.query(`DROP SCHEMA "${schema}" CASCADE`);
+      await client.end();
+    },
+  };
+}
 function loader(prisma) {
   const cache = new Map();
   function load(relative) {
@@ -65,14 +97,8 @@ test("sale status selects adjacent phases correctly and supports gaps and unsort
   assert.equal(saleSummary([phases[1], { ...phases[0], startTime: new Date("2026-10-02T12:00Z") }], new Date("2026-10-02T06:00Z")).isSelling, false);
 });
 
-test("API regression: invalid requests cannot change data; valid edits still work", async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ticketweb-regression-"));
-  const dbFile = path.join(dir, "test.db");
-  const db = new Database(dbFile);
-  const schema = execFileSync(path.join(root, "node_modules/.bin/prisma"), ["migrate", "diff", "--from-empty", "--to-schema", "prisma/schema.prisma", "--script"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
-  db.exec(schema);
-  db.close();
-  const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: `file:${dbFile}` }) });
+test("API regression: invalid requests cannot change data; valid edits still work", needsDatabase, async () => {
+  const { prisma, drop } = await freshDatabase();
   const get = loader(prisma);
   const context = (id) => ({ params: Promise.resolve({ id }) });
   const req = (method, body) => new Request("http://localhost/api/test", { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -184,8 +210,7 @@ test("API regression: invalid requests cannot change data; valid edits still wor
     assert.deepEqual([await prisma.show.count({ where: { eventId: b.id } }), await prisma.salePhase.count({ where: { eventId: b.id } })], [0, 0]);
     assert.equal((await eventEdit.DELETE(req("DELETE", {}), context(b.id))).status, 404);
   } finally {
-    await prisma.$disconnect();
-    fs.rmSync(dir, { recursive: true, force: true });
+    await drop();
   }
 });
 
@@ -249,13 +274,8 @@ test("domain classes enforce the business rules", () => {
   }
 });
 
-test("seat holds: one buyer per seat, even under concurrency; holds expire after 5 minutes", async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ticketweb-seats-"));
-  const dbFile = path.join(dir, "test.db");
-  const db = new Database(dbFile);
-  db.exec(execFileSync(path.join(root, "node_modules/.bin/prisma"), ["migrate", "diff", "--from-empty", "--to-schema", "prisma/schema.prisma", "--script"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
-  db.close();
-  const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: `file:${dbFile}` }) });
+test("seat holds: one buyer per seat, even under concurrency; holds expire after 5 minutes", needsDatabase, async () => {
+  const { prisma, drop } = await freshDatabase();
   const get = loader(prisma);
   const { seatService: seats } = get("lib/seat-service.ts");
   const { DomainError } = get("lib/domain.ts");
@@ -349,7 +369,6 @@ test("seat holds: one buyer per seat, even under concurrency; holds expire after
     assert.equal((await get("app/api/events/[id]/route.ts").DELETE(req("DELETE", {}), context(event.id))).status, 409);
     assert.equal((await get("app/api/zones/[id]/route.ts").PATCH(req("PATCH", { capacities: { [showId]: 5 } }), context(zoneId))).status, 409);
   } finally {
-    await prisma.$disconnect();
-    fs.rmSync(dir, { recursive: true, force: true });
+    await drop();
   }
 });

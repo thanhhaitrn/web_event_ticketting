@@ -1,21 +1,8 @@
-import pkg from "@prisma/client";
-const { PrismaClient } = pkg;
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { createPrisma } from "./client.mjs";
 import { seedProvinces } from "./seed-provinces.mjs";
 import { seedGenres } from "./seed-genres.mjs";
-import { existsSync } from "node:fs";
 
-// a local .env is optional: hosts usually set DATABASE_URL in their environment
-if (existsSync(".env")) process.loadEnvFile(".env");
-
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
-}
-
-const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
-const prisma = new PrismaClient({ adapter });
+const prisma = createPrisma();
 
 async function main() {
   await seedProvinces(prisma);

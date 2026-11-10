@@ -1,8 +1,5 @@
-import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
-import { MAX_IMAGE_BYTES, UPLOAD_DIR, sniffImage } from "@/lib/uploads";
+import { MAX_IMAGE_BYTES, saveImage, sniffImage } from "@/lib/uploads";
 
 export async function POST(request: NextRequest) {
   const form = await request.formData().catch(() => null);
@@ -26,8 +23,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const name = `${randomUUID()}.${ext}`;
-  await mkdir(UPLOAD_DIR, { recursive: true });
-  await writeFile(path.join(UPLOAD_DIR, name), buf);
-  return NextResponse.json({ url: `/api/uploads/${name}` }, { status: 201 });
+  const url = await saveImage(buf, ext).catch((e) => {
+    console.error("image upload failed", e);
+    return null;
+  });
+  if (!url) {
+    return NextResponse.json(
+      { error: "Không lưu được ảnh, vui lòng thử lại." },
+      { status: 502 },
+    );
+  }
+  return NextResponse.json({ url }, { status: 201 });
 }

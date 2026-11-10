@@ -1,11 +1,7 @@
 // Tidies the artist table after the migration: gives each event a clean artist list
 // and every artist a readable slug. Re-runnable.
 //   node prisma/seed-artists.mjs
-import { existsSync } from "node:fs";
-import pkg from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-
-const { PrismaClient } = pkg;
+import { createPrisma } from "./client.mjs";
 
 // same as lib/slug.ts, which a plain Node script can't import
 export const slugify = (text) =>
@@ -34,9 +30,7 @@ const LINEUPS = {
 };
 
 async function main() {
-  if (existsSync(".env")) process.loadEnvFile(".env");
-  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required");
-  const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: process.env.DATABASE_URL }) });
+  const prisma = createPrisma();
 
   // the migration's placeholder slugs become readable first, so the lookups below find these artists
   for (const a of await prisma.artist.findMany({ where: { slug: { startsWith: "artist-" } } })) {

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { existsSync } from "node:fs";
 
 // a local .env is optional: hosts usually set DATABASE_URL in their environment
@@ -15,7 +15,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+const adapter = new PrismaPg({ connectionString: databaseUrl });
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 

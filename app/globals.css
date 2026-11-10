@@ -1127,6 +1127,24 @@ td input:focus {
   font-size: 13px;
   color: var(--muted);
 }
+.org-login {
+  width: 100%;
+  max-width: 420px;
+  margin: 24px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+.org-login h1 {
+  font-size: 24px;
+}
+.org-login .org-btn {
+  align-self: flex-start;
+}
 .error-note {
   font-size: 13px;
   font-weight: 600;
@@ -3394,6 +3412,29 @@ body:has(.buy-page) .footer {
   fill: var(--muted);
   font-weight: 700;
   pointer-events: none;
+}
+.venue-warning {
+  position: absolute;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 28px);
+  margin: 0;
+  padding: 10px 16px;
+  background: #b42318;
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  .venue-warning {
+    top: 104px;
+  }
 }
 .venue-legend {
   position: absolute;

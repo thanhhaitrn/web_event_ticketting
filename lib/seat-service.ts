@@ -120,15 +120,13 @@ export class SeatService {
     showId: string,
     now = new Date(),
   ): Promise<{ zones: Record<string, number>; taken: Record<string, number> }> {
-    // dates are stored as ISO text with an explicit offset, so compare in that same form
-    const stamp = now.toISOString().replace("Z", "+00:00");
     const [quotas, rows] = await Promise.all([
       prisma.zoneQuota.findMany({ where: { showId }, select: { zoneId: true, capacity: true } }),
-      prisma.$queryRaw<{ zoneId: string; row: number | bigint; n: number | bigint }[]>`
-        SELECT "zoneId", CAST(("seatNumber" - 1) / ${SEATS_PER_ROW} AS INTEGER) AS row, COUNT(*) AS n
+      prisma.$queryRaw<{ zoneId: string; seat_row: number | bigint; n: number | bigint }[]>`
+        SELECT "zoneId", CAST(("seatNumber" - 1) / ${SEATS_PER_ROW} AS INTEGER) AS seat_row, COUNT(*) AS n
         FROM "SeatReservation"
-        WHERE "showId" = ${showId} AND ("status" = ${SOLD} OR ("status" = ${HELD} AND "expiresAt" > ${stamp}))
-        GROUP BY "zoneId", row`,
+        WHERE "showId" = ${showId} AND ("status" = ${SOLD} OR ("status" = ${HELD} AND "expiresAt" > ${now}))
+        GROUP BY "zoneId", seat_row`,
     ]);
     this.sweepSoon(now);
 
@@ -136,7 +134,7 @@ export class SeatService {
     const perZone = new Map<string, number>();
     for (const r of rows) {
       const n = Number(r.n);
-      taken[`${r.zoneId}:${Number(r.row)}`] = n;
+      taken[`${r.zoneId}:${Number(r.seat_row)}`] = n;
       perZone.set(r.zoneId, (perZone.get(r.zoneId) ?? 0) + n);
     }
     return {
