@@ -1,0 +1,19 @@
+{
+  "name": "dynamic-pricing-nhom3",
+  "private": true,
+  "version": "1.1.0",
+  "description": "Dynamic Pricing v1.1 (Sprint 2) + Cải tiến Pricing Copilot — Nhóm 3",
+  "type": "module",
+  "scripts": {
+    "test": "tsx --test 01_DYNAMIC_PRICING/tests/*.test.ts 02_CAI_TIEN_PRICING_COPILOT/tests/*.test.ts",
+    "test:01": "tsx --test 01_DYNAMIC_PRICING/tests/*.test.ts",
+    "test:02": "tsx --test 02_CAI_TIEN_PRICING_COPILOT/tests/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "what-if": "tsx 02_CAI_TIEN_PRICING_COPILOT/scripts/run-what-if.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}

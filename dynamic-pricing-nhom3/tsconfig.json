@@ -1,0 +1,35 @@
+{
+  "//": "Chỉ kiểm tra kiểu phần lõi thuần (không cần Next.js/Prisma). Các file app/, index.ts, prisma-*.ts, demand-log.ts, components/ cần dự án Next.js thật.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": false,
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "@/*": [
+        "./01_DYNAMIC_PRICING/*",
+        "./02_CAI_TIEN_PRICING_COPILOT/*"
+      ]
+    }
+  },
+  "include": [
+    "01_DYNAMIC_PRICING/lib/pricing/types.ts",
+    "01_DYNAMIC_PRICING/lib/pricing/rules.ts",
+    "01_DYNAMIC_PRICING/lib/pricing/rule-based-pricing-policy.ts",
+    "01_DYNAMIC_PRICING/lib/pricing/pricing-service.ts",
+    "01_DYNAMIC_PRICING/lib/pricing/in-memory-pricing-repository.ts",
+    "01_DYNAMIC_PRICING/lib/seat-service.hold.patch.ts",
+    "01_DYNAMIC_PRICING/tests/**/*.ts",
+    "02_CAI_TIEN_PRICING_COPILOT/lib/pricing-copilot/transparency.ts",
+    "02_CAI_TIEN_PRICING_COPILOT/lib/pricing-copilot/what-if-simulator.ts",
+    "02_CAI_TIEN_PRICING_COPILOT/lib/pricing-copilot/demand-forecast.ts",
+    "02_CAI_TIEN_PRICING_COPILOT/scripts/**/*.ts",
+    "02_CAI_TIEN_PRICING_COPILOT/tests/**/*.ts"
+  ]
+}

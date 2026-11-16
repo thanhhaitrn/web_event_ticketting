@@ -1,0 +1,27 @@
+// [PHẦN 02 — CẢI TIẾN: PRICING COPILOT]  Thành phần 3 — bảng DemandLog (mục 9.6)
+//
+// ĐOẠN BỔ SUNG cho prisma/schema.prisma (chạy SAU migration của phần 01):
+//   npx prisma migrate dev --name pricing_copilot_demand_log
+
+model DemandLog {
+  id       String   @id @default(cuid())
+  zoneId   String
+  showId   String
+  phaseId  String
+  at       DateTime
+  capacity Int // C
+  sold     Int // S
+  held     Int // H
+  price    Int // giá hiện hành sau chu kỳ
+
+  zone  Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  show  Show      @relation(fields: [showId], references: [id], onDelete: Cascade)
+  phase SalePhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, showId, phaseId, at])
+}
+
+// Back-relation cần thêm:
+//   model Zone      { ... demandLogs DemandLog[] }
+//   model Show      { ... demandLogs DemandLog[] }
+//   model SalePhase { ... demandLogs DemandLog[] }
