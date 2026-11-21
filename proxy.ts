@@ -36,5 +36,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/organizer/events/:path*", "/api/:path*"],
+  matcher: ["/organizer/events/:path*", "/organizer/pricing-simulation", "/api/:path*"],
 };

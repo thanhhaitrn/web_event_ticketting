@@ -6,10 +6,9 @@ import BrandMark from "@/components/BrandMark";
 import SiteToggle from "@/components/SiteToggle";
 
 export default function OrganizerNav() {
-  const pathname = usePathname();
-  // the static export uses trailing slashes ("/organizer/"), so compare without one
-  const onLanding = pathname.replace(/\/$/, "") === "/organizer";
-  const inWorkspace = pathname.startsWith("/organizer/events");
+  const pathname = usePathname().replace(/\/$/, "");
+  const onLanding = pathname === "/organizer";
+  const inWorkspace = pathname.startsWith("/organizer/events") || pathname === "/organizer/pricing-simulation";
 
   return (
     <header className="org-nav">

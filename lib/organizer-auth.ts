@@ -72,6 +72,7 @@ export async function isOrganizer(
 
 /** only pages of the organizer side, so the login form can't send anyone off-site */
 export function safeNext(next: unknown): string {
+  if (next === "/organizer/pricing-simulation") return next;
   return typeof next === "string" && /^\/organizer\/events(\/|\?|$)/.test(next)
     ? next
     : "/organizer/events";

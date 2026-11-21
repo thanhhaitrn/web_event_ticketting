@@ -43,9 +43,10 @@ export default async function OrganizerLandingPage() {
               từng đợt mở bán dựa trên nhu cầu thực tế — luôn nằm trong biên giá
               do ban tổ chức kiểm soát.
             </p>
-            <Link href="/organizer/events" className="org-btn hero-cta">
-              Bắt đầu miễn phí
-            </Link>
+            <div className="actions org-hero-actions">
+              <Link href="/organizer/events" className="org-btn hero-cta">Bắt đầu miễn phí</Link>
+              <Link href="/organizer/pricing-simulation" className="org-btn outline">Mô phỏng giá vé</Link>
+            </div>
           </div>
 
           <div className="org-hero-visual">

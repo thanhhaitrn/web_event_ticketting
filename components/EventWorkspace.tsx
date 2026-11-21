@@ -313,17 +313,24 @@ export default function EventWorkspace({
       )}
 
       {tab === "pricing" && event && (
-        <PricingTab
-          eventId={event.id}
-          zones={zones}
-          setZones={setZones}
-          shows={shows}
-          phases={phases}
-          setPhases={setPhases}
-          activePhase={activePhase}
-          setActivePhase={setActivePhase}
-          showToast={showToast}
-        />
+        <>
+          <div className="actions">
+            <Link href="/organizer/pricing-simulation" target="_blank" rel="noopener" className="btn ghost small">
+              Mở mô phỏng giá vé ở tab mới
+            </Link>
+          </div>
+          <PricingTab
+            eventId={event.id}
+            zones={zones}
+            setZones={setZones}
+            shows={shows}
+            phases={phases}
+            setPhases={setPhases}
+            activePhase={activePhase}
+            setActivePhase={setActivePhase}
+            showToast={showToast}
+          />
+        </>
       )}
 
       <div className={`toast ${toast ? "show" : ""}`}>{toast}</div>

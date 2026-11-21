@@ -37,9 +37,10 @@ export default async function OrganizerPage() {
             Tạo sự kiện, quản lý khu vực ghế và thiết lập giá vé
           </div>
         </div>
-        <Link href="/organizer/events/new" className="btn">
-          + Tạo sự kiện
-        </Link>
+        <div className="actions">
+          <Link href="/organizer/pricing-simulation" className="btn ghost">Mô phỏng giá vé</Link>
+          <Link href="/organizer/events/new" className="btn">+ Tạo sự kiện</Link>
+        </div>
       </div>
 
       {events.length === 0 ? (
