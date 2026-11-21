@@ -1,6 +1,6 @@
 # web_event_ticketting
 
-Công cụ quản trị (BTC) cho hệ thống bán vé sự kiện — tạo sự kiện, quản lý khu vực ghế, và thiết lập giá vé cơ bản kèm biên giá sàn/trần cho định giá động ở giai đoạn sau.
+Công cụ quản trị (BTC) cho hệ thống bán vé sự kiện — tạo sự kiện, quản lý khu vực ghế, và thiết lập giá vé cơ bản và định giá động theo nhu cầu từng đêm diễn.
 
 Stack: [Next.js](https://nextjs.org) (App Router, TypeScript) + [Prisma 7](https://www.prisma.io) + PostgreSQL (driver adapter `pg`). Ảnh tải lên được lưu ở Vercel Blob (kho Private) khi có `BLOB_READ_WRITE_TOKEN`, nếu không thì ở thư mục `uploads/`; cả hai đều được phục vụ qua `/api/uploads/<tên>`.
 
@@ -12,6 +12,8 @@ Stack: [Next.js](https://nextjs.org) (App Router, TypeScript) + [Prisma 7](https
 | `POSTGRES_URL` | kết nối trực tiếp cho `prisma migrate`; không có thì dùng `DATABASE_URL` |
 | `BLOB_READ_WRITE_TOKEN` | lưu ảnh lên Vercel Blob (kho dạng Private) |
 | `ORGANIZER_PASSWORD`, `ORGANIZER_SECRET` | mật khẩu chung của trang ban tổ chức, và chuỗi bí mật để ký cookie đăng nhập. Ở máy, bỏ trống thì trang BTC mở tự do; khi deploy, thiếu thì trang BTC bị khoá |
+| `PRICING_LAZY_RECOMPUTE` | mặc định tính giá khi xem vé hoặc giữ ghế ở khu vực bật giá động, tối đa một lần đổi mỗi chu kỳ 15 phút. Đặt `0` khi dùng cron |
+| `PRICING_CRON_SECRET` | khóa cho cron gọi `POST /api/pricing/recompute` mỗi 15 phút qua header `x-cron-secret`, để ghi nhận nhu cầu kể cả khi không có khách truy cập |
 | `TEST_DATABASE_URL` | Postgres cho test (mỗi lần chạy tạo một schema riêng rồi xoá); không đặt thì bỏ qua test cần DB |
 
 ## Chạy local
@@ -38,7 +40,10 @@ Mở [http://localhost:3000](http://localhost:3000).
 
 - **Sự kiện**: tạo/sửa tên, địa điểm, thời gian tổ chức, thời gian mở bán vé.
 - **Khu vực ghế**: thêm/sửa/xoá khu vực với tên và sức chứa cho từng sự kiện.
-- **Giá vé**: theo từng đợt mở bán, thiết lập giá sàn / giá cơ bản / giá trần cho mỗi khu vực ghế — giá sàn/trần là biên an toàn dự phòng cho tính năng định giá động sau này.
+- **Giá vé**: theo từng đợt mở bán, thiết lập giá sàn / giá cơ bản / giá trần cho mỗi khu vực ghế và bật/tắt định giá động trong tab giá vé. Giá tại lúc giữ ghế được giữ đến hết hạn của đơn.
+- **Pricing Copilot** cung cấp lịch sử giá cho người mua, API mô phỏng và dự báo cho ban tổ chức. [Chi tiết các API](dynamic-pricing-nhom3/02_CAI_TIEN_PRICING_COPILOT/README.md).
+
+Chạy `npm test` để kiểm thử và `npm run what-if` để mô phỏng các chính sách giá.
 
 ## Cấu trúc
 

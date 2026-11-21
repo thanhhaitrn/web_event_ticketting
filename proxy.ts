@@ -8,6 +8,7 @@ const GUARDED_API = [
   "/api/shows",
   "/api/phases",
   "/api/prices",
+  "/api/zone-prices",
   "/api/uploads",
 ];
 const READS = ["GET", "HEAD", "OPTIONS"];
@@ -15,19 +16,17 @@ const READS = ["GET", "HEAD", "OPTIONS"];
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const api = pathname.startsWith("/api/");
-  if (
-    api &&
-    (READS.includes(request.method) ||
-      !GUARDED_API.some((p) => pathname === p || pathname.startsWith(`${p}/`)))
-  ) {
-    return NextResponse.next();
-  }
+  const organizerPricing = pathname === "/api/pricing/history" ||
+    pathname.startsWith("/api/organizer/pricing/");
+  const guardedWrite = !READS.includes(request.method) &&
+    GUARDED_API.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  if (api && !organizerPricing && !guardedWrite) return NextResponse.next();
   if (await isOrganizer(request.cookies.get(ORGANIZER_COOKIE)?.value))
     return NextResponse.next();
 
   if (api) {
     return NextResponse.json(
-      { error: "Cần đăng nhập ban tổ chức để thay đổi dữ liệu." },
+      { error: "Cần đăng nhập ban tổ chức." },
       { status: 401 },
     );
   }

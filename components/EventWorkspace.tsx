@@ -17,6 +17,7 @@ type ZonePrice = {
   floorPrice: number;
   basePrice: number;
   ceilingPrice: number;
+  dynamicEnabled: boolean;
 };
 
 type ZoneQuota = { showId: string; capacity: number };
@@ -964,7 +965,7 @@ function PricingTab({
 }: {
   eventId: string;
   zones: Zone[];
-  setZones: (z: Zone[]) => void;
+  setZones: React.Dispatch<React.SetStateAction<Zone[]>>;
   shows: Show[];
   phases: Phase[];
   setPhases: (p: Phase[]) => void;
@@ -979,6 +980,26 @@ function PricingTab({
     startTime: "",
     endTime: "",
   });
+  const [toggling, setToggling] = useState(false);
+  async function toggleDynamic(price: ZonePrice) {
+    setToggling(true);
+    try {
+      const res = await fetch("/api/zone-prices/dynamic", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ zoneId: price.zoneId, phaseId: price.phaseId, enabled: !price.dynamicEnabled }),
+      });
+      if (!res.ok) throw new Error();
+      const updated: ZonePrice = await res.json();
+      setZones((current) => current.map((zone) => zone.id === price.zoneId
+        ? { ...zone, prices: zone.prices.map((p) => p.id === updated.id ? updated : p) }
+        : zone));
+    } catch {
+      showToast("Không cập nhật được định giá động. Vui lòng thử lại.");
+    } finally {
+      setToggling(false);
+    }
+  }
   const [savingAll, setSavingAll] = useState(false);
   const [removingPhase, setRemovingPhase] = useState<Phase | null>(null);
   const [deletingPhase, setDeletingPhase] = useState(false);
@@ -1216,6 +1237,7 @@ function PricingTab({
                   <th>Giá sàn</th>
                   <th>Giá cơ bản</th>
                   <th>Giá trần</th>
+                  <th>Định giá động</th>
                   <th>Trạng thái</th>
                 </tr>
               </thead>
@@ -1223,7 +1245,7 @@ function PricingTab({
                 {zones.length === 0 && (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       style={{ color: "var(--muted)", fontSize: 12.5 }}
                     >
                       Chưa có khu vực ghế nào — hãy thêm ở tab &quot;Khu vực
@@ -1234,6 +1256,7 @@ function PricingTab({
                 {zones.map((z) => {
                   const d = draftFor(z);
                   const v = validity(d);
+                  const saved = z.prices.find((p) => p.phaseId === activePhase);
                   return (
                     <tr key={z.id}>
                       <td>
@@ -1277,6 +1300,11 @@ function PricingTab({
                         />
                       </td>
                       <td>
+                        <input type="checkbox" aria-label={`Định giá động cho ${z.name}`}
+                          checked={saved?.dynamicEnabled ?? false} disabled={!saved || savingAll || toggling}
+                          onChange={() => saved && toggleDynamic(saved)} />
+                      </td>
+                      <td>
                         <span
                           className={`pill ${v === "ok" ? "ok" : v === "bad" ? "bad" : "empty"}`}
                         >
@@ -1295,16 +1323,14 @@ function PricingTab({
           </div>
 
           <div className="note">
-            <b>Giá sàn</b> / <b>giá trần</b> là biên an toàn cho tính năng{" "}
-            <b>định giá động</b> ở giai đoạn sau — giá vé sau này sẽ chỉ dao
-            động trong khoảng này.
+            Lưu khung giá trước khi bật định giá động. Giá mỗi đêm diễn có thể thay đổi theo nhu cầu trong khoảng từ giá sàn đến giá trần.
           </div>
 
           <div className="actions">
             <button
               className="btn"
               onClick={saveAll}
-              disabled={savingAll || zones.length === 0}
+              disabled={savingAll || toggling || zones.length === 0}
             >
               {savingAll ? "Đang lưu..." : "Lưu thiết lập giá"}
             </button>

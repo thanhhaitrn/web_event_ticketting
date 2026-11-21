@@ -33,6 +33,8 @@ model Event {
 }
 
 model Zone {
+  priceChanges PriceChange[]
+  demandLogs   DemandLog[]
   id        String      @id @default(cuid())
   eventId   String
   event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
@@ -49,6 +51,8 @@ model Zone {
 
 // one night of a multi-night event; the event's start/end span its shows
 model Show {
+  priceChanges PriceChange[]
+  demandLogs   DemandLog[]
   id        String      @id @default(cuid())
   eventId   String
   event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
@@ -77,6 +81,8 @@ model ZoneQuota {
 }
 
 model SalePhase {
+  priceChanges PriceChange[]
+  demandLogs   DemandLog[]
   id        String      @id @default(cuid())
   eventId   String
   event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
@@ -96,6 +102,7 @@ model ZonePrice {
   phase        SalePhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
   floorPrice   Int
   basePrice    Int
+  dynamicEnabled Boolean @default(false)
   ceilingPrice Int
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
@@ -170,4 +177,49 @@ model Artist {
   imageUrl  String?
   createdAt DateTime @default(now())
   events    Event[]
+}
+
+model PriceChange {
+  id        String   @id @default(cuid())
+  zoneId    String
+  showId    String
+  phaseId   String
+  /// floor(epochMs / 15 phút) — chống ghi trùng khi recompute bị gọi hai lần cùng lúc
+  cycle     Int
+  oldPrice  Int
+  newPrice  Int
+  /// O = S / C tại thời điểm đổi
+  occupancy Float
+  /// E — tỷ lệ bán kỳ vọng
+  expected  Float
+  /// Quy tắc đã áp dụng, ví dụ "a_cau=+15.0%;a_gio_chot=0.0%;a_giu=0.0%;u=+0.75;limit=step10"
+  rule      String
+  createdAt DateTime @default(now())
+
+  zone  Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  show  Show      @relation(fields: [showId], references: [id], onDelete: Cascade)
+  phase SalePhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@unique([zoneId, showId, phaseId, cycle])
+  @@index([zoneId, showId, phaseId, createdAt])
+}
+
+model DemandLog {
+  id       String   @id @default(cuid())
+  zoneId   String
+  showId   String
+  phaseId  String
+  cycle    Int
+  at       DateTime
+  capacity Int // C
+  sold     Int // S
+  held     Int // H
+  price    Int // giá hiện hành sau chu kỳ
+
+  zone  Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  show  Show      @relation(fields: [showId], references: [id], onDelete: Cascade)
+  phase SalePhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@unique([zoneId, showId, phaseId, cycle])
+  @@index([zoneId, showId, phaseId, at])
 }

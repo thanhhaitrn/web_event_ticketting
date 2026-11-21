@@ -2,6 +2,7 @@
 // unique (showId, zoneId, seatNumber) khiến hai giao dịch không thể cùng có một ghế.
 import { prisma } from "@/lib/prisma";
 import { Capacity, DomainError, SeatSelection } from "@/lib/domain";
+import { pricingService } from "@/lib/pricing";
 import { saleSummary } from "@/lib/sales";
 import { SEATS_PER_ROW, seatLabel } from "@/lib/seat-layout";
 
@@ -172,7 +173,11 @@ export class SeatService {
     if (!price) throw new DomainError("Khu vực này hiện chưa mở bán.");
 
     const seatNumbers = [...selection.seats];
-    const orderId = await this.createHold({ buyerId, showId, zoneId, seatNumbers, price: price.basePrice }, now);
+    const unitPrice = price.dynamicEnabled
+      ? await pricingService.currentPrice(showId, zoneId, now)
+      : price.basePrice;
+    if (unitPrice === null) throw new DomainError("Khu vực này hiện chưa mở bán.");
+    const orderId = await this.createHold({ buyerId, showId, zoneId, seatNumbers, price: unitPrice }, now);
     return this.view(orderId, now);
   }
 

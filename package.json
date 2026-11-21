@@ -13,7 +13,9 @@
     "db:generate": "prisma generate",
     "postinstall": "prisma generate",
     "vercel-build": "prisma generate && prisma migrate deploy && next build",
-    "db:copy": "node prisma/copy-to-postgres.mjs"
+    "db:copy": "node prisma/copy-to-postgres.mjs",
+    "test": "tsx --test tests/*.test.ts tests/*.test.mjs",
+    "what-if": "tsx scripts/run-what-if.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
@@ -32,6 +34,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

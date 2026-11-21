@@ -1,3 +1,5 @@
+import { publicShowPrices } from "@/lib/pricing-copilot/public-show-prices";
+import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import Link from "next/link";
 import { saleSummary } from "@/lib/sales";
 import { EVENT_TIME_ZONE } from "@/lib/browse";
@@ -94,6 +96,11 @@ export default async function PublicEventPage({
         .map((r) => ({ ...r, seats: seatsFor(r.zone, night.id) }))
         .filter((r) => r.seats > 0)
     : [];
+
+  const live = night && isSellingNow && rows.some(({ price }) => price?.dynamicEnabled)
+    ? await publicShowPrices(night.id, now)
+    : null;
+  const views = new Map(live?.zones.filter((zone) => zone.dynamic).map((zone) => [zone.zoneId, zone]));
 
   return (
     <>
@@ -230,7 +237,9 @@ export default async function PublicEventPage({
           ) : (
             <div className="ticket-list">
               {rows.map(({ zone, price, seats }) => (
-                <div className="ticket-row" key={zone.id}>
+                views.has(zone.id) ? (
+                  <PriceHistoryChart key={zone.id} view={views.get(zone.id)!} zoneName={zone.name} />
+                ) : <div className="ticket-row" key={zone.id}>
                   <div>
                     <div className="zone-name">{zone.name}</div>
                     <div className="zone-seats">
@@ -245,11 +254,9 @@ export default async function PublicEventPage({
             </div>
           )}
 
-          <div className="note">
-            Giá hiển thị là giá vé cơ bản của đợt mở bán này. Khi ban tổ chức
-            bật định giá động ở giai đoạn sau, giá có thể thay đổi theo nhu cầu
-            thực tế nhưng luôn nằm trong biên an toàn đã được cấu hình.
-          </div>
+          {views.size > 0 && (
+            <div className="note">Giá được cố định khi giữ ghế thành công và áp dụng đến khi hết hạn giữ ghế.</div>
+          )}
         </>
       )}
     </main>

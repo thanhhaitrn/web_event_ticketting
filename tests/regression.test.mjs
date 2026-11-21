@@ -56,7 +56,12 @@ function loader(prisma) {
     const source = ts.transpileModule(fs.readFileSync(file, "utf8"), {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
     }).outputText;
-    const resolve = (id) => id === "@/lib/prisma" ? { prisma } : id.startsWith("@/") ? load(`${id.slice(2)}.ts`) : require(id);
+    function resolve(id) {
+      if (id === "@/lib/prisma") return { prisma };
+      if (!id.startsWith("@/") && !id.startsWith(".")) return require(id);
+      const target = id.startsWith("@/") ? path.join(root, id.slice(2)) : path.resolve(path.dirname(file), id);
+      return load(fs.existsSync(target + ".ts") ? target + ".ts" : path.join(target, "index.ts"));
+    }
     new Function("require", "module", "exports", source)(resolve, loaded, loaded.exports);
     return loaded.exports;
   }
@@ -368,6 +373,32 @@ test("seat holds: one buyer per seat, even under concurrency; holds expire after
     assert.equal((await get("app/api/zones/[id]/route.ts").DELETE(req("DELETE", {}), context(zoneId))).status, 409);
     assert.equal((await get("app/api/events/[id]/route.ts").DELETE(req("DELETE", {}), context(event.id))).status, 409);
     assert.equal((await get("app/api/zones/[id]/route.ts").PATCH(req("PATCH", { capacities: { [showId]: 5 } }), context(zoneId))).status, 409);
+
+    // A quoted dynamic price is persisted on each seat until payment, even if the organizer changes pricing.
+    const phaseId = event.phases[0].id;
+    const when = new Date("2096-01-01T00:00:00Z");
+    await prisma.zonePrice.update({
+      where: { zoneId_phaseId: { zoneId, phaseId } },
+      data: { floorPrice: 60000, basePrice: 100000, ceilingPrice: 140000 },
+    });
+    const toggle = (enabled) => get("app/api/zone-prices/dynamic/route.ts").PATCH(
+      req("PATCH", { zoneId, phaseId, enabled }),
+    );
+    assert.equal((await toggle(true)).status, 200);
+    const { pricingService } = get("lib/pricing/index.ts");
+    await pricingService.recompute(showId, when);
+    await pricingService.recompute(showId, when);
+    const { publicShowPrices } = get("lib/pricing-copilot/public-show-prices.ts");
+    const quote = (await publicShowPrices(showId, when)).zones[0];
+    assert.equal(quote.currentPrice, 90000);
+    assert.equal(await prisma.demandLog.count({ where: { zoneId, price: 90000 } }), 1);
+    const dynamicOrder = await hold("dynamic-buyer", [80, 81], when);
+    assert.equal(dynamicOrder.total, quote.currentPrice * 2);
+    assert.deepEqual(dynamicOrder.seats.map((s) => s.price), [90000, 90000]);
+    assert.equal((await toggle(false)).status, 200);
+    assert.equal((await publicShowPrices(showId, when)).zones[0].currentPrice, 100000);
+    const paid = await seats.pay({ buyerId: "dynamic-buyer", orderId: dynamicOrder.id }, when);
+    assert.equal(paid.total, 180000);
   } finally {
     await drop();
   }

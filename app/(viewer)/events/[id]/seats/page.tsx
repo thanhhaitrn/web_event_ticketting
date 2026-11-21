@@ -1,3 +1,4 @@
+import { publicShowPrices } from "@/lib/pricing-copilot/public-show-prices";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -41,13 +42,19 @@ export default async function SeatsPage({
   const nights = event.shows.filter((s) => s.endTime > now);
   const night = nights.find((s) => s.id === dem) ?? nights[0];
 
+  const live = night && sale.isSelling && event.zones.some((z) =>
+    z.prices.some((p) => p.phaseId === sale.phase.id && p.dynamicEnabled))
+    ? await publicShowPrices(night.id, now)
+    : null;
+  const views = new Map(live?.zones.map((zone) => [zone.zoneId, zone]));
+
   const zones: PickerZone[] =
     sale.isSelling && night
       ? event.zones.flatMap((z) => {
           const price = z.prices.find((p) => p.phaseId === sale.phase.id);
           const capacity = z.quotas.find((q) => q.showId === night.id)?.capacity ?? 0;
           return price && capacity > 0
-            ? [{ id: z.id, name: z.name, capacity, price: price.basePrice, color: z.color }]
+            ? [{ id: z.id, name: z.name, capacity, price: views.get(z.id)?.currentPrice ?? price.basePrice, dynamic: price.dynamicEnabled, color: z.color }]
             : [];
         })
       : [];

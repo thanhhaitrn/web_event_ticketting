@@ -19,7 +19,7 @@ import {
   type VenueZone,
 } from "@/lib/venue-layout";
 
-export type PickerZone = VenueZone;
+export type PickerZone = VenueZone & { dynamic: boolean };
 export type PickerNight = { id: string; name: string; when: string };
 
 const POLL_MS = 2000;
@@ -538,7 +538,7 @@ export default function SeatPicker({
                       <div className="ticket-card-copy">
                         <b>{z.name}</b>
                         <span className="ticket-card-price">
-                          {money.format(z.price)} ₫
+                          {money.format(z.price)} ₫{z.dynamic && " · Giá theo nhu cầu"}
                         </span>
                         <span className="ticket-card-left">
                           {remaining === undefined
@@ -611,7 +611,7 @@ export default function SeatPicker({
                     ))}
                   </ul>
                   <p className="seat-total">
-                    <span>Tổng ({selected.length} vé)</span>
+                    <span>{zone.dynamic ? "Tạm tính" : "Tổng"} ({selected.length} vé)</span>
                     <b className="num">
                       {money.format(selected.length * zone.price)} ₫
                     </b>
