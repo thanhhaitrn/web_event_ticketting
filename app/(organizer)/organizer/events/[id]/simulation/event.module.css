@@ -1,0 +1,76 @@
+/* Per-event simulation; shares its card, chart and form look with ../../../../demo/dynamic-pricing. */
+.setup { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 20px 32px; }
+.pickers { display: flex; flex-wrap: wrap; gap: 16px 40px; }
+.pickers > div { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.pickers .sub { margin-top: 0; }
+.label { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.facts { display: flex; gap: 10px; margin: 0; flex-wrap: wrap; }
+.facts > div { border: 1px solid var(--line); border-radius: 12px; padding: 9px 14px; min-width: 104px; }
+.facts dt { font-size: 12px; font-weight: 600; color: var(--muted); }
+.facts dd { margin: 2px 0 0; font-size: 18px; font-weight: 750; letter-spacing: -.02em; }
+.warning { font-size: 14px; line-height: 1.5; color: var(--money); background: var(--money-soft); border-radius: 12px; padding: 11px 14px; }
+
+/* ── tiers ── */
+.fill { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; }
+.fill > div { display: flex; gap: 8px; }
+.fill input { width: 170px; border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 64px 8px 11px; font-size: 14px; font-weight: 600; color: var(--ink); background: var(--surface); }
+.fill input:focus { outline: 0; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.fill button { border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 13.5px; font-weight: 700; padding: 0 16px; }
+.fill button:hover:not(:disabled) { border-color: var(--ink); }
+.fill button:disabled { opacity: .45; cursor: default; }
+.tiers { margin: 18px 0 20px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.tiersHead, .tier { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(240px, 1.4fr) 190px; align-items: center; gap: 24px; padding: 12px 18px; }
+.tiersHead { background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding-block: 10px; }
+.tier { border-top: 1px solid var(--line); }
+.tier:hover { background: #fbfafe; }
+.tierName h3 { font-size: 15px; }
+.tierName span { font-size: 13px; font-weight: 500; color: var(--muted); }
+.band { display: flex; flex-direction: column; gap: 7px; }
+.bandValues { position: relative; display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: var(--muted); padding-bottom: 18px; }
+.bandValues b { position: absolute; bottom: 0; color: var(--brand); font-weight: 750; white-space: nowrap; }
+.band { flex-direction: column-reverse; }
+.bandTrack { position: relative; height: 5px; border-radius: 99px; background: linear-gradient(90deg, #d9dbe0, var(--brand)); }
+.bandTrack i { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; background: var(--surface); border: 2.5px solid var(--brand); transform: translate(-50%, -50%); }
+.tierInput input { width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 9px 64px 9px 11px; font-size: 15px; font-weight: 650; color: var(--ink); background: var(--surface); text-align: right; }
+.tierInput input:focus { outline: 0; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.tierInput input:user-invalid { border-color: var(--danger); }
+.hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.run { padding-inline: 26px; }
+
+/* ── results ── */
+.totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+.totals > div { border: 1px solid var(--line); border-radius: 14px; padding: 13px 16px; display: flex; flex-direction: column; gap: 3px; }
+.totals span { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.totals strong { font-size: clamp(20px, 2.2vw, 26px); font-weight: 750; letter-spacing: -.03em; }
+.totals small { font-size: 12.5px; font-weight: 700; }
+.dynamicTotal { background: var(--brand-soft); border-color: var(--brand-line) !important; }
+.dynamicTotal strong { color: var(--brand); }
+.deltaTotal { background: var(--surface-2); border-color: transparent !important; color: var(--ink); }
+.gain { background: var(--good-soft); color: var(--good); }
+.loss { background: var(--danger-soft); color: var(--danger); }
+.scroll { overflow-x: auto; margin-top: 16px; border: 1px solid var(--line); border-radius: 14px; }
+.results { min-width: 560px; margin: 0; }
+.results :is(td, th) { padding: 10px 16px; text-align: right; font-variant-numeric: tabular-nums; }
+.results thead th { background: var(--surface-2); }
+.results tbody tr:first-child :is(td, th) { border-top: 0; }
+.results th[scope=row] { text-align: left; font-weight: 650; }
+.results td small { display: block; font-size: 11.5px; font-weight: 700; opacity: .85; }
+.results tfoot :is(td, th) { font-weight: 750; background: var(--brand-soft); border-top: 1px solid var(--brand-line); }
+.metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.when { font-size: clamp(16px, 1.6vw, 20px) !important; }
+
+@media (max-width: 860px) {
+  .tiersHead { display: none; }
+  .tier { grid-template-columns: 1fr 150px; gap: 10px 14px; padding: 14px; }
+  .band { grid-column: 1 / -1; grid-row: 2; }
+}
+@media (max-width: 600px) {
+  .pickers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+  .pickers > div { min-width: 0; }
+  .facts { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .facts > div { min-width: 0; padding: 8px 10px; }
+  .facts dd { font-size: 16px; white-space: nowrap; }
+  .fill, .fill > div, .fill input { width: 100%; }
+  .totals, .metrics { grid-template-columns: 1fr; }
+  .tier { grid-template-columns: 1fr 128px; }
+}

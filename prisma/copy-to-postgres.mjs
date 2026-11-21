@@ -92,7 +92,9 @@ try {
       const values = [];
       for (const column of columns) {
         let value = row[column];
-        if (value !== null && types[column]?.startsWith("timestamp")) value = new Date(value);
+        // as UTC text: a Date would be sent in this machine's local time, and a column without a
+        // time zone keeps those local hours as if they were UTC
+        if (value !== null && types[column]?.startsWith("timestamp")) value = new Date(value).toISOString();
         else if (value !== null && types[column] === "boolean") value = value === 1;
         else if (IMAGE_COLUMNS[table]?.includes(column)) value = await moveImage(value);
         values.push(value);

@@ -225,15 +225,15 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           </form>
 
           <div className="hero-suggest">
-            <Link href="/?filter=selling">
+            <Link href="/?filter=selling" scroll={false}>
               <Sparkle />
               Đang mở bán hôm nay
             </Link>
-            <Link href="/?filter=upcoming">
+            <Link href="/?filter=upcoming" scroll={false}>
               <Sparkle />
               Lịch diễn sắp tới
             </Link>
-            <Link href="/?q=Hà Nội">
+            <Link href="/?q=Hà Nội" scroll={false}>
               <Sparkle />
               Sự kiện ở Hà Nội
             </Link>
@@ -248,6 +248,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
               <Link
                 key={f.key}
                 href={f.key ? `/?filter=${f.key}` : "/"}
+                scroll={false}
                 className={`chip ${filter === f.key ? "active" : ""}`}
               >
                 {f.label}

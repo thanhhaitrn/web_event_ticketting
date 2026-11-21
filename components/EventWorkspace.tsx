@@ -314,9 +314,13 @@ export default function EventWorkspace({
 
       {tab === "pricing" && event && (
         <>
-          <div className="actions">
-            <Link href="/organizer/pricing-simulation" target="_blank" rel="noopener" className="btn ghost small">
-              Mở mô phỏng giá vé ở tab mới
+          <div className="sim-callout">
+            <div>
+              <b>Mô phỏng giá động</b>
+              <span>Thử nhu cầu bán vé cho từng hạng để xem giá động thay đổi thế nào và mang lại bao nhiêu doanh thu so với giá cố định.</span>
+            </div>
+            <Link href={{ pathname: `/organizer/events/${event.id}/simulation`, query: { phase: activePhase } }} target="_blank" rel="noopener" className="btn ghost small">
+              Mở mô phỏng ↗
             </Link>
           </div>
           <PricingTab

@@ -111,6 +111,10 @@ export function poisson(lambda: number, rnd: () => number): number {
 
 export const TICKS_PER_DAY = 96; // 15 phút
 
+export function phaseTicks(days: number) {
+  return Math.max(1, Math.round(days * TICKS_PER_DAY));
+}
+
 export interface SimulationPoint {
   tick: number;
   price: number;
@@ -129,7 +133,7 @@ interface Trace {
 
 function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: () => number, trace?: Trace) {
   const { capacity: C, bounds: b, k } = input;
-  const T = Math.round(input.phaseDays * TICKS_PER_DAY);
+  const T = phaseTicks(input.phaseDays);
   const rules: PricingRules = {
     ...DEFAULT_PRICING_RULES,
     k,
@@ -147,7 +151,10 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
   let lastDir = 0;
   let violations = 0;
 
-  for (let t = 0; t < T; t++) {
+  let t = 0;
+  for (; t < T; t++) {
+    // Close the chart before quoting a new price once the last available ticket has sold.
+    if (trace && sold >= C) break;
     const previousPrice = P;
     let decision: PricingDecision | null = null;
     // 1) Tính lại giá đầu chu kỳ
@@ -201,28 +208,32 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
     sold += n;
     revenue += n * P;
   }
-  trace?.points.push({ tick: T, price: P, previousPrice: P, soldAtQuote: sold, sold,
-    added: 0, expected: k, decision: null });
+  if (trace && trace.points.at(-1)?.sold !== C) {
+    trace.points.push({ tick: t, price: P, previousPrice: P, soldAtQuote: sold, sold,
+      added: 0, expected: k * t / T, decision: null });
+  }
   return { revenue, fill: sold / C, changes, reversals, violations };
 }
 
-export type DemoConfig = Pick<WhatIfInput, "capacity" | "bounds" | "phaseDays" | "seed"> & {
-  hourlyDemand?: number;
-};
+export type DemoConfig = Pick<WhatIfInput, "capacity" | "bounds" | "phaseDays" | "seed">;
+export type DailyDemandConfig = DemoConfig & { dailyDemand: number };
 
-export function demoScenarios(config: DemoConfig): DemandScenario[] {
-  if (config.hourlyDemand === undefined) return DEFAULT_SCENARIOS;
-  const totalDemand = config.hourlyDemand * config.phaseDays * 24;
-  return [...DEFAULT_SCENARIOS, {
-    name: `Tùy chỉnh (${config.hourlyDemand.toLocaleString("vi-VN")} vé/giờ ở giá cơ bản)`,
-    demandRatio: totalDemand / config.capacity,
+export function dailyDemandScenario({ dailyDemand, phaseDays, capacity }: DailyDemandConfig): DemandScenario {
+  if (!Number.isFinite(dailyDemand) || dailyDemand < 0) throw new Error("Số vé dự kiến mỗi ngày phải từ 0 trở lên.");
+  return {
+    name: "Dự báo theo ngày",
+    demandRatio: dailyDemand * phaseDays / capacity,
     shape: "even",
-  }];
+  };
 }
 
 export function simulateTimeline(config: DemoConfig, scenario: DemandScenario, purchases: Record<number, number> = {}) {
   const input = { ...DEFAULT_WHAT_IF, ...config };
   validate(input);
+  return traceTimeline(input, scenario, purchases);
+}
+
+function traceTimeline(input: WhatIfInput, scenario: DemandScenario, purchases: Record<number, number>) {
   const trace: Trace = { points: [], purchases };
   runOnce(input, scenario, "v1.1", mulberry32(input.seed + hash(scenario.name)), trace);
   return trace.points;
@@ -233,6 +244,10 @@ export function simulateTimeline(config: DemoConfig, scenario: DemandScenario, p
 export function runWhatIf(partial: Partial<WhatIfInput> = {}): PolicyResult[] {
   const input: WhatIfInput = { ...DEFAULT_WHAT_IF, ...partial };
   validate(input);
+  return comparePolicies(input);
+}
+
+function comparePolicies(input: WhatIfInput) {
   const out: PolicyResult[] = [];
   for (const sc of input.scenarios) {
     for (const kind of input.policies) {
@@ -259,6 +274,18 @@ export function runWhatIf(partial: Partial<WhatIfInput> = {}): PolicyResult[] {
   return out;
 }
 
+export type EventTierInput = DailyDemandConfig & { zoneId: string; showAfterPhaseHours: number };
+
+export function simulateEventTier(tier: EventTierInput) {
+  const scenario = dailyDemandScenario(tier);
+  const input: WhatIfInput = { ...DEFAULT_WHAT_IF, ...tier, scenarios: [scenario], policies: ["fixed", "v1.1"] };
+  // Event quotas and dates come from saved records; the sandbox form limits apply only to manual inputs.
+  validateModel(input);
+  const [fixed, dynamic] = comparePolicies(input);
+  const points = traceTimeline(input, scenario, {}).map(({ tick, price, sold, expected }) => ({ tick, price, sold, expected }));
+  return { zoneId: tier.zoneId, fixed: Math.round(fixed.revenue), dynamic: Math.round(dynamic.revenue), points };
+}
+
 function hash(s: string): number {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
@@ -266,11 +293,17 @@ function hash(s: string): number {
 }
 
 export function validate(i: WhatIfInput) {
+  validateModel(i);
+  if (i.capacity > 50_000) throw new Error("Sức chứa phải trong 1..50.000.");
+  if (i.phaseDays > 60) throw new Error("Thời lượng đợt phải trong (0, 60] ngày.");
+}
+
+function validateModel(i: WhatIfInput) {
   const { floor, base, ceiling } = i.bounds;
   if (!(floor > 0 && floor <= base && base <= ceiling)) throw new Error("Giá cơ bản phải nằm trong khoảng giá sàn và giá trần.");
-  if (!(i.capacity >= 1 && i.capacity <= 50_000)) throw new Error("Sức chứa phải trong 1..50.000.");
+  if (!(Number.isFinite(i.capacity) && i.capacity >= 1)) throw new Error("Sức chứa phải từ 1 ghế trở lên.");
+  if (!(Number.isFinite(i.phaseDays) && i.phaseDays > 0)) throw new Error("Đợt mở bán phải có thời lượng dương.");
   if (!(i.runs >= 1 && i.runs <= 1000)) throw new Error("Số lần chạy phải trong 1..1.000.");
-  if (!(i.phaseDays > 0 && i.phaseDays <= 60)) throw new Error("Thời lượng đợt phải trong (0, 60] ngày.");
   if (!(i.k > 0 && i.k <= 1)) throw new Error("k phải trong (0, 1].");
 }
 
