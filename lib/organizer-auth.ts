@@ -72,8 +72,10 @@ export async function isOrganizer(
 
 /** only pages of the organizer side, so the login form can't send anyone off-site */
 export function safeNext(next: unknown): string {
-  if (next === "/organizer/pricing-simulation") return next;
-  return typeof next === "string" && /^\/organizer\/events(\/|\?|$)/.test(next)
-    ? next
-    : "/organizer/events";
+  const fallback = "/organizer/events";
+  if (typeof next !== "string" || !next.startsWith("/organizer/")) return fallback;
+  const url = new URL(next, "https://organizer.invalid");
+  if (url.pathname !== "/organizer/pricing-simulation" &&
+      url.pathname !== fallback && !url.pathname.startsWith(fallback + "/")) return fallback;
+  return url.pathname + url.search + url.hash;
 }

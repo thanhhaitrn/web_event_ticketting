@@ -12,6 +12,7 @@ Stack: [Next.js](https://nextjs.org) (App Router, TypeScript) + [Prisma 7](https
 | `POSTGRES_URL` | kết nối trực tiếp cho `prisma migrate`; không có thì dùng `DATABASE_URL` |
 | `BLOB_READ_WRITE_TOKEN` | lưu ảnh lên Vercel Blob (kho dạng Private) |
 | `ORGANIZER_PASSWORD`, `ORGANIZER_SECRET` | mật khẩu chung của trang ban tổ chức, và chuỗi bí mật để ký cookie đăng nhập. Ở máy, bỏ trống thì trang BTC mở tự do; khi deploy, thiếu thì trang BTC bị khoá |
+| `ORGANIZER_LOCAL_PREVIEW` | đặt `1` khi chạy bản build thử trên HTTP, bind vào loopback. Cookie đăng nhập trên HTTPS vẫn dùng Secure |
 | `PRICING_LAZY_RECOMPUTE` | mặc định tính giá khi xem vé hoặc giữ ghế ở khu vực bật giá động, tối đa một lần đổi mỗi chu kỳ 15 phút. Đặt `0` khi dùng cron |
 | `PRICING_CRON_SECRET` | khóa cho cron gọi `POST /api/pricing/recompute` mỗi 15 phút qua header `x-cron-secret`, để ghi nhận nhu cầu kể cả khi không có khách truy cập |
 | `TEST_DATABASE_URL` | Postgres cho test (mỗi lần chạy tạo một schema riêng rồi xoá); không đặt thì bỏ qua test cần DB |

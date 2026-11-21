@@ -13,10 +13,8 @@ export async function POST(request: NextRequest) {
   const form = await request.formData().catch(() => null);
   const next = safeNext(form?.get("next"));
   const back = (error: string) => {
-    const url = new URL("/organizer/login", request.url);
-    url.searchParams.set("error", error);
-    url.searchParams.set("next", next);
-    return NextResponse.redirect(url, 303);
+    const query = new URLSearchParams({ error, next });
+    return new NextResponse(null, { status: 303, headers: { Location: `/organizer/login?${query}` } });
   };
 
   if (organizerLock() === "locked") return back("config");
@@ -24,11 +22,16 @@ export async function POST(request: NextRequest) {
   if (typeof password !== "string" || !(await checkPassword(password)))
     return back("password");
 
-  const response = NextResponse.redirect(new URL(next, request.url), 303);
+  // Keep the session on the browser's host even when Next normalizes the server URL.
+  const response = new NextResponse(null, { status: 303, headers: { Location: next } });
+  // Allow plain HTTP only for a deliberately configured loopback preview.
+  const localHttpPreview = process.env.ORGANIZER_LOCAL_PREVIEW === "1" &&
+    request.nextUrl.protocol === "http:" &&
+    ["localhost", "127.0.0.1", "[::1]"].includes(request.nextUrl.hostname);
   response.cookies.set(ORGANIZER_COOKIE, await createSession(), {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && !localHttpPreview,
     path: "/",
     maxAge: SESSION_SECONDS,
   });
