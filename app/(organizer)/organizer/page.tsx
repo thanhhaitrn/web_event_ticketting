@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { placeLabel } from "@/lib/provinces";
 
@@ -9,6 +10,7 @@ const dateFmt = new Intl.DateTimeFormat("vi-VN", {
 });
 
 export default async function OrganizerLandingPage() {
+  await connection();
   const events = await prisma.event.findMany({
     orderBy: { startTime: "asc" },
     take: 4,

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { artStyle } from "@/lib/art";
 import { placeLabel } from "@/lib/provinces";
@@ -18,6 +19,7 @@ function initials(name: string) {
 }
 
 export default async function OrganizerPage() {
+  await connection();
   const events = await prisma.event.findMany({
     orderBy: { startTime: "asc" },
     include: {
