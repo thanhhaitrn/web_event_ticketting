@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { DEFAULT_WHAT_IF, type DemoConfig } from "@/lib/pricing-copilot/what-if-simulator";
+import { DEFAULT_SCENARIOS, demoScenarios, DEFAULT_WHAT_IF, type DemoConfig } from "@/lib/pricing-copilot/what-if-simulator";
 import type { DemoRequest, DemoResponse } from "./simulation.worker";
 import { Comparison, TimelineChart, explain, money, number, percent, timeLabel } from "./charts";
 import s from "./demo.module.css";
@@ -23,7 +23,8 @@ function ConfigForm({ config, apply }: { config: DemoConfig; apply: (value: Demo
       return;
     }
     setError("");
-    apply({ capacity: read("capacity"), phaseDays: read("days"), seed: read("seed"), bounds });
+    const hourlyDemand = form.get("hourlyDemand") === "" ? undefined : read("hourlyDemand");
+    apply({ hourlyDemand, capacity: read("capacity"), phaseDays: read("days"), seed: read("seed"), bounds });
   }
   return <form className={s.settings} onSubmit={submit}>
     <h2>Cấu hình đợt bán</h2>
@@ -34,6 +35,11 @@ function ConfigForm({ config, apply }: { config: DemoConfig; apply: (value: Demo
         <label key={key}>{["Giá sàn", "Giá cơ bản", "Giá trần"][i]}<input name={key} type="number" min="1" max="2147483647" required defaultValue={config.bounds[key]} /></label>
       )}
     </fieldset>
+    <label>Số vé dự kiến mua mỗi giờ
+      <input name="hourlyDemand" type="number" min="0" max="50000" step="any"
+        placeholder="Tùy chọn" defaultValue={config.hourlyDemand} aria-describedby="hourly-demand-hint" />
+      <small id="hourly-demand-hint">Mức trung bình ở giá cơ bản. Để trống để dùng các kịch bản có sẵn.</small>
+    </label>
     <label>Seed mô phỏng<input name="seed" type="number" min="0" max="4294967295" defaultValue={config.seed} required /></label>
     {error && <p role="alert" className={s.error}>{error}</p>}
     <button type="submit" className={s.apply}>Áp dụng và chạy lại</button>
@@ -80,6 +86,12 @@ export default function PricingDemo() {
 
   function seek(value: number) { setPlaying(false); setTick(value); }
   function reset() { seek(0); setPurchases({}); }
+  function applyConfig(next: DemoConfig) {
+    reset();
+    if (next.hourlyDemand !== undefined) setScenario(DEFAULT_SCENARIOS.length);
+    else if (scenario >= DEFAULT_SCENARIOS.length) setScenario(0);
+    setConfig(next);
+  }
   function changeMode(next: typeof mode) { setPlaying(false); setMode(next); }
 
   return <>
@@ -88,13 +100,15 @@ export default function PricingDemo() {
       <button aria-pressed={mode === "compare"} onClick={() => changeMode("compare")}>So sánh doanh thu</button>
     </nav>
     <div className={s.workspace}>
-      <aside><ConfigForm config={config} apply={(next) => { reset(); setConfig(next); }} /></aside>
+      <aside><ConfigForm config={config} apply={applyConfig} /></aside>
       <div className={s.output} aria-busy={!result}>
         {mode === "timeline" && <section className={s.card}>
           <div className={s.sectionHead}><div><h2>Diễn biến giá</h2><p className={s.sub}>Chọn một mốc trên biểu đồ để xem quyết định giá.</p></div>
             <label className={s.scenario}>Kịch bản nhu cầu
               <select value={scenario} onChange={e => { reset(); setScenario(Number(e.target.value)); }}>
-                <option value="0">Bán nhanh</option><option value="1">Bán đều</option><option value="2">Bán chậm</option>
+                {demoScenarios(config).map((item, i) =>
+                  <option key={item.name} value={i}>{item.name.split(" (")[0]}</option>
+                )}
               </select>
             </label>
           </div>

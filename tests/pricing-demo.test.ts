@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_WHAT_IF, DEFAULT_SCENARIOS, simulateTimeline, runWhatIf, TICKS_PER_DAY } from "../lib/pricing-copilot/what-if-simulator";
+import { demoScenarios, DEFAULT_WHAT_IF, DEFAULT_SCENARIOS, simulateTimeline, runWhatIf, TICKS_PER_DAY } from "../lib/pricing-copilot/what-if-simulator";
 
 const config = { ...DEFAULT_WHAT_IF, phaseDays: 2, seed: 33 };
 const scenario = DEFAULT_SCENARIOS[0];
@@ -41,4 +41,15 @@ test("replaying a purchase at a later tick preserves the preceding history", () 
   assert.deepEqual(before.slice(0, 19), after.slice(0, 19));
   assert.equal(after[19].price, before[19].price);
   assert.equal(after[19].sold, before[19].sold + 100);
+});
+
+test("custom hourly demand maps to the same demand for playback and comparisons", () => {
+  assert.deepEqual(demoScenarios(config), DEFAULT_SCENARIOS);
+  const custom = { ...config, hourlyDemand: 5 };
+  const scenario = demoScenarios(custom)[DEFAULT_SCENARIOS.length];
+  assert.equal(scenario.demandRatio, 5 * config.phaseDays * 24 / config.capacity);
+  assert.equal(scenario.shape, "even");
+  const quiet = demoScenarios({ ...config, hourlyDemand: 0 })[DEFAULT_SCENARIOS.length];
+  assert.ok(simulateTimeline(config, quiet).every(p => p.sold === 0));
+  assert.ok(runWhatIf({ ...config, scenarios: [quiet], runs: 1 }).every(r => r.fillRate === 0));
 });

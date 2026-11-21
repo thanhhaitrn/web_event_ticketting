@@ -206,7 +206,19 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
   return { revenue, fill: sold / C, changes, reversals, violations };
 }
 
-export type DemoConfig = Pick<WhatIfInput, "capacity" | "bounds" | "phaseDays" | "seed">;
+export type DemoConfig = Pick<WhatIfInput, "capacity" | "bounds" | "phaseDays" | "seed"> & {
+  hourlyDemand?: number;
+};
+
+export function demoScenarios(config: DemoConfig): DemandScenario[] {
+  if (config.hourlyDemand === undefined) return DEFAULT_SCENARIOS;
+  const totalDemand = config.hourlyDemand * config.phaseDays * 24;
+  return [...DEFAULT_SCENARIOS, {
+    name: `Tùy chỉnh (${config.hourlyDemand.toLocaleString("vi-VN")} vé/giờ ở giá cơ bản)`,
+    demandRatio: totalDemand / config.capacity,
+    shape: "even",
+  }];
+}
 
 export function simulateTimeline(config: DemoConfig, scenario: DemandScenario, purchases: Record<number, number> = {}) {
   const input = { ...DEFAULT_WHAT_IF, ...config };

@@ -1334,18 +1334,12 @@ td input:focus {
 .org-btn.solid:hover {
   background: #d3a5ef;
 }
-.org-hero-actions {
-  margin-top: 34px;
-}
 .org-btn.hero-cta {
   background: #24132e;
   color: #fff;
   font-size: var(--fs-button);
   padding: 16px 30px;
   margin-top: 34px;
-}
-.org-hero-actions .hero-cta {
-  margin-top: 0;
 }
 .org-btn.hero-cta:hover {
   background: #331c41;
