@@ -87,7 +87,8 @@ export interface PricingDecision {
   u: number; // m / 20% ∈ [−1, 1]
   target: Money; // P′ (giá mục tiêu)
   newPrice: Money; // P_mới sau giới hạn thay đổi
-  changed: boolean; // P_mới ≠ P0
+  changed: boolean;
+  limitedBy: string[]; // P_mới ≠ P0
   /** Chuỗi mô tả quy tắc đã áp dụng — ghi vào PriceChange.rule. */
   rule: string;
 }

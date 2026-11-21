@@ -163,6 +163,7 @@ export class RuleBasedPricingPolicy implements PricingPolicy {
       target: ev.target,
       newPrice: lim.price,
       changed: lim.price !== d.currentPrice,
+      limitedBy: lim.limitedBy,
       rule: describeRule(ev.adjustments, ev.u, lim.limitedBy),
     };
   }

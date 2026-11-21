@@ -43,6 +43,7 @@ export default function ViewerLayout({ children }: LayoutProps<"/">) {
           </Link>
           <nav className="footer-col">
             <Link href="/organizer">Giới thiệu</Link>
+            <Link href="/demo/dynamic-pricing">Mô phỏng giá vé</Link>
           </nav>
           <nav className="footer-col">
             <a href="https://github.com/thanhhaitrn/web_event_ticketting">Mã nguồn</a>

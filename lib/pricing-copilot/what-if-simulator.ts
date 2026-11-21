@@ -14,7 +14,7 @@
  */
 import { RuleBasedPricingPolicy } from "@/lib/pricing/rule-based-pricing-policy";
 import { DEFAULT_PRICING_RULES, clamp, roundTo, applyLegacyStep } from "./what-if-legacy";
-import type { PriceBounds, PricingRules } from "@/lib/pricing/types";
+import type { PriceBounds, PricingDecision, PricingRules } from "@/lib/pricing/types";
 
 export type PolicyKind = "fixed" | "v1" | "v1.1-no-deadband" | "v1.1";
 
@@ -109,9 +109,25 @@ export function poisson(lambda: number, rnd: () => number): number {
 
 // ---------- Một lần chạy ----------
 
-const TICKS_PER_DAY = 96; // 15 phút
+export const TICKS_PER_DAY = 96; // 15 phút
 
-function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: () => number) {
+export interface SimulationPoint {
+  tick: number;
+  price: number;
+  previousPrice: number;
+  soldAtQuote: number;
+  sold: number;
+  added: number;
+  expected: number;
+  decision: PricingDecision | null;
+}
+
+interface Trace {
+  points: SimulationPoint[];
+  purchases: Record<number, number>;
+}
+
+function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: () => number, trace?: Trace) {
   const { capacity: C, bounds: b, k } = input;
   const T = Math.round(input.phaseDays * TICKS_PER_DAY);
   const rules: PricingRules = {
@@ -132,6 +148,8 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
   let violations = 0;
 
   for (let t = 0; t < T; t++) {
+    const previousPrice = P;
+    let decision: PricingDecision | null = null;
     // 1) Tính lại giá đầu chu kỳ
     if (kind !== "fixed") {
       const snapshot = {
@@ -151,7 +169,8 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
         const target = clamp(roundTo(b.base * (1 + ev.m), rules.roundTo), b.floor, b.ceiling);
         next = applyLegacyStep(P, target, b, rules);
       } else {
-        next = policy.quote(b, snapshot).newPrice;
+        decision = policy.quote(b, snapshot);
+        next = decision.newPrice;
       }
       if (next !== P) {
         const dir = Math.sign(next - P);
@@ -164,6 +183,16 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
     }
     prices.push(P);
 
+    // Purchases at this boundary lock the quoted price and influence the next quote.
+    if (trace) {
+      const soldAtQuote = sold;
+      const added = Math.min(trace.purchases[t] ?? 0, C - sold);
+      sold += added;
+      revenue += added * P;
+      trace.points.push({ tick: t, price: P, previousPrice, soldAtQuote, sold, added,
+        expected: k * t / T, decision });
+    }
+
     // 2) Khách đến và mua
     const x = (t + 0.5) / T;
     const w = sc.shape === "front" ? (2 * (1 - x)) / T : 1 / T;
@@ -172,7 +201,19 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
     sold += n;
     revenue += n * P;
   }
+  trace?.points.push({ tick: T, price: P, previousPrice: P, soldAtQuote: sold, sold,
+    added: 0, expected: k, decision: null });
   return { revenue, fill: sold / C, changes, reversals, violations };
+}
+
+export type DemoConfig = Pick<WhatIfInput, "capacity" | "bounds" | "phaseDays" | "seed">;
+
+export function simulateTimeline(config: DemoConfig, scenario: DemandScenario, purchases: Record<number, number> = {}) {
+  const input = { ...DEFAULT_WHAT_IF, ...config };
+  validate(input);
+  const trace: Trace = { points: [], purchases };
+  runOnce(input, scenario, "v1.1", mulberry32(input.seed + hash(scenario.name)), trace);
+  return trace.points;
 }
 
 // ---------- Monte Carlo ----------
