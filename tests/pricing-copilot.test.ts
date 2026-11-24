@@ -40,6 +40,23 @@ describe("TP1 — Giá minh bạch", () => {
     for (const key of ["occupancy", "expected", "rule", "forecast"]) assert.ok(!(key in v));
   });
 
+  test("view công khai so sánh với giá gốc: % chênh, biến động 24 giờ, thấp nhất / cao nhất", () => {
+    const v = buildPublicPriceView({
+      zoneId: "VIP", base: 2_000_000, dynamic: true,
+      bounds: { floor: 1_600_000, ceiling: 3_000_000 },
+      phaseStart: at(0), now: at(48), capacity: 100, sold: 40, held: 0,
+      changes: [
+        { createdAt: at(10), newPrice: 1_800_000 },
+        { createdAt: at(30), newPrice: 2_200_000 },
+      ],
+    });
+    assert.equal(v.basePrice, 2_000_000);
+    assert.ok(Math.abs(v.changeFromBase - 0.1) < 1e-9);
+    assert.equal(v.change24h, 400_000); // 24 giờ trước (giờ 24) giá là 1,8 tr
+    assert.equal(v.lowest, 1_800_000);
+    assert.equal(v.highest, 2_200_000);
+  });
+
   test("tắt định giá động → giá cơ bản, không nhãn", () => {
     const v = buildPublicPriceView({
       zoneId: "GA", base: 800_000, dynamic: false, phaseStart: at(0), now: at(40),

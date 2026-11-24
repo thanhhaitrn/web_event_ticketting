@@ -20,16 +20,16 @@ export async function PATCH(req: Request) {
     );
   }
 
-  const zp = await prisma.zonePrice.findUnique({
-    where: { zoneId_phaseId: { zoneId: body.zoneId, phaseId: body.phaseId } },
+  const { zoneId, phaseId, enabled } = body;
+  // A retried toggle must keep updatedAt, the start of this pricing configuration.
+  const [changed] = await prisma.zonePrice.updateManyAndReturn({
+    where: { zoneId, phaseId, dynamicEnabled: !enabled },
+    data: { dynamicEnabled: enabled },
   });
+  const zp = changed ?? await prisma.zonePrice.findUnique({ where: { zoneId_phaseId: { zoneId, phaseId } } });
   if (!zp) {
     return NextResponse.json({ error: "Khu vực chưa có khung giá trong đợt này." }, { status: 404 });
   }
 
-  const updated = await prisma.zonePrice.update({
-    where: { zoneId_phaseId: { zoneId: body.zoneId, phaseId: body.phaseId } },
-    data: { dynamicEnabled: body.enabled },
-  });
-  return NextResponse.json(updated);
+  return NextResponse.json(zp);
 }

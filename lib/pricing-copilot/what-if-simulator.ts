@@ -7,8 +7,8 @@
  *
  * Mô hình cầu (giả định, giống phần "Kết quả mô phỏng" của hồ sơ):
  *   - Mỗi chu kỳ 15 phút, số khách đến ~ Poisson(λ_t · (B / P)^ε), ε = 1,2.
- *   - Tổng cầu ở giá B = demandRatio × C, phân bố theo thời gian:
- *       "front" (dồn đầu đợt): mật độ ∝ 2(1 − x);  "even": đều.
+ *   - Tổng cầu ở giá B = demandRatio × C, phân bố theo thời gian theo demandDensity():
+ *       even / front / spike / drop / late (xem DemandShape).
  *   - Mỗi khách mua 1 vé nếu còn chỗ. Không mô phỏng giữ ghế (H = 0).
  * → Chỉ dùng để SO SÁNH các chính sách, không phải dự báo doanh thu thật.
  */
@@ -25,11 +25,42 @@ export const POLICY_LABEL_VI: Record<PolicyKind, string> = {
   "v1.1": "v1.1 + deadband 2% × B",
 };
 
+/**
+ * Hình dạng phân bố cầu theo thời gian trong đợt (x = tiến độ đợt ∈ [0, 1]).
+ * Mọi mật độ đều có tích phân = 1 nên tổng cầu luôn bằng demandRatio × C:
+ *   even  — đều:                         1
+ *   front — dồn đầu đợt (fan săn vé):    2(1 − x)
+ *   spike — bùng nổ giữa đợt (viral):    0,5 nền + 2,5 trong x ∈ [0,4; 0,6)
+ *   drop  — hụt cầu nửa sau (tin xấu):   1,6 khi x < 0,5; 0,4 khi x ≥ 0,5
+ *   late  — dồn cuối đợt (mua sát ngày): 2x
+ */
+export type DemandShape = "front" | "even" | "spike" | "drop" | "late";
+
+export const DEMAND_SHAPES: readonly DemandShape[] = ["even", "front", "spike", "drop", "late"];
+
+export const DEMAND_SHAPE_LABEL_VI: Record<DemandShape, string> = {
+  even: "Đều suốt đợt",
+  front: "Dồn đầu đợt (săn vé)",
+  spike: "Bùng nổ giữa đợt (viral)",
+  drop: "Hụt cầu nửa sau",
+  late: "Dồn cuối đợt (mua sát ngày)",
+};
+
+export function demandDensity(shape: DemandShape, x: number): number {
+  switch (shape) {
+    case "front": return 2 * (1 - x);
+    case "spike": return 0.5 + (x >= 0.4 && x < 0.6 ? 2.5 : 0);
+    case "drop": return x < 0.5 ? 1.6 : 0.4;
+    case "late": return 2 * x;
+    default: return 1;
+  }
+}
+
 export interface DemandScenario {
   name: string;
   /** Tổng cầu ở giá cơ bản, tính theo bội số sức chứa (1,6 = 160% C). */
   demandRatio: number;
-  shape: "front" | "even";
+  shape: DemandShape;
 }
 
 export const DEFAULT_SCENARIOS: DemandScenario[] = [
@@ -50,6 +81,22 @@ export interface WhatIfInput {
   seed: number;
   scenarios: DemandScenario[];
   policies: PolicyKind[];
+  /** Ghi đè một phần PricingRules (vùng chết, bước, biên 24 giờ…) để thử nghiệm; bỏ trống = mặc định. */
+  rules?: Partial<PricingRules>;
+}
+
+/** PricingRules thực dùng cho một lần mô phỏng: mặc định ← k của input ← rules ghi đè. */
+export function effectiveRules(input: Pick<WhatIfInput, "k"> & { rules?: Partial<PricingRules> }): PricingRules {
+  return { ...DEFAULT_PRICING_RULES, k: input.k, ...defined(input.rules ?? {}) };
+}
+
+/** Bỏ các khoá undefined trước khi trộn với mặc định (spread không bỏ qua undefined). */
+function defined<T extends object>(o: T): Partial<T> {
+  return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Partial<T>;
+}
+
+export function withDefaults(config: Partial<WhatIfInput>): WhatIfInput {
+  return { ...DEFAULT_WHAT_IF, ...defined(config) };
 }
 
 export const DEFAULT_WHAT_IF: WhatIfInput = {
@@ -124,6 +171,14 @@ export interface SimulationPoint {
   added: number;
   expected: number;
   decision: PricingDecision | null;
+  /** p = t / T — tiến độ đợt lúc tính giá. */
+  progress: number;
+  /** Giờ còn lại tới đêm diễn lúc tính giá. */
+  hoursToShow: number;
+  /** P24 — giá 24 giờ trước (mốc của biên trượt 24 giờ). */
+  price24hAgo: number;
+  /** λ — số khách kỳ vọng trong 15 phút tới ở giá vừa báo. */
+  lambda: number;
 }
 
 interface Trace {
@@ -131,14 +186,31 @@ interface Trace {
   purchases: Record<number, number>;
 }
 
-function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: () => number, trace?: Trace) {
-  const { capacity: C, bounds: b, k } = input;
+interface RunOutcome {
+  revenue: number;
+  sold: number;
+  fill: number;
+  changes: number;
+  reversals: number;
+  violations: number;
+  /** Chu kỳ bán hết vé, −1 nếu không hết. */
+  soldOutTick: number;
+}
+
+function runOnce(
+  input: WhatIfInput,
+  sc: DemandScenario,
+  kind: PolicyKind,
+  rnd: () => number,
+  trace?: Trace,
+  /** Cộng dồn doanh thu tích luỹ tại cuối mỗi chu kỳ (để vẽ đường doanh thu trung bình). */
+  curve?: Float64Array,
+): RunOutcome {
+  const { capacity: C, bounds: b } = input;
   const T = phaseTicks(input.phaseDays);
-  const rules: PricingRules = {
-    ...DEFAULT_PRICING_RULES,
-    k,
-    minChangeRatio: kind === "v1.1-no-deadband" ? 0 : DEFAULT_PRICING_RULES.minChangeRatio,
-  };
+  const base = effectiveRules(input);
+  const rules: PricingRules = { ...base, minChangeRatio: kind === "v1.1-no-deadband" ? 0 : base.minChangeRatio };
+  const k = rules.k;
   const policy = new RuleBasedPricingPolicy(rules);
   const totalDemand = sc.demandRatio * C;
 
@@ -150,6 +222,7 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
   let reversals = 0;
   let lastDir = 0;
   let violations = 0;
+  let soldOutTick = -1;
 
   let t = 0;
   for (; t < T; t++) {
@@ -157,6 +230,8 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
     if (trace && sold >= C) break;
     const previousPrice = P;
     let decision: PricingDecision | null = null;
+    const hoursToShow = (T - t) / 4 + input.showAfterPhaseHours;
+    const price24hAgo = t >= TICKS_PER_DAY ? prices[t - TICKS_PER_DAY] : b.base;
     // 1) Tính lại giá đầu chu kỳ
     if (kind !== "fixed") {
       const snapshot = {
@@ -164,11 +239,11 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
         sold,
         held: 0,
         phaseProgress: t / T,
-        hoursToShow: (T - t) / 4 + input.showAfterPhaseHours,
+        hoursToShow,
         expectedPrev: 0,
         expectedEnd: k,
         currentPrice: P,
-        price24hAgo: t >= TICKS_PER_DAY ? prices[t - TICKS_PER_DAY] : b.base,
+        price24hAgo,
       };
       let next: number;
       if (kind === "v1") {
@@ -190,6 +265,11 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
     }
     prices.push(P);
 
+    // λ = cầu của chu kỳ × (B / P)^ε — giá cao hơn giá cơ bản thì ít khách hơn
+    const x = (t + 0.5) / T;
+    const w = demandDensity(sc.shape, x) / T;
+    const lambda = totalDemand * w * Math.pow(b.base / P, input.elasticity);
+
     // Purchases at this boundary lock the quoted price and influence the next quote.
     if (trace) {
       const soldAtQuote = sold;
@@ -197,38 +277,41 @@ function runOnce(input: WhatIfInput, sc: DemandScenario, kind: PolicyKind, rnd: 
       sold += added;
       revenue += added * P;
       trace.points.push({ tick: t, price: P, previousPrice, soldAtQuote, sold, added,
-        expected: k * t / T, decision });
+        expected: k * t / T, decision, progress: t / T, hoursToShow, price24hAgo, lambda });
     }
 
     // 2) Khách đến và mua
-    const x = (t + 0.5) / T;
-    const w = sc.shape === "front" ? (2 * (1 - x)) / T : 1 / T;
-    const lambda = totalDemand * w * Math.pow(b.base / P, input.elasticity);
     const n = Math.min(poisson(lambda, rnd), C - sold);
     sold += n;
     revenue += n * P;
+    if (soldOutTick < 0 && sold >= C) soldOutTick = t;
+    if (curve) curve[t] += revenue;
   }
   if (trace && trace.points.at(-1)?.sold !== C) {
     trace.points.push({ tick: t, price: P, previousPrice: P, soldAtQuote: sold, sold,
-      added: 0, expected: k * t / T, decision: null });
+      added: 0, expected: k * t / T, decision: null, progress: t / T,
+      hoursToShow: (T - t) / 4 + input.showAfterPhaseHours,
+      price24hAgo: t >= TICKS_PER_DAY ? prices[t - TICKS_PER_DAY] : b.base, lambda: 0 });
   }
-  return { revenue, fill: sold / C, changes, reversals, violations };
+  return { revenue, sold, fill: sold / C, changes, reversals, violations, soldOutTick };
 }
 
-export type DemoConfig = Pick<WhatIfInput, "capacity" | "bounds" | "phaseDays" | "seed">;
-export type DailyDemandConfig = DemoConfig & { dailyDemand: number };
+export type DemoConfig = Pick<WhatIfInput, "capacity" | "bounds" | "phaseDays" | "seed"> &
+  Partial<Pick<WhatIfInput, "showAfterPhaseHours" | "elasticity" | "runs" | "rules">>;
+export type DailyDemandConfig = DemoConfig & { dailyDemand: number; shape?: DemandShape };
 
-export function dailyDemandScenario({ dailyDemand, phaseDays, capacity }: DailyDemandConfig): DemandScenario {
+export function dailyDemandScenario({ dailyDemand, phaseDays, capacity, shape = "even" }: DailyDemandConfig): DemandScenario {
   if (!Number.isFinite(dailyDemand) || dailyDemand < 0) throw new Error("Số vé dự kiến mỗi ngày phải từ 0 trở lên.");
+  if (!DEMAND_SHAPES.includes(shape)) throw new Error("Diễn biến nhu cầu không hợp lệ.");
   return {
     name: "Dự báo theo ngày",
     demandRatio: dailyDemand * phaseDays / capacity,
-    shape: "even",
+    shape,
   };
 }
 
 export function simulateTimeline(config: DemoConfig, scenario: DemandScenario, purchases: Record<number, number> = {}) {
-  const input = { ...DEFAULT_WHAT_IF, ...config };
+  const input = withDefaults(config);
   validate(input);
   return traceTimeline(input, scenario, purchases);
 }
@@ -274,6 +357,118 @@ function comparePolicies(input: WhatIfInput) {
   return out;
 }
 
+// ---------- Phân tích chi tiết cho tab "So sánh doanh thu" ----------
+
+export interface PolicyDetail extends PolicyResult {
+  policy: "fixed" | "v1.1";
+  label: string;
+  /** Giá bình quân mỗi vé = tổng doanh thu / tổng vé bán. */
+  avgTicketPrice: number;
+  /** Phân vị doanh thu giữa các lần chạy. */
+  p10: number;
+  p50: number;
+  p90: number;
+  /** Tỷ lệ số lần chạy bán hết vé và ngày hết vé trung bình (trong các lần hết vé). */
+  soldOutShare: number;
+  soldOutDay: number | null;
+  /** Doanh thu tích luỹ trung bình, lấy mẫu đều theo thời gian (phần tử đầu = 0 lúc mở bán). */
+  curve: number[];
+}
+
+function quantile(sorted: number[], q: number) {
+  if (!sorted.length) return 0;
+  const i = (sorted.length - 1) * q;
+  const lo = Math.floor(i);
+  const hi = Math.ceil(i);
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (i - lo);
+}
+
+function detailFor(input: WhatIfInput, sc: DemandScenario, kind: "fixed" | "v1.1", samples: number): PolicyDetail {
+  const T = phaseTicks(input.phaseDays);
+  const rnd = mulberry32(input.seed + hash(sc.name)); // cùng seed cho cả hai chính sách
+  const curve = new Float64Array(T);
+  const revenues: number[] = [];
+  let sold = 0, fill = 0, ch = 0, rv = 0, soldOutRuns = 0, soldOutTicks = 0;
+  let boundViolations = 0;
+  for (let i = 0; i < input.runs; i++) {
+    const r = runOnce(input, sc, kind, rnd, undefined, curve);
+    revenues.push(r.revenue);
+    boundViolations += r.violations;
+    sold += r.sold; fill += r.fill; ch += r.changes; rv += r.reversals;
+    if (r.soldOutTick >= 0) { soldOutRuns++; soldOutTicks += r.soldOutTick + 1; }
+  }
+  const n = input.runs;
+  const total = revenues.reduce((a, b) => a + b, 0);
+  const sorted = [...revenues].sort((a, b) => a - b);
+  const pts = Math.max(2, Math.min(samples, T + 1));
+  const sampled = Array.from({ length: pts }, (_, j) => {
+    const t = Math.round((j * T) / (pts - 1)) - 1; // số chu kỳ đã qua − 1
+    return t < 0 ? 0 : curve[t] / n;
+  });
+  return {
+    policy: kind,
+    scenario: sc.name,
+    policyLabel: POLICY_LABEL_VI[kind],
+    boundViolations,
+    label: kind === "fixed" ? "Giá cố định" : "Giá động",
+    revenue: total / n,
+    fillRate: fill / n,
+    changesPerDay: ch / n / input.phaseDays,
+    reversalsPerDay: rv / n / input.phaseDays,
+    avgTicketPrice: sold > 0 ? total / sold : 0,
+    p10: quantile(sorted, 0.1),
+    p50: quantile(sorted, 0.5),
+    p90: quantile(sorted, 0.9),
+    soldOutShare: soldOutRuns / n,
+    soldOutDay: soldOutRuns ? soldOutTicks / soldOutRuns / TICKS_PER_DAY : null,
+    curve: sampled,
+  };
+}
+
+/** Giá cố định và giá động v1.1 trên cùng kịch bản, kèm phân phối và đường doanh thu tích luỹ. */
+export function comparePolicyDetails(config: DailyDemandConfig, samples = 160) {
+  const input = withDefaults({ ...config, policies: ["fixed", "v1.1"] });
+  const scenario = dailyDemandScenario(config);
+  input.scenarios = [scenario];
+  validate(input);
+  return { fixed: detailFor(input, scenario, "fixed", samples), dynamic: detailFor(input, scenario, "v1.1", samples) };
+}
+
+/** Các mức cầu (bội số sức chứa trong cả đợt) dùng cho biểu đồ độ nhạy. */
+export const SENSITIVITY_RATIOS = [0.3, 0.5, 0.7, 0.85, 1, 1.15, 1.3, 1.6, 2, 2.5, 3];
+
+export interface SensitivityPoint {
+  ratio: number;
+  dailyDemand: number;
+  fixed: number;
+  dynamic: number;
+  uplift: number;
+  fillFixed: number;
+  fillDynamic: number;
+}
+
+/** Chênh lệch doanh thu giá động − giá cố định khi chỉ thay đổi tổng cầu, các thiết lập khác giữ nguyên. */
+export function demandSensitivity(config: DailyDemandConfig, runs = 40, ratios = SENSITIVITY_RATIOS): SensitivityPoint[] {
+  const input = withDefaults({ ...config, runs, policies: ["fixed", "v1.1"] });
+  input.scenarios = [dailyDemandScenario(config)];
+  validate(input);
+  const extra = config.dailyDemand * config.phaseDays / config.capacity;
+  const all = [...new Set([...ratios, extra])].filter((r) => r >= 0).sort((a, b) => a - b);
+  return all.map((ratio) => {
+    const sc: DemandScenario = { name: `Độ nhạy ${ratio}`, demandRatio: ratio, shape: config.shape ?? "even" };
+    const [fixed, dynamic] = comparePolicies({ ...input, scenarios: [sc] });
+    return {
+      ratio,
+      dailyDemand: ratio * config.capacity / config.phaseDays,
+      fixed: fixed.revenue,
+      dynamic: dynamic.revenue,
+      uplift: fixed.revenue > 0 ? dynamic.revenue / fixed.revenue - 1 : 0,
+      fillFixed: fixed.fillRate,
+      fillDynamic: dynamic.fillRate,
+    };
+  });
+}
+
 export type EventTierInput = DailyDemandConfig & { zoneId: string; showAfterPhaseHours: number };
 
 export function simulateEventTier(tier: EventTierInput) {
@@ -305,6 +500,42 @@ function validateModel(i: WhatIfInput) {
   if (!(Number.isFinite(i.phaseDays) && i.phaseDays > 0)) throw new Error("Đợt mở bán phải có thời lượng dương.");
   if (!(i.runs >= 1 && i.runs <= 1000)) throw new Error("Số lần chạy phải trong 1..1.000.");
   if (!(i.k > 0 && i.k <= 1)) throw new Error("k phải trong (0, 1].");
+  if (!(Number.isFinite(i.showAfterPhaseHours) && i.showAfterPhaseHours >= 0)) {
+    throw new Error("Khoảng cách từ cuối đợt tới đêm diễn phải từ 0 giờ trở lên.");
+  }
+  if (i.scenarios.some((sc) => !DEMAND_SHAPES.includes(sc.shape))) throw new Error("Diễn biến nhu cầu không hợp lệ.");
+  if (!(Number.isFinite(i.elasticity) && i.elasticity >= 0 && i.elasticity <= 5)) throw new Error("Độ nhạy giá ε phải trong [0, 5].");
+  validateRules(effectiveRules(i));
+}
+
+/** Miền hợp lệ của từng tham số — dùng chung cho form và mô phỏng. */
+export const RULE_LIMITS: Record<keyof PricingRules, [number, number]> = {
+  k: [0.05, 1],
+  recomputeIntervalMinutes: [15, 15],
+  deadZone: [0, 0.5],
+  demandUpMax: [0, 1],
+  demandDownMax: [0, 1],
+  demandDownSlope: [0, 5],
+  minSoldAbs: [0, 100_000],
+  minSoldRatio: [0, 1],
+  lastMinuteHours: [0, 24 * 60],
+  lastMinuteOccupancy: [0, 1],
+  lastMinuteAdj: [-1, 0],
+  holdAdj: [0, 1],
+  holdMinAbs: [0, 100_000],
+  holdRatio: [0, 1],
+  totalAdjCap: [0.01, 1],
+  stepRatio: [0.001, 1],
+  dailyCapRatio: [0.001, 3],
+  minChangeRatio: [0, 0.5],
+  roundTo: [1, 1_000_000],
+};
+
+export function validateRules(r: PricingRules) {
+  for (const [key, [lo, hi]] of Object.entries(RULE_LIMITS) as [keyof PricingRules, [number, number]][]) {
+    const v = r[key];
+    if (!(Number.isFinite(v) && v >= lo && v <= hi)) throw new Error(`Tham số ${key} phải trong [${lo}; ${hi}].`);
+  }
 }
 
 /** Bảng văn bản để in ra console / đưa vào tài liệu. */

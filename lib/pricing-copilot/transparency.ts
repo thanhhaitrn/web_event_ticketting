@@ -65,6 +65,15 @@ export function priceAt(series: PricePoint[], at: Date): Money {
 export interface PublicPriceView {
   zoneId: string;
   currentPrice: Money;
+  /** Giá cơ bản của đợt — mốc so sánh cho khán giả. */
+  basePrice: Money;
+  /** (giá hiện hành − giá cơ bản) / giá cơ bản. */
+  changeFromBase: number;
+  /** Giá hiện hành − giá 24 giờ trước. */
+  change24h: Money;
+  /** Thấp nhất / cao nhất trong đợt này (theo lịch sử đã công bố). */
+  lowest: Money;
+  highest: Money;
   trend: Trend;
   trendLabel: string;
   seatsLeft: number;
@@ -92,9 +101,15 @@ export function buildPublicPriceView(input: {
   latest.price = current;
   const p24 = priceAt(series, new Date(input.now.getTime() - 24 * 3_600_000));
   const trend = trend24h(current, p24, input.base);
+  const seen = series.map((p) => p.price);
   return {
     zoneId: input.zoneId,
     currentPrice: current,
+    basePrice: input.base,
+    changeFromBase: input.base > 0 ? (current - input.base) / input.base : 0,
+    change24h: current - p24,
+    lowest: Math.min(...seen),
+    highest: Math.max(...seen),
     trend,
     trendLabel: TREND_LABEL_VI[trend],
     seatsLeft: Math.max(0, input.capacity - input.sold - input.held),

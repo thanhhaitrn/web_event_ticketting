@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { DemoConfig, PolicyResult, SimulationPoint } from "@/lib/pricing-copilot/what-if-simulator";
 import { phaseTicks } from "@/lib/pricing-copilot/what-if-simulator";
 import { DEFAULT_PRICING_RULES } from "@/lib/pricing/rules";
@@ -66,6 +67,7 @@ type ChartPoint = Pick<SimulationPoint, "tick" | "price" | "sold" | "expected">;
 export function TimelineChart({ kind, points, index, config, select }: {
   kind: "price" | "sold"; points: ChartPoint[]; index: number; config: DemoConfig; select: (n: number) => void;
 }) {
+  const fillId = useId();
   const price = kind === "price";
   const last = points.length - 1;
   const elapsedMinutes = config.phaseDays * 1440 * points[last].tick / phaseTicks(config.phaseDays);
@@ -78,7 +80,9 @@ export function TimelineChart({ kind, points, index, config, select }: {
   const value = (p: ChartPoint) => price ? p.price : p.sold / config.capacity;
   const ref = (p: ChartPoint) => price ? config.bounds.base : p.expected;
   const title = price ? "Giá vé theo thời gian" : "Tiến độ bán vé";
-  const path = points.map((p, i) => i ? `H${x(i).toFixed(3)}V${y(value(p)).toFixed(3)}` : `M0,${y(value(p))}`).join(" ");
+  const path = points.map((p, i) =>
+    `${i === 0 ? "M" : "L"}${x(i).toFixed(3)},${y(value(p)).toFixed(3)}`
+  ).join(" ");
   const labels = price
     ? [[config.bounds.ceiling, "Trần"], [config.bounds.base, "Cơ bản"], [config.bounds.floor, "Sàn"]] as const
     : [[1, ""], [0.5, ""], [0, ""]] as const;
@@ -86,7 +90,7 @@ export function TimelineChart({ kind, points, index, config, select }: {
   for (const [v, label] of labels) {
     ticks.set(v, [ticks.get(v), label].filter(Boolean).join(" / "));
   }
-  return <figure className={s.figure}>
+  return <figure className={s.figure} data-series={kind}>
     <figcaption><h3>{title}</h3><span className={s.legend}><i />{price ? "Giá động" : "Đã bán"} <i className={s.dash} />{price ? "Giá cơ bản" : "Theo kế hoạch"}</span></figcaption>
     <div className={s.plot}>
       <div className={s.axis}>{Array.from(ticks, ([v, name]) =>
@@ -98,8 +102,14 @@ export function TimelineChart({ kind, points, index, config, select }: {
             const box = e.currentTarget.getBoundingClientRect();
             select(Math.max(0, Math.min(last, Math.round((e.clientX - box.left) / box.width * last))));
           }}>
+          <defs>
+            <linearGradient id={fillId} x2="0" y2="1">
+              <stop stopColor="var(--series-color)" stopOpacity=".22" />
+              <stop offset="1" stopColor="var(--series-color)" stopOpacity=".02" />
+            </linearGradient>
+          </defs>
           {Array.from(ticks, ([v]) => <line key={v} x1="0" x2="100" y1={y(v)} y2={y(v)} className={s.gridLine} />)}
-          <path d={path + " V100 H0 Z"} className={s.fill} />
+          <path d={path + " V100 H0 Z"} fill={`url(#${fillId})`} />
           <path d={`M0,${y(ref(points[0]))} L100,${y(ref(points[last]))}`} className={s.reference} />
           <path d={path} className={s.line} />
           <line x1={x(index)} x2={x(index)} y1="0" y2="100" className={s.cursor} />

@@ -32,11 +32,12 @@ export class InMemoryPricingRepository implements PricingRepository {
     return new Map(this.seats.get(showId) ?? []);
   }
 
-  async priceAt(zoneId: string, showId: string, phaseId: string, at: Date): Promise<Money | null> {
+  async priceAt(zoneId: string, showId: string, phaseId: string, at: Date, since?: Date): Promise<Money | null> {
     let best: PriceChangeRecord | null = null;
     for (const c of this.changes) {
       if (c.zoneId !== zoneId || c.showId !== showId || c.phaseId !== phaseId) continue;
       if (c.createdAt.getTime() > at.getTime()) continue;
+      if (since && c.createdAt.getTime() < since.getTime()) continue;
       if (!best || c.createdAt.getTime() >= best.createdAt.getTime()) best = c;
     }
     return best ? best.newPrice : null;

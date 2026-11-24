@@ -38,6 +38,7 @@ export class PrismaPricingRepository implements PricingRepository {
           {
             bounds: { floor: p.floorPrice, base: p.basePrice, ceiling: p.ceilingPrice },
             dynamicEnabled: p.dynamicEnabled,
+            since: p.updatedAt,
           },
         ]),
       ),
@@ -74,9 +75,9 @@ export class PrismaPricingRepository implements PricingRepository {
     return out;
   }
 
-  async priceAt(zoneId: string, showId: string, phaseId: string, at: Date) {
+  async priceAt(zoneId: string, showId: string, phaseId: string, at: Date, since?: Date) {
     const row = await this.db.priceChange.findFirst({
-      where: { zoneId, showId, phaseId, createdAt: { lte: at } },
+      where: { zoneId, showId, phaseId, createdAt: { lte: at, ...(since ? { gte: since } : {}) } },
       orderBy: [{ createdAt: "desc" }, { cycle: "desc" }],
       select: { newPrice: true },
     });

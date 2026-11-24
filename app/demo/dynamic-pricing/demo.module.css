@@ -94,25 +94,25 @@
 .meter::-moz-meter-bar { background: var(--brand); border-radius: 99px; }
 
 /* ── charts ── */
-.figure { margin: 0; padding: 16px 0 6px; }
+.figure { --series-color: #087f76; margin: 0; padding: 18px 0 8px; }
+.figure[data-series="sold"] { --series-color: #6646b5; }
 .figure + .figure { border-top: 1px solid var(--line); }
 .figure figcaption { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 .legend { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
-.legend i { width: 18px; border-top: 3px solid var(--brand); border-radius: 2px; }
+.legend i { width: 18px; border-top: 3px solid var(--series-color); border-radius: 2px; }
 .legend .dash { border-top: 2px dashed #8a8e96; margin-left: 8px; }
-.plot { display: flex; margin-top: 12px; height: 150px; }
+.plot { display: flex; margin: 18px 6px 0 0; height: 150px; font-variant-numeric: tabular-nums; }
 .axis { position: relative; width: 64px; flex-shrink: 0; font-size: 11.5px; font-weight: 600; color: var(--muted); }
 .axis span { position: absolute; left: 0; transform: translateY(-50%); line-height: 1.15; }
 .axis em { display: block; font-style: normal; font-size: 10.5px; font-weight: 500; opacity: .8; }
 .area { position: relative; flex: 1; min-width: 0; }
 .area svg { display: block; width: 100%; height: 100%; cursor: crosshair; overflow: visible; }
 .area :is(line, path) { vector-effect: non-scaling-stroke; }
-.gridLine { stroke: #ececf0; stroke-width: 1; }
-.fill { fill: rgba(91, 33, 199, .07); }
-.line { stroke: var(--brand); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+.gridLine { stroke: #d5dedc; stroke-width: 1; stroke-dasharray: 3 5; }
+.line { stroke: var(--series-color); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
 .reference { stroke: #8a8e96; stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
-.cursor { stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 3 3; }
-.dot { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 2.5px solid var(--surface); box-shadow: 0 0 0 1px var(--brand); transform: translate(-50%, -50%); pointer-events: none; }
+.cursor { stroke: var(--series-color); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.dot { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--series-color); border: 2.5px solid var(--surface); box-shadow: 0 0 0 1px var(--series-color); transform: translate(-50%, -50%); pointer-events: none; }
 .xaxis { display: flex; justify-content: space-between; margin: 6px 0 0 64px; font-size: 11.5px; font-weight: 600; color: var(--muted); }
 
 /* ── player ── */

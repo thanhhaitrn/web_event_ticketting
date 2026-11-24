@@ -384,7 +384,10 @@ test("seat holds: one buyer per seat, even under concurrency; holds expire after
     const toggle = (enabled) => get("app/api/zone-prices/dynamic/route.ts").PATCH(
       req("PATCH", { zoneId, phaseId, enabled }),
     );
-    assert.equal((await toggle(true)).status, 200);
+    const enabled = await toggle(true);
+    assert.equal(enabled.status, 200);
+    const enabledAt = (await enabled.json()).updatedAt;
+    assert.equal((await (await toggle(true)).json()).updatedAt, enabledAt);
     const { pricingService } = get("lib/pricing/index.ts");
     await pricingService.recompute(showId, when);
     await pricingService.recompute(showId, when);
