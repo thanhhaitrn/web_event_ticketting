@@ -16,6 +16,15 @@ Stack: [Next.js](https://nextjs.org) (App Router, TypeScript) + [Prisma 7](https
 | `PRICING_LAZY_RECOMPUTE` | mặc định tính giá khi xem vé hoặc giữ ghế ở khu vực bật giá động, tối đa một lần đổi mỗi chu kỳ 15 phút. Đặt `0` khi dùng cron |
 | `PRICING_CRON_SECRET` | khóa cho cron gọi `POST /api/pricing/recompute` mỗi 15 phút qua header `x-cron-secret`, để ghi nhận nhu cầu kể cả khi không có khách truy cập |
 | `TEST_DATABASE_URL` | Postgres cho test (mỗi lần chạy tạo một schema riêng rồi xoá); không đặt thì bỏ qua test cần DB |
+| `GROQ_API_KEY` | khóa GroqCloud dùng ở máy chủ cho trợ lý người mua vé |
+
+## Trợ lý người mua vé
+
+Nút **Hỏi Venu** mở ở góc trang người hâm mộ. LangGraph gọi model `openai/gpt-oss-20b` trên GroqCloud. Đặt `GROQ_API_KEY` trong `.env` khi chạy trên máy, hoặc trong Environment Variables của dự án khi triển khai.
+
+Câu hỏi về chỗ ở dùng công cụ `browser_search` có sẵn của Groq để tìm khách sạn thật trên web. Mỗi câu như vậy tốn khoảng 15.000 token và 7–12 giây (đo ngày 24/11/2026), nên chỉ câu hỏi nhắc tới khách sạn, chỗ ở hay phòng mới bật công cụ này. Khi Groq báo vượt hạn mức (HTTP 413 hoặc 429), trợ lý trả lời lại không có tìm kiếm web.
+
+Mỗi lượt theo dõi gắn với một suất diễn, hạng vé và mức giá tối đa. Lịch gọi `POST /api/pricing/recompute` mỗi 15 phút giúp ghi thông báo vào **Tin giá vé** cả khi người mua đóng trang. Khi đang mở Venu, trình duyệt cũng kiểm tra mỗi phút. Đơn đã thanh toán, thông báo và đánh giá được nhận diện qua cookie người mua của trình duyệt. Ban tổ chức đọc đánh giá trong **Quản lý sự kiện → Cảm nhận của khán giả**.
 
 ## Chạy local
 

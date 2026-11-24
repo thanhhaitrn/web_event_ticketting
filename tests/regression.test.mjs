@@ -403,3 +403,54 @@ test("seat holds: one buyer per seat, even under concurrency; holds expire after
     await drop();
   }
 });
+
+test("concierge matches available ticket prices once and accepts feedback only for the buyer's completed show", needsDatabase, async () => {
+  const { prisma, drop } = await freshDatabase();
+  try {
+    const get = loader(prisma);
+    const api = get("app/api/concierge/route.ts");
+    const { nightsFor, checkWatches, watchesFor } = get("lib/concierge/service.ts");
+    const post = (buyerId, body) => api.POST(new (require("next/server").NextRequest)("http://localhost/api/concierge", {
+      method: "POST", headers: { Cookie: "venu_buyer=" + buyerId, "Content-Type": "application/json" }, body: JSON.stringify(body),
+    }));
+    const after = new Date("2099-01-01"), before = new Date("2020-01-01");
+    const event = await prisma.event.create({ data: {
+      name: "Concert", location: "Hà Nội", startTime: after, endTime: after, saleStart: before, saleEnd: after,
+      shows: { create: { name: "Đêm 1", startTime: after, endTime: after } },
+      phases: { create: { name: "Mở bán", startTime: before, endTime: after } }, zones: { create: { name: "VIP" } },
+    }, include: { shows: true, zones: true, phases: true } });
+    const showId = event.shows[0].id, zoneId = event.zones[0].id;
+    await prisma.zoneQuota.create({ data: { zoneId, showId, capacity: 1 } });
+    await prisma.zonePrice.create({ data: { zoneId, phaseId: event.phases[0].id, floorPrice: 200, basePrice: 200, ceilingPrice: 200 } });
+    const subscribe = (buyer, target) => post(buyer, { kind: "watch", zoneId, showId, target });
+    assert.equal((await subscribe("buyer", 199)).status, 200);
+    await checkWatches({});
+    assert.equal((await watchesFor("buyer"))[0].matchedAt, null);
+    await subscribe("buyer", 200);
+    await Promise.all([checkWatches({}), checkWatches({ buyerId: "buyer" })]);
+    const [watch] = await watchesFor("buyer");
+    assert.equal(watch.matchedPrice, 200);
+    await post("stranger", { kind: "remove", id: watch.id });
+    await post("buyer", { kind: "read", id: watch.id });
+    await subscribe("buyer", 200);
+    await checkWatches({});
+    assert.deepEqual(await watchesFor("buyer"), [{ ...watch, read: true }]);
+
+    const order = await prisma.order.create({ data: { buyerId: "buyer", status: "PAID", showId, seatCount: 1, totalAmount: 200, expiresAt: after } });
+    await prisma.seatReservation.create({ data: { orderId: order.id, showId, zoneId, seatNumber: 1, price: 200, status: "SOLD" } });
+    await subscribe("stranger", 300);
+    await checkWatches({});
+    assert.equal((await watchesFor("stranger"))[0].matchedAt, null);
+    assert.equal((await nightsFor("buyer"))[0].booked, true);
+    assert.equal((await nightsFor("stranger"))[0].booked, false);
+    const feedback = { kind: "feedback", showId, rating: 4, comment: "Âm thanh tốt" };
+    assert.equal((await post("buyer", feedback)).status, 403);
+    await prisma.show.update({ where: { id: showId }, data: { startTime: before, endTime: before } });
+    assert.equal((await post("stranger", feedback)).status, 403);
+    assert.equal((await post("buyer", feedback)).status, 200);
+    assert.equal((await post("buyer", { ...feedback, rating: 5 })).status, 200);
+    assert.equal((await nightsFor("buyer"))[0].feedback.rating, 5);
+    assert.equal(await prisma.eventFeedback.count(), 1);
+    assert.deepEqual(await nightsFor("stranger"), []);
+  } finally { await drop(); }
+});

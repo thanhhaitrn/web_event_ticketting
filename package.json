@@ -18,6 +18,8 @@
     "what-if": "tsx scripts/run-what-if.ts"
   },
   "dependencies": {
+    "@langchain/core": "^1.5.0",
+    "@langchain/langgraph": "^1.7.5",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.0",
     "@vercel/blob": "^2.9.0",
@@ -25,7 +27,8 @@
     "pg": "^8.23.1",
     "prisma": "^7.10.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^20",

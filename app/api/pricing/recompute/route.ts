@@ -7,6 +7,7 @@
  * Body tuỳ chọn: { "showId": "..." } — bỏ trống thì tính cho mọi đêm có đợt đang mở.
  */
 import { NextResponse } from "next/server";
+import { checkWatches } from "@/lib/concierge/service";
 import { validBody } from "@/lib/validation";
 import { pricingService } from "@/lib/pricing";
 
@@ -31,5 +32,6 @@ export async function POST(req: Request) {
     ? await pricingService.recompute(body.showId, now)
     : await pricingService.recomputeAll(now);
 
+  await checkWatches(body.showId ? { showId: body.showId } : {}, now);
   return NextResponse.json({ at: now.toISOString(), changed: changes.length, changes });
 }

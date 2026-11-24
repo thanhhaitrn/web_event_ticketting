@@ -468,6 +468,9 @@ export default function SeatPicker({
                 Mã đơn: <code>{paid.id}</code>
               </p>
               <SeatLines order={paid} venue={venue} />
+              <button type="button" className="btn ghost" onClick={() => window.dispatchEvent(new CustomEvent("venu:plan-trip", { detail: showId }))}>
+                Lên lịch đi cùng Venu
+              </button>
               <button
                 type="button"
                 className="btn"

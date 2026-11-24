@@ -2,6 +2,7 @@ import { publicShowPrices } from "@/lib/pricing-copilot/public-show-prices";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import Link from "next/link";
 import { saleSummary } from "@/lib/sales";
+import { listedTicketPrices } from "@/lib/listed-ticket-prices";
 import { EVENT_TIME_ZONE } from "@/lib/browse";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -90,11 +91,12 @@ export default async function PublicEventPage({
         }))
         .filter((r) => r.price)
     : [];
-  // a zone with no tickets on the chosen night isn't sold that night
+  const listed = listedTicketPrices(event, activePhase ?? null);
+  const referenceOnly = listed.length > 0;
   const rows = night
     ? priced
         .map((r) => ({ ...r, seats: seatsFor(r.zone, night.id) }))
-        .filter((r) => r.seats > 0)
+        .filter((r) => referenceOnly || r.seats > 0)
     : [];
 
   const live = night && isSellingNow && rows.some(({ price }) => price?.dynamicEnabled)
@@ -109,7 +111,7 @@ export default async function PublicEventPage({
         <div className="event-hero-copy">
           <div className="event-eyebrow">
             <span>Concert</span>
-            {activePhase && (
+            {activePhase && !referenceOnly && (
               <span
                 className={`pill ${isSellingNow ? "ok" : isUpcoming ? "empty" : "bad"}`}
               >
@@ -141,7 +143,7 @@ export default async function PublicEventPage({
                     <b>{longDateFmt.format(show.startTime)}</b>
                     <span>
                       {event.shows.length > 1 && `${show.name} · `}
-                      {timeFmt.format(show.startTime)}
+                      {timeFmt.format(show.startTime)}{referenceOnly && ` – ${timeFmt.format(show.endTime)}`}
                     </span>
                   </div>
                 ))}
@@ -155,7 +157,7 @@ export default async function PublicEventPage({
                 Xem giá vé
               </a>
             )}
-            {isSellingNow && rows.length > 0 && night && night.endTime > now && (
+            {isSellingNow && !referenceOnly && rows.length > 0 && night && night.endTime > now && (
               <Link
                 href={`/events/${event.id}/seats?dem=${night.id}`}
                 className="btn event-btn"
@@ -197,10 +199,15 @@ export default async function PublicEventPage({
       ) : (
         <>
           <div className="section-head">
-            <h2>Giá vé — {activePhase.name}</h2>
+            <h2>{referenceOnly ? "Giá vé niêm yết" : `Giá vé — ${activePhase.name}`}</h2>
+            {event.seatMapUrl && (
+              <a href={event.seatMapUrl} className="btn ghost" target="_blank" rel="noreferrer">
+                Xem sơ đồ khu vực
+              </a>
+            )}
           </div>
           <div className="sub" style={{ marginTop: -18 }}>
-            {isSellingNow
+            {referenceOnly ? "Bạn có thể xem giá từng hạng bên dưới. Venu chưa mở bán vé cho đêm diễn này." : isSellingNow
               ? `Mở bán đến ${dateFmt.format(activePhase.endTime)}`
               : isUpcoming
                 ? `Mở bán từ ${dateFmt.format(activePhase.startTime)}`
@@ -242,9 +249,9 @@ export default async function PublicEventPage({
                 ) : <div className="ticket-row" key={zone.id}>
                   <div>
                     <div className="zone-name">{zone.name}</div>
-                    <div className="zone-seats">
+                    {!referenceOnly && <div className="zone-seats">
                       {moneyFmt.format(seats)} chỗ
-                    </div>
+                    </div>}
                   </div>
                   <div className="ticket-price num">
                     {moneyFmt.format(price!.basePrice)} ₫

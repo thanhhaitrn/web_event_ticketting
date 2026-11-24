@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { listedTicketPrices } from "@/lib/listed-ticket-prices";
 import { pricingRepository, pricingService, PricingService } from "@/lib/pricing";
 import { buildPublicPriceView } from "@/lib/pricing-copilot/transparency";
 
@@ -9,6 +10,24 @@ export async function publicShowPrices(showId: string, now = new Date()) {
   const idx = PricingService.activePhaseIndex(ctx.phases, now);
   if (idx < 0) return { showId, onSale: false, zones: [] };
   const phase = ctx.phases[idx];
+
+  if (ctx.zones.length && ctx.zones.every(z => z.capacity === 0)) {
+    const list = await prisma.salePhase.findUnique({
+      where: { id: phase.id },
+      select: {
+        id: true, name: true,
+        event: { select: {
+          shows: { select: { id: true } },
+          zones: { orderBy: { createdAt: "asc" }, select: {
+            id: true, name: true, quotas: { select: { showId: true } },
+            prices: { where: { phaseId: phase.id }, select: { phaseId: true, basePrice: true } },
+          } },
+        } },
+      },
+    });
+    const listedPrices = list ? listedTicketPrices(list.event, list) : [];
+    if (listedPrices.length) return { showId, phaseId: phase.id, onSale: false, zones: [], listedPrices };
+  }
 
   if (ctx.zones.some((z) => z.prices[phase.id]?.dynamicEnabled)) {
     await pricingService.refreshIfDue(showId, now);

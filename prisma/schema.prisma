@@ -33,6 +33,7 @@ model Event {
 }
 
 model Zone {
+  priceWatches PriceWatch[]
   priceChanges PriceChange[]
   demandLogs   DemandLog[]
   id        String      @id @default(cuid())
@@ -51,6 +52,8 @@ model Zone {
 
 // one night of a multi-night event; the event's start/end span its shows
 model Show {
+  priceWatches PriceWatch[]
+  feedback EventFeedback[]
   priceChanges PriceChange[]
   demandLogs   DemandLog[]
   id        String      @id @default(cuid())
@@ -222,4 +225,33 @@ model DemandLog {
 
   @@unique([zoneId, showId, phaseId, cycle])
   @@index([zoneId, showId, phaseId, at])
+}
+
+model PriceWatch {
+  id           String   @id @default(cuid())
+  buyerId      String
+  showId       String
+  zoneId       String
+  target       Int
+  matchedPrice Int?
+  matchedAt    DateTime?
+  readAt       DateTime?
+  show Show @relation(fields: [showId], references: [id], onDelete: Cascade)
+  zone Zone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@unique([buyerId, showId, zoneId])
+  @@index([showId, matchedAt])
+}
+
+model EventFeedback {
+  id        String @id @default(cuid())
+  buyerId   String
+  showId    String
+  rating    Int
+  comment   String
+  updatedAt DateTime @updatedAt
+  show Show @relation(fields: [showId], references: [id], onDelete: Cascade)
+
+  @@unique([buyerId, showId])
+  @@index([showId])
 }

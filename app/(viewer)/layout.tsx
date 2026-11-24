@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import BrandMark from "@/components/BrandMark";
+import FanConcierge from "@/components/concierge/FanConcierge";
 import SiteToggle from "@/components/SiteToggle";
 import FanAuthButtons from "@/components/FanAuthButtons";
 
@@ -31,6 +33,7 @@ export default function ViewerLayout({ children }: LayoutProps<"/">) {
       </header>
 
       {children}
+      <Suspense><FanConcierge /></Suspense>
 
       <footer className="footer">
         <div className="footer-inner">

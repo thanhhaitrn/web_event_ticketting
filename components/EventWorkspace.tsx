@@ -237,6 +237,8 @@ export default function EventWorkspace({
         )}
       </div>
 
+      {event && <Link className="btn ghost small" href={`/organizer/events/${event.id}/feedback`}>Cảm nhận của khán giả</Link>}
+
       {event && confirmDelete && (
         <ConfirmModal
           title="Xoá sự kiện này?"
