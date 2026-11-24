@@ -23,13 +23,12 @@ export function timeLabel(tick: number, last: number, soldOut: boolean) {
   return soldOut ? `${label} · Hết vé` : label;
 }
 
-export function explain(p: SimulationPoint, capacity: number) {
+export function explain(p: SimulationPoint, capacity: number, rules = DEFAULT_PRICING_RULES) {
   const d = p.decision;
   if (!d) return `Đợt bán khép lại với ${number(p.sold)}/${number(capacity)} vé đã bán. Giá vé cuối đợt là ${money(p.price)}.`;
   if (p.tick === 0 && !d.changed && !d.adjustments.lastMinute) {
     return `Vé mở bán ở mức ${money(p.price)}. Sau 15 phút, giá sẽ được tính lại dựa trên số vé đã bán.`;
   }
-  const rules = DEFAULT_PRICING_RULES;
   const planned = number(Math.round(d.expected * capacity));
   const sold = number(p.soldAtQuote);
   let progress = `Đã bán ${sold} vé, gần với mức dự kiến là ${planned} vé.`;

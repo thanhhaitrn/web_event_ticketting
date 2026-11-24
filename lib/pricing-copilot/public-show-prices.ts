@@ -54,7 +54,8 @@ export async function publicShowPrices(showId: string, now = new Date()) {
         capacity: z.capacity,
         sold: c.sold,
         held: c.held,
-        changes: changes.filter((ch) => ch.zoneId === z.zoneId),
+        // chỉ các lần đổi sau lần BTC sửa khung giá / bật lại giá động gần nhất
+        changes: changes.filter((ch) => ch.zoneId === z.zoneId && (!zp.since || ch.createdAt >= zp.since)),
       });
     });
 

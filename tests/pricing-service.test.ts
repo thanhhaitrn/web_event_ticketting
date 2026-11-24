@@ -79,6 +79,24 @@ describe("PricingService", () => {
     assert.ok(repo.changes.every((c) => c.zoneId !== "EMPTY"));
   });
 
+  test("BTC sửa khung giá / bật lại giá động → giá khởi động lại từ giá cơ bản mới", async () => {
+    const { repo, svc } = setup();
+    repo.setSeats("show1", "VIP", { sold: 600, held: 0 });
+    await svc.recompute("show1", at(96));
+    assert.equal(await svc.currentPrice("show1", "VIP", at(96)), 2_200_000);
+
+    // BTC nâng giá cơ bản lúc giờ 100 (ZonePrice.updatedAt = since)
+    const zone = repo.shows.get("show1")!.zones[0];
+    zone.prices.ph1 = { bounds: { floor: 2_400_000, base: 2_800_000, ceiling: 3_600_000 }, dynamicEnabled: true, since: at(100) };
+    // không kẹp lên sàn mới từ giá cũ 2,2 tr mà bắt đầu lại ở giá cơ bản mới
+    assert.equal(await svc.currentPrice("show1", "VIP", at(100)), 2_800_000);
+
+    // chu kỳ kế tiếp tính từ P0 = 2,8 tr, P24 cũng chỉ đọc lịch sử sau mốc mới
+    const out = await svc.recompute("show1", at(100.25));
+    assert.equal(out[0]?.oldPrice ?? 2_800_000, 2_800_000);
+    assert.ok((await svc.currentPrice("show1", "VIP", at(100.25)))! >= 2_800_000);
+  });
+
   test("sang đợt 2 bắt đầu ở giá cơ bản của đợt 2 (không mang giá đợt 1 sang)", async () => {
     const { repo, svc } = setup();
     repo.setSeats("show1", "VIP", { sold: 600, held: 0 });

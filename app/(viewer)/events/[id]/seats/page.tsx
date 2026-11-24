@@ -54,7 +54,7 @@ export default async function SeatsPage({
           const price = z.prices.find((p) => p.phaseId === sale.phase.id);
           const capacity = z.quotas.find((q) => q.showId === night.id)?.capacity ?? 0;
           return price && capacity > 0
-            ? [{ id: z.id, name: z.name, capacity, price: views.get(z.id)?.currentPrice ?? price.basePrice, dynamic: price.dynamicEnabled, color: z.color }]
+            ? [{ id: z.id, name: z.name, capacity, price: views.get(z.id)?.currentPrice ?? price.basePrice, dynamic: price.dynamicEnabled, basePrice: price.basePrice, color: z.color }]
             : [];
         })
       : [];

@@ -19,7 +19,15 @@ import {
   type VenueZone,
 } from "@/lib/venue-layout";
 
-export type PickerZone = VenueZone & { dynamic: boolean };
+export type PickerZone = VenueZone & { dynamic: boolean; basePrice?: number };
+
+/** "+10% so với giá gốc" cho khu vực bật giá động; rỗng khi đúng bằng giá gốc */
+function vsBase(z: PickerZone): string {
+  if (!z.dynamic || !z.basePrice || z.price === z.basePrice) return "";
+  const pct = ((z.price - z.basePrice) / z.basePrice) * 100;
+  const text = Math.abs(pct).toLocaleString("vi-VN", { maximumFractionDigits: 1 });
+  return ` (${pct > 0 ? "+" : "−"}${text}% so với giá gốc ${money.format(z.basePrice)} ₫)`;
+}
 export type PickerNight = { id: string; name: string; when: string };
 
 const POLL_MS = 2000;
@@ -541,7 +549,7 @@ export default function SeatPicker({
                       <div className="ticket-card-copy">
                         <b>{z.name}</b>
                         <span className="ticket-card-price">
-                          {money.format(z.price)} ₫{z.dynamic && " · Giá theo nhu cầu"}
+                          {money.format(z.price)} ₫{z.dynamic && " · Giá theo nhu cầu"}{vsBase(z)}
                         </span>
                         <span className="ticket-card-left">
                           {remaining === undefined

@@ -27,6 +27,12 @@ export interface PhaseInfo {
 export interface ZonePriceInfo {
   bounds: PriceBounds;
   dynamicEnabled: boolean;
+  /**
+   * Mốc hiệu lực (ZonePrice.updatedAt): PriceChange ghi TRƯỚC mốc này bị bỏ qua.
+   * BTC sửa khung giá hoặc tắt/bật lại giá động → giá khởi động lại từ giá cơ bản mới
+   * thay vì tiếp tục một mức giá tính theo khung cũ.
+   */
+  since?: Date;
 }
 
 export interface ZoneInfo {
@@ -68,8 +74,8 @@ export interface PricingRepository {
   loadShowContext(showId: string): Promise<ShowContext | null>;
   /** Số ghế SOLD và HELD còn hạn theo khu vực. */
   countSeats(showId: string, now: Date): Promise<Map<string, SeatCounts>>;
-  /** Giá của PriceChange mới nhất (createdAt ≤ at) cho (zone, show, phase), null nếu chưa có. */
-  priceAt(zoneId: string, showId: string, phaseId: string, at: Date): Promise<Money | null>;
+  /** Giá của PriceChange mới nhất (since ≤ createdAt ≤ at) cho (zone, show, phase), null nếu chưa có. */
+  priceAt(zoneId: string, showId: string, phaseId: string, at: Date, since?: Date): Promise<Money | null>;
   /** Ghi PriceChange; trả false nếu trùng khoá (zone, show, phase, cycle) — tức đã có lần đổi trong chu kỳ này. */
   insertPriceChange(rec: PriceChangeRecord): Promise<boolean>;
   /** Các show có đợt đang mở tại `now` (cho cron recompute toàn bộ). */
@@ -157,7 +163,7 @@ export class PricingService {
     if (!zp) return null;
     if (!zp.dynamicEnabled) return zp.bounds.base;
     // Mỗi đợt bắt đầu ở giá cơ bản của đợt đó (mục 9.2.4): chỉ đọc PriceChange của đợt hiện tại.
-    const latest = await this.repo.priceAt(zoneId, showId, phase.id, now);
+    const latest = await this.repo.priceAt(zoneId, showId, phase.id, now, zp.since);
     return clamp(latest ?? zp.bounds.base, zp.bounds.floor, zp.bounds.ceiling);
   }
 
@@ -181,10 +187,10 @@ export class PricingService {
       const c = counts.get(zone.zoneId) ?? { sold: 0, held: 0 };
       const base = zp.bounds.base;
       const P0 = zp.dynamicEnabled
-        ? ((await this.repo.priceAt(zone.zoneId, showId, phase.id, now)) ?? base)
+        ? ((await this.repo.priceAt(zone.zoneId, showId, phase.id, now, zp.since)) ?? base)
         : base;
       const P24 = zp.dynamicEnabled
-        ? ((await this.repo.priceAt(zone.zoneId, showId, phase.id, new Date(now.getTime() - 24 * HOUR))) ?? base)
+        ? ((await this.repo.priceAt(zone.zoneId, showId, phase.id, new Date(now.getTime() - 24 * HOUR), zp.since)) ?? base)
         : base;
 
       const snapshot: DemandSnapshot = {
@@ -222,7 +228,7 @@ export class PricingService {
             written.push(rec);
             effectivePrice = rec.newPrice;
           } else {
-            effectivePrice = (await this.repo.priceAt(zone.zoneId, showId, phase.id, now)) ?? P0;
+            effectivePrice = (await this.repo.priceAt(zone.zoneId, showId, phase.id, now, zp.since)) ?? P0;
           }
         }
       }
